@@ -1,0 +1,275 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background-color: #f5f7f8;
+}
+
+/* Header */
+.header {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.header-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+/* Logo */
+.logo-area {
+  display: flex;
+  align-items: center;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #111;
+}
+
+.logo-icon {
+  font-size: 26px;
+}
+
+.logo-text strong {
+  font-size: 16px;
+  display: block;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: #4caf50;
+}
+
+/* Navegação */
+.nav-list {
+  display: flex;
+  list-style: none;
+  gap: 20px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  text-decoration: none;
+  color: #333;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.nav-link:focus-visible {
+  outline: 3px solid #4caf50;
+}
+
+.nav-link:hover {
+  background-color: #f0f0f0;
+}
+
+.nav-link.active {
+  background-color: #d9f5ec;
+  color: #0b7d5c;
+  font-weight: 600;
+}
+
+/* Usuário */
+.user-area {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #111;
+}
+
+.user-role {
+  font-size: 12px;
+  color: #777;
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.logout-btn:focus-visible {
+  outline: 3px solid #4caf50;
+}
+
+/* Conteúdo principal */
+
+.main-content {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 24px;
+
+}
+
+/* Card branco externo */
+.emotion-selection {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 12px rgba(54, 215, 199, 0.05);
+}
+
+/* Título */
+.emotion-selection h1 {
+  font-size: 22px;
+  margin-bottom: 8px;
+  color: #0f172a;
+}
+
+.emotion-selection p {
+  font-size: 15px;
+  color: #64748b;
+  margin-bottom: 28px;
+}
+
+/* GRID — 4 por linha */
+.emotions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+/* Botão de emoção (card) */
+.emotion-btn {
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 28px 12px;
+  cursor: pointer;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  transition: all 0.2s ease;
+}
+
+/* Emoji maior (igual imagem) */
+.emotion-btn .emoji {
+  font-size: 42px;
+  line-height: 1;
+}
+
+/* Texto */
+.emotion-btn span:last-child {
+  font-size: 18px;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+/* Hover */
+.emotion-btn:hover {
+  border-color: #5eead4;
+  background: #f0fdfa;
+  transform: translateY(-2px);
+}
+
+/* Foco acessível */
+.emotion-btn:focus-visible {
+  outline: 3px solid #2dd4bf;
+  outline-offset: 3px;
+}
+
+/* Estado selecionado (pra JS depois) */
+.emotion-btn.selected {
+  border-color: #14b8a6;
+  background: #ccfbf1;
+}
+
+/* Responsividade */
+@media (max-width: 900px) {
+  .emotions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .emotions {
+    grid-template-columns: 1fr;
+  }
+}
+
+.emotion-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Linha do ícone + título */
+.emotion-header h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+  color: #0f172a;
+}
+
+/* Ícone da estrela */
+.star-icon {
+  width: 24px;
+  height: 24px;
+}
+
+/* Texto auxiliar */
+.emotion-header p {
+  font-size: 15px;
+  color: #64748b;
+}
+
+.emotion-header p{
+    font-size: 19px;
+}
+#emotion-selection-title{
+    margin-left: 40px;
+    margin-top: -37px;
+    
+
+}
+
+/* Botão continuar */
+.continuar-btn {
+  margin-top: 32px;
+  margin-left: auto; /* empurra para a direita */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  background-color: #14b8a6;
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 28px;
+
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+
+  box-shadow: 0 10px 20px rgba(20, 184, 166, 0.35);
+  transition: all 0.2s ease;
+}
