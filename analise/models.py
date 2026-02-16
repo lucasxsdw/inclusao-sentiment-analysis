@@ -7,12 +7,12 @@ class AnaliseResposta(models.Model):
     resposta = models.OneToOneField(Resposta, on_delete=models.CASCADE)
     sentimento_detectado = models.CharField(max_length=50, null=True, blank=True)
     score_sentimento = models.FloatField(null=True, blank=True)
-    confianca = models.FloatField(null=True, blank=True)
-    modelo_ia = models.CharField(max_length=50, null=True, blank=True)
+    modelo_ia = models.CharField(max_length=100, null=True, blank=True)
     data_analise = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Análise da Resposta {self.resposta.id}"
+
 
 
 class AnaliseSessao(models.Model):

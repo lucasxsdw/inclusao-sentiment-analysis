@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat de Apoio</title>
+    <link rel="stylesheet" href="{% static 'diario/css/chat.css' %}">
+</head>
+<body>
+
+{% include "header.html" %}
+
+<main class="chat-container">
+
+    <div class="chat-header">
+        <div class="chat-icon">💬</div>
+        <h2>Chat de Apoio</h2>
+        <p>Converse com nossa IA acolhedora</p>
+    </div>
+
+    <div class="alert-box">
+        ⚠️ Este chat oferece apoio emocional, mas <strong>não substitui</strong> acompanhamento psicológico profissional.
+    </div>
+
+    <div class="chat-box" id="chat-box">
+        <div class="message ia">
+            {{ pergunta.texto_pergunta }}
+        </div>
+    </div>
+
+    <div class="chat-input-area">
+        <textarea id="mensagem" placeholder="Digite sua mensagem..."></textarea>
+        <button id="btn-enviar">➤</button>
+    </div>
+
+</main>
+<script>
+    const DIARIO_ID = "{{ diario.id }}";
+    const PERGUNTA_ID = "{{ pergunta.id|default:'' }}";
+</script>
+
+<script src="{% static 'diario/js/chat.js' %}"></script>
+
+</body>
+</html>

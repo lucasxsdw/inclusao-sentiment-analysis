@@ -7,18 +7,18 @@
   <meta charset="UTF-8">
   <title>Diário de Bordo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Importante para acessibilidade -->
   <meta name="color-scheme" content="light dark">
+  <meta name="csrf-token" content="{{ csrf_token }}">
 
-<link rel="stylesheet" href="{% static 'diario/css/diario.css' %}">
+
+  <link rel="stylesheet" href="{% static 'diario/css/emotions.css' %}">
 </head>
+
 <body>
 
 <header class="header" role="banner">
   <div class="header-container">
 
-    <!-- Logo / Identidade -->
     <div class="logo-area">
       <a href="#" class="logo-link" aria-label="Página inicial do Diário de Bordo">
         <span class="logo-icon" aria-hidden="true">📘</span>
@@ -29,112 +29,125 @@
       </a>
     </div>
 
-    <!-- Navegação principal -->
     <nav class="nav" role="navigation" aria-label="Menu principal">
       <ul class="nav-list">
         <li>
           <a href="#" class="nav-link">
-            <span aria-hidden="true"><img src="/static/img/emocoes/home.png" alt=""></span>
+            <span aria-hidden="true">
+              <img src="{% static 'img/emocoes/home.png' %}" alt="">
+            </span>
             <span>Home</span>
           </a>
         </li>
 
         <li>
           <a href="#" class="nav-link active" aria-current="page">
-            <span aria-hidden="true"><img src="/static/img/emocoes/Book.png" alt=""></span>
+            <span aria-hidden="true">
+              <img src="{% static 'img/emocoes/Book.png' %}" alt="">
+            </span>
             <span>Registrar Sentimento</span>
           </a>
         </li>
 
         <li>
           <a href="#" class="nav-link">
-            <span aria-hidden="true"><img src="/static/img/emocoes/chat.png" alt=""></span>
+            <span aria-hidden="true">
+              <img src="{% static 'img/emocoes/chat.png' %}" alt="">
+            </span>
             <span>Chat de Apoio</span>
           </a>
         </li>
 
         <li>
           <a href="#" class="nav-link">
-            <span aria-hidden="true"><img src="/static/img/emocoes//history.png" alt=""></span>
+            <span aria-hidden="true">
+              <img src="{% static 'img/emocoes/history.png' %}" alt="">
+            </span>
             <span>Meu Histórico</span>
           </a>
         </li>
       </ul>
     </nav>
 
-    <!-- Usuário -->
     <div class="user-area">
       <span class="user-name">Lucas Ryan</span>
       <span class="user-role">Aluno</span>
-     
     </div>
-     <button class="logout-btn" aria-label="Sair do sistema">
-        <img src="/static/img/emocoes/sair.png" alt="">
-      </button>
+
+    <button class="logout-btn" aria-label="Sair do sistema">
+      <img src="{% static 'img/emocoes/sair.png' %}" alt="">
+    </button>
 
   </div>
 </header>
 
-<!--Corpo -->
 <main class="main-content" role="main">
-    <section class="emotion-selection" aria-labelledby="emotion-selection-title">
+  <section class="emotion-selection" aria-labelledby="emotion-selection-title">
+
     <div class="emotion-header">
-            <img src="/static/diario/img/emocoes/star.png" alt="Icone de estrela" class="star-icon" aria-hidden="true">
-            <h1 id="emotion-selection-title">Como você se sente hoje?</h1>
-            <p>Escolha a emoção que melhor representa como você se sente neste momento. Não se preocupe, não há resposta certa ou errada.</p>
-        </div>
-      
-    
-        <div class="emotions">
-        <button class="emotion-btn" aria-label="muito-Feliz">
-            <span class="emoji" aria-hidden="true">😄</span>
-            <span>Muito Feliz</span>
-        </button>
-    
-        <button class="emotion-btn" aria-label="feliz">
-            <span class="emoji" aria-hidden="true">😊</span>
-            <span>Feliz</span>
-        </button>
-    
-        <button class="emotion-btn" aria-label="Neutro">
-            <span class="emoji" aria-hidden="true">😐</span>
-            <span>Neutro</span>
-        </button>
-    
-        <button class="emotion-btn" aria-label="Triste">
-            <span class="emoji" aria-hidden="true">😢</span>
-            <span>Triste</span>
-        </button>
+    <h1 id="emotion-selection-title">
+        <img src="{% static 'diario/img/emocoes/star.png' %}" 
+             alt="" 
+             class="star-icon" 
+             aria-hidden="true">
+        Como você se sente hoje?
+    </h1>
+    <p>Escolha a emoção que melhor representa como você está agora.</p>
+</div>
 
-        <button class="emotion-btn" aria-label="Muito Triste">
-            <span class="emoji" aria-hidden="true">😭</span>
-            <span>Muito Triste</span>
-        </button>
 
-        <button class="emotion-btn" aria-label="Ansioso(a)">
-            <span class="emoji" aria-hidden="true">😰</span>
-            <span>Ansioso(a)</span>
-        </button>
+    <div class="emotions">
 
-        <button class="emotion-btn" aria-label="Irritado(a)">
-            <span class="emoji" aria-hidden="true">😠</span>
-            <span>Irritado(a)</span>
-        </button>
+      <button type="button" class="emotion-btn" data-emotion="muito_feliz">
+        <span class="emoji" aria-hidden="true">😄</span>
+        <span>Muito Feliz</span>
+      </button>
 
-        <button class="emotion-btn" aria-label="cansado(a)">
-            <span class="emoji" aria-hidden="true">😴</span>
-            <span>Cansado(a)</span>
-        </button>
-       
-        </div>
+      <button type="button" class="emotion-btn" data-emotion="feliz">
+        <span class="emoji" aria-hidden="true">😊</span>
+        <span>Feliz</span>
+      </button>
 
-        
-    </section>
+      <button type="button" class="emotion-btn" data-emotion="neutro">
+        <span class="emoji" aria-hidden="true">😐</span>
+        <span>Neutro</span>
+      </button>
 
-    <button class="continuar-btn" aria-label="Continuar">
-        <span>Continuar </span>
-    </button>
+      <button type="button" class="emotion-btn" data-emotion="triste">
+        <span class="emoji" aria-hidden="true">😢</span>
+        <span>Triste</span>
+      </button>
+
+      <button type="button" class="emotion-btn" data-emotion="muito_triste">
+        <span class="emoji" aria-hidden="true">😭</span>
+        <span>Muito Triste</span>
+      </button>
+
+      <button type="button" class="emotion-btn" data-emotion="ansioso">
+        <span class="emoji" aria-hidden="true">😰</span>
+        <span>Ansioso(a)</span>
+      </button>
+
+      <button type="button" class="emotion-btn" data-emotion="irritado">
+        <span class="emoji" aria-hidden="true">😠</span>
+        <span>Irritado(a)</span>
+      </button>
+
+      <button type="button" class="emotion-btn" data-emotion="cansado">
+        <span class="emoji" aria-hidden="true">😴</span>
+        <span>Cansado(a)</span>
+      </button>
+
+    </div>
+  </section>
+
+  <button class="continuar-btn" disabled aria-disabled="true">
+    <span>Continuar</span>
+  </button>
+
 </main>
+
+<script src="{% static 'diario/js/emotions.js' %}"></script>
 
 </body>
 </html>
