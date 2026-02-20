@@ -7,6 +7,10 @@ from analise.services.sentimento_service import analisar_e_salvar
 
 
 
+class HomeView(TemplateView):
+    template_name = 'diario/home.html'  
+
+    
 class EmotionsView(TemplateView):
     template_name = 'diario/emotions.html'
 
@@ -70,22 +74,3 @@ def salvar_resposta(request):
     return JsonResponse({'status': 'error'}, status=405)
 
 
-class ChatView(TemplateView):
-    template_name = "diario/chat.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        diario_id = self.kwargs.get('diario_id')
-
-        diario = Diario.objects.get(id=diario_id)
-        emocao = diario.sessao_emocional.emocao_selecionada
-
-        # Primeira pergunta baseada na emoção
-        pergunta = Pergunta.objects.filter(
-            emocao_relacionada=emocao,
-            ativa=True
-        ).order_by('ordem').first()
-
-        context['diario'] = diario
-        context['pergunta'] = pergunta
-        return context

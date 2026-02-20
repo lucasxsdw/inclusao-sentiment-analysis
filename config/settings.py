@@ -18,7 +18,7 @@ load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN")
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG') == 'True'
-
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -32,8 +32,7 @@ SECRET_KEY = 'django-insecure-lb9s*8o4k3p^v^64=t+w4$t*@g4m!d#-nd@13y*9_ksdo%u80u
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 

@@ -1,0 +1,136 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat de Apoio</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="{% static 'analise/css/chat.css' %}">
+ <link rel="stylesheet" href="{% static 'diario/css/emotions.css' %}">
+
+</head>
+
+
+
+<header class="header" role="banner">
+  <div class="header-container">
+
+    <div class="logo-area">
+      <a href="#" class="logo-link" aria-label="Página inicial do Diário de Bordo">
+        <span class="logo-icon" aria-hidden="true">📘</span>
+        <div class="logo-text">
+          <strong>Diário de Bordo</strong>
+          <span class="subtitle">da Inclusão</span>
+        </div>
+      </a>
+    </div>
+
+    <nav class="nav" role="navigation" aria-label="Menu principal">
+      <ul class="nav-list">
+        <li>
+          <a href="{% url 'home' %}" class="nav-link">
+            <span aria-hidden="true">
+              <img src="{% static 'img/emocoes/home.png' %}" alt="">
+            </span>
+            <span>Home</span>
+            
+          </a>
+        </li>
+
+        <li>
+          <a href="#" class="nav-link active" aria-current="page">
+            <span aria-hidden="true">
+              <img src="{% static 'img/emocoes/Book.png' %}" alt="">
+            </span>
+            <span>Registrar Sentimento</span>
+          </a>
+        </li>
+
+        <li>
+          <a href="{% url 'analise/chat' %}" class="nav-link">
+            <span aria-hidden="true">
+              <img src="{% static 'img/emocoes/chat.png' %}" alt="">
+            </span>
+            <span>Chat de Apoio</span>
+          </a>
+        </li>
+
+        <li>
+          <a href="#" class="nav-link">
+            <span aria-hidden="true">
+              <img src="{% static 'img/emocoes/history.png' %}" alt="">
+            </span>
+            <span>Meu Histórico</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="user-area">
+      <span class="user-name">Lucas Ryan</span>
+      <span class="user-role">Aluno</span>
+    </div>
+
+    <button class="logout-btn" aria-label="Sair do sistema">
+      <img src="{% static 'img/emocoes/sair.png' %}" alt="">
+    </button>
+
+  </div>
+</header>
+<body>
+
+
+
+<div class="top-section">
+    <div class="chat-icon">💬</div>
+    <h1>Chat de Apoio</h1>
+    <p>Converse com nossa IA acolhedora</p>
+</div>
+
+<div class="alert">
+⚠ Este chat oferece apoio emocional, mas <strong>não substitui</strong> acompanhamento psicológico profissional. 
+Em caso de emergência, procure ajuda imediatamente.
+</div>
+
+<div class="chat-container">
+
+    <div class="chat-messages">
+
+        <div class="user-message">
+            <span>estou triste</span>
+        </div>
+
+        <div class="bot-message">
+            <div class="bot-icon">🤖</div>
+            <div class="bot-bubble">
+                Sinto muito em saber que você está se sentindo triste. 
+                É normal passar por momentos assim, e seus sentimentos são completamente válidos.
+                Às vezes, desabafar pode ajudar a aliviar um pouco essa tristeza.<br><br>
+                Se você quiser, posso ouvir o que está te deixando assim.
+            </div>
+        </div>
+
+    </div>
+
+    <div>
+        <div class="chat-input">
+            <input type="text" placeholder="Digite sua mensagem...">
+            <button>➤</button>
+        </div>
+        <div class="chat-info">
+            Pressione Enter para enviar • Shift + Enter para nova linha
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <div>🛡 Seus dados são protegidos conforme a LGPD</div>
+    <div>© 2024 Diário de Bordo da Inclusão - NAPN</div>
+</footer>
+
+</body>
+</html>

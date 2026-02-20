@@ -20,6 +20,7 @@ def traduzir_pt_para_en(texto):
         logger.error(f"Erro na tradução: {e}")
         return texto # Retorna original se a tradução falhar
 
+
 def analisar_emocao(texto_em_ingles):
     try:
         response = requests.post(
@@ -58,10 +59,24 @@ def analisar_e_salvar(resposta_obj):
     # 2. Analisa a emoção com o texto em inglês
     resultado = analisar_emocao(texto_traduzido)
     if resultado:
+        #Dicionario de mapeamento
+        mapa_emocoes = {
+            "anger": "raiva",
+            "disgust": "nojo",
+            "fear": "medo",
+            "joy": "alegria",
+            "neutral": "neutro",
+            "sadness": "tristeza",
+            "surprise": "surpresa"
+        }
+
+        # traduz a emocao com segurança usando o get
+        #se a Ia retornar uma label desconhecida, ela será mapeada para "desconhecido"
+        emocao_em_portugues = mapa_emocoes.get(resultado["label"], "desconecido")
         # 3. Salva no banco de dados
         AnaliseResposta.objects.create(
             resposta=resposta_obj,
-            sentimento_detectado=resultado["label"],
+            sentimento_detectado=emocao_em_portugues,
             score_sentimento=resultado["score"],
             modelo_ia="j-hartmann/emotion-english-distilroberta-base"
         )

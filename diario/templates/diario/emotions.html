@@ -12,6 +12,7 @@
 
 
   <link rel="stylesheet" href="{% static 'diario/css/emotions.css' %}">
+ 
 </head>
 
 <body>
@@ -32,11 +33,12 @@
     <nav class="nav" role="navigation" aria-label="Menu principal">
       <ul class="nav-list">
         <li>
-          <a href="#" class="nav-link">
+          <a href="{% url 'home' %}" class="nav-link">
             <span aria-hidden="true">
               <img src="{% static 'img/emocoes/home.png' %}" alt="">
             </span>
             <span>Home</span>
+            
           </a>
         </li>
 
