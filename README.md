@@ -1,7 +1,8 @@
 
 
-```markdown
+
 # 📓 Diário de Bordo da inclusão - Análise de Sentimentos para Pessoas com Deficiência 
+```markdown
 > ⚠️ **Status do Projeto:** Em Desenvolvimento ativo (Work in Progress) 🏗️
 
 O **Diário de Bordo da inclusão** é uma plataforma de apoio emocional voltada para o ambiente escolar. Seu objetivo é oferecer um espaço seguro e acolhedor onde os alunos possam desabafar. 
