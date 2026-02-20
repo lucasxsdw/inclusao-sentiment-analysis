@@ -1,17 +1,10 @@
-Com certeza! Um bom arquivo `README.md` é o cartão de visitas de qualquer projeto de software, especialmente para quem está estruturando o portfólio de desenvolvimento backend. Ele mostra para outros desenvolvedores (e para a banca do seu TCC) que você tem domínio não só do código, mas da arquitetura e da documentação do sistema.
 
-Preparei um modelo de `README.md` altamente profissional, focado na arquitetura que construímos no backend e deixando bem claro o status de desenvolvimento atual.
-
-Copie o conteúdo abaixo e cole no arquivo `README.md` na raiz do seu repositório:
-
----
 
 ```markdown
-# 📓 Diário de Inclusão - API Backend
-
+# 📓 Diário de Bordo da inclusão - Análise de Sentimentos para Pessoas com Deficiência 
 > ⚠️ **Status do Projeto:** Em Desenvolvimento ativo (Work in Progress) 🏗️
 
-O **Diário de Inclusão** é uma plataforma de apoio emocional voltada para o ambiente escolar. Seu objetivo é oferecer um espaço seguro e acolhedor onde os alunos possam desabafar. 
+O **Diário de Bordo da inclusão** é uma plataforma de apoio emocional voltada para o ambiente escolar. Seu objetivo é oferecer um espaço seguro e acolhedor onde os alunos possam desabafar. 
 
 O sistema utiliza inteligência artificial para ler o relato do aluno, classificar a emoção predominante e gerar uma resposta empática, no formato de uma pergunta reflexiva, sem fornecer diagnósticos ou conselhos diretivos.
 
