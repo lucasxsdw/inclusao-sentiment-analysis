@@ -1,136 +1,71 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chat de Apoio</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
- <link rel="stylesheet" href="{% static 'analise/css/chat.css' %}">
- <link rel="stylesheet" href="{% static 'diario/css/emotions.css' %}">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat de Apoio - Diário de Inclusão</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'analise/css/chat.css' %}?v=1">
+    <link rel="stylesheet" href="{% static 'diario/css/emotions.css' %}?v=1">
+    
 </head>
-
-
-
-<header class="header" role="banner">
-  <div class="header-container">
-
-    <div class="logo-area">
-      <a href="#" class="logo-link" aria-label="Página inicial do Diário de Bordo">
-        <span class="logo-icon" aria-hidden="true">📘</span>
-        <div class="logo-text">
-          <strong>Diário de Bordo</strong>
-          <span class="subtitle">da Inclusão</span>
-        </div>
-      </a>
-    </div>
-
-    <nav class="nav" role="navigation" aria-label="Menu principal">
-      <ul class="nav-list">
-        <li>
-          <a href="{% url 'home' %}" class="nav-link">
-            <span aria-hidden="true">
-              <img src="{% static 'img/emocoes/home.png' %}" alt="">
-            </span>
-            <span>Home</span>
-            
-          </a>
-        </li>
-
-        <li>
-          <a href="#" class="nav-link active" aria-current="page">
-            <span aria-hidden="true">
-              <img src="{% static 'img/emocoes/Book.png' %}" alt="">
-            </span>
-            <span>Registrar Sentimento</span>
-          </a>
-        </li>
-
-        <li>
-          <a href="{% url 'analise/chat' %}" class="nav-link">
-            <span aria-hidden="true">
-              <img src="{% static 'img/emocoes/chat.png' %}" alt="">
-            </span>
-            <span>Chat de Apoio</span>
-          </a>
-        </li>
-
-        <li>
-          <a href="#" class="nav-link">
-            <span aria-hidden="true">
-              <img src="{% static 'img/emocoes/history.png' %}" alt="">
-            </span>
-            <span>Meu Histórico</span>
-          </a>
-        </li>
-      </ul>
-    </nav>
-
-    <div class="user-area">
-      <span class="user-name">Lucas Ryan</span>
-      <span class="user-role">Aluno</span>
-    </div>
-
-    <button class="logout-btn" aria-label="Sair do sistema">
-      <img src="{% static 'img/emocoes/sair.png' %}" alt="">
-    </button>
-
-  </div>
-</header>
 <body>
 
+<header class="header" role="banner">
+    <div class="header-container">
+        <div class="logo-area">
+            <a href="#" class="logo-link" aria-label="Página inicial do Diário de Bordo">
+                <span class="logo-icon" aria-hidden="true">📘</span>
+                <div class="logo-text">
+                    <strong>Diário de Bordo</strong>
+                    <span class="subtitle">da Inclusão</span>
+                </div>
+            </a>
+        </div>
+        </div>
+</header>
 
+<main>
+    <div class="top-section">
+        <div class="chat-icon" aria-hidden="true">💬</div>
+        <h1>Chat de Apoio</h1>
+        <p>Converse com nossa IA acolhedora</p>
+    </div>
 
-<div class="top-section">
-    <div class="chat-icon">💬</div>
-    <h1>Chat de Apoio</h1>
-    <p>Converse com nossa IA acolhedora</p>
-</div>
+    <div class="alert" role="alert">
+        ⚠ Este chat oferece apoio emocional, mas <strong>não substitui</strong> acompanhamento psicológico profissional. 
+        Em caso de emergência, procure ajuda imediatamente.
+    </div>
 
-<div class="alert">
-⚠ Este chat oferece apoio emocional, mas <strong>não substitui</strong> acompanhamento psicológico profissional. 
-Em caso de emergência, procure ajuda imediatamente.
-</div>
+    <div class="chat-container">
+        <div class="chat-messages" id="chat-box" role="log" aria-live="polite" aria-atomic="false">
+            
+            <div class="bot-message">
+                <div class="bot-icon" aria-hidden="true">🤖</div>
+                <div class="bot-bubble">
+                    Olá, Lucas! Este é o seu espaço seguro. Como você está se sentindo hoje? Pode me contar tudo, estou aqui para te ouvir.
+                </div>
+            </div>
 
-<div class="chat-container">
-
-    <div class="chat-messages">
-
-        <div class="user-message">
-            <span>estou triste</span>
         </div>
 
-        <div class="bot-message">
-            <div class="bot-icon">🤖</div>
-            <div class="bot-bubble">
-                Sinto muito em saber que você está se sentindo triste. 
-                É normal passar por momentos assim, e seus sentimentos são completamente válidos.
-                Às vezes, desabafar pode ajudar a aliviar um pouco essa tristeza.<br><br>
-                Se você quiser, posso ouvir o que está te deixando assim.
+        <div class="chat-input-area">
+            <div class="chat-input">
+                <textarea id="mensagem-input" rows="1" placeholder="Digite seu desabafo aqui..." aria-label="Campo de texto para desabafo"></textarea>
+                <button id="btn-enviar" aria-label="Enviar mensagem">➤</button>
+            </div>
+            <div class="chat-info" aria-hidden="true">
+                Pressione Enter para enviar • Shift + Enter para quebrar linha
             </div>
         </div>
-
     </div>
+</main>
 
-    <div>
-        <div class="chat-input">
-            <input type="text" placeholder="Digite sua mensagem...">
-            <button>➤</button>
-        </div>
-        <div class="chat-info">
-            Pressione Enter para enviar • Shift + Enter para nova linha
-        </div>
-    </div>
-
-</div>
-
-<footer>
+<footer role="contentinfo">
     <div>🛡 Seus dados são protegidos conforme a LGPD</div>
-    <div>© 2024 Diário de Bordo da Inclusão - NAPN</div>
+    <div>© 2026 Diário de Bordo da Inclusão - NAPN</div>
 </footer>
 
-</body>
+<script src="{% static 'analise/js/chat.js' %}?v=1"></script></body>
 </html>

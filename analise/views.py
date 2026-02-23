@@ -2,9 +2,9 @@ import json
 import logging
 from django.http import JsonResponse
 from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
 # Importe o seu modelo real que guarda o texto do aluno
-from .models import Resposta 
+from .models import Resposta
+from diario.models import Diario
 from .services.sentimento_service import analisar_e_salvar
 from .services.chat_service import gerar_pergunta_diario
 
@@ -12,7 +12,7 @@ from .services.chat_service import gerar_pergunta_diario
 
 logger = logging.getLogger(__name__)
 
-@csrf_exempt # Usamos csrf_exempt temporariamente para facilitar os testes via Postman/Shell
+
 def enviar_desabafo(request):
     if request.method == "GET":
         return render(request, 'analise/chat.html')
@@ -28,11 +28,20 @@ def enviar_desabafo(request):
             if not texto_aluno:
                 return JsonResponse({'erro': 'O texto não pode estar vazio.'}, status=400)
 
-            # 2. Salva a mensagem do aluno no banco de dados
-            # NOTA: Ajuste os campos abaixo conforme a estrutura do seu TCC (ex: linkar com o aluno logado)
+            # Tenta pegar o primeiro diário existente
+            diario_vinculo = Diario.objects.first()
+            
+            # Se o banco estiver vazio, cria um diário genérico de teste na hora!
+            if not diario_vinculo:
+                diario_vinculo = Diario.objects.create(
+                    # Se o seu modelo Diario exigir um título ou algo assim, coloque aqui. 
+                    # Exemplo: titulo="Diário de Teste"
+                )
+
+            # 2. Salva a mensagem do aluno vinculada a esse diário (agora é 100% garantido que existe)
             nova_resposta = Resposta.objects.create(
-                texto_resposta=texto_aluno
-                # aluno=request.user # Se você já tiver sistema de login
+                texto_resposta=texto_aluno,
+                diario=diario_vinculo 
             )
 
             # 3. Chama o Cérebro: Analisa a emoção e salva o sentimento no banco
