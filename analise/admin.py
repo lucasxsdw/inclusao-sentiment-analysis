@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import AnaliseResposta, AnaliseSessao, Resposta
 
-# Register your models here.
+admin.site.register(AnaliseResposta)
+admin.site.register(AnaliseSessao)

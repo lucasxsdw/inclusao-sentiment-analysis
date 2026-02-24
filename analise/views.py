@@ -2,13 +2,12 @@ import json
 import logging
 from django.http import JsonResponse
 from django.shortcuts import render
-# Importe o seu modelo real que guarda o texto do aluno
-from .models import Resposta
-from diario.models import Diario
+
+from .models import Resposta 
+from diario.models import Diario, Pergunta 
+
 from .services.sentimento_service import analisar_e_salvar
 from .services.chat_service import gerar_pergunta_diario
-
-
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +29,8 @@ def enviar_desabafo(request):
 
             # Tenta pegar o primeiro diário existente
             diario_vinculo = Diario.objects.first()
-            
+            pergunta_vinculo = Pergunta.objects.first()
+
             # Se o banco estiver vazio, cria um diário genérico de teste na hora!
             if not diario_vinculo:
                 diario_vinculo = Diario.objects.create(
@@ -41,7 +41,8 @@ def enviar_desabafo(request):
             # 2. Salva a mensagem do aluno vinculada a esse diário (agora é 100% garantido que existe)
             nova_resposta = Resposta.objects.create(
                 texto_resposta=texto_aluno,
-                diario=diario_vinculo 
+                diario=diario_vinculo,
+                pergunta=pergunta_vinculo  # <-- O erro está acontecendo porque falta esta linha!
             )
 
             # 3. Chama o Cérebro: Analisa a emoção e salva o sentimento no banco
