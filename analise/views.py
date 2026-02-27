@@ -11,62 +11,77 @@ from .services.chat_service import gerar_pergunta_diario
 
 logger = logging.getLogger(__name__)
 
-
 def enviar_desabafo(request):
+    # --- 1. CARREGAMENTO DA TELA (MÉTODO GET) ---
     if request.method == "GET":
-        return render(request, 'analise/chat.html')
-    """
-    Recebe a mensagem do aluno, analisa a emoção, gera a resposta da IA e devolve para o chat.
-    """
+        # Busca o ID do diário na memória da sessão
+        diario_id = request.session.get('diario_atual_id')
+        mensagem_inicial = "Olá! Este é o seu espaço seguro. Como você está se sentindo hoje?"
+
+        # Se achar o diário, pega a frase personalizada da emoção
+        if diario_id:
+            try:
+                diario = Diario.objects.get(id=diario_id)
+                if diario.mensagem_inicial_ia:
+                    mensagem_inicial = diario.mensagem_inicial_ia
+            except Diario.DoesNotExist:
+                pass
+
+        # Envia a frase personalizada para o HTML
+        return render(request, 'analise/chat.html', {'mensagem_inicial': mensagem_inicial})
+
+    # --- 2. TROCA DE MENSAGENS NO CHAT (MÉTODO POST) ---
     if request.method == 'POST':
         try:
-            # 1. Recebe os dados em JSON (enviados pelo frontend)
             dados = json.loads(request.body)
             texto_aluno = dados.get('texto_resposta', '').strip()
 
             if not texto_aluno:
                 return JsonResponse({'erro': 'O texto não pode estar vazio.'}, status=400)
 
-            # Tenta pegar o primeiro diário existente
-            diario_vinculo = Diario.objects.first()
-            pergunta_vinculo = Pergunta.objects.first()
+            # Pega o diário CERTO, que foi criado na tela de emoções
+            diario_id = request.session.get('diario_atual_id')
+            if not diario_id:
+                return JsonResponse({'erro': 'Sessão expirada. Volte à página inicial.'}, status=400)
 
-            # Se o banco estiver vazio, cria um diário genérico de teste na hora!
-            if not diario_vinculo:
-                diario_vinculo = Diario.objects.create(
-                    # Se o seu modelo Diario exigir um título ou algo assim, coloque aqui. 
-                    # Exemplo: titulo="Diário de Teste"
-                )
+            diario_vinculo = Diario.objects.get(id=diario_id)
+            pergunta_vinculo = Pergunta.objects.first() 
 
-            # 2. Salva a mensagem do aluno vinculada a esse diário (agora é 100% garantido que existe)
+            # SALVA A RESPOSTA NO BANCO
             nova_resposta = Resposta.objects.create(
                 texto_resposta=texto_aluno,
                 diario=diario_vinculo,
-                pergunta=pergunta_vinculo  # <-- O erro está acontecendo porque falta esta linha!
+                pergunta=pergunta_vinculo 
             )
 
-            # 3. Chama o Cérebro: Analisa a emoção e salva o sentimento no banco
+            # CHAMA A IA DE SENTIMENTO (Hugging Face)
             resultado_ia = analisar_e_salvar(nova_resposta)
-            
-            # Se a IA falhar (Plano B), assumimos "neutro" para o chat não travar
             emocao_ptbr = resultado_ia["label"] if resultado_ia else "neutro"
 
-            # 4. Chama a Voz: Gera a resposta empática do conselheiro
-            resposta_bot = gerar_pergunta_diario(emocao_ptbr, texto_aluno)
+            # --- A MÁGICA DA CONTAGEM DAS 5 MENSAGENS ---
+            contagem = request.session.get('contagem_mensagens', 0)
+            contagem += 1
+            request.session['contagem_mensagens'] = contagem
 
-            # 5. Devolve o pacote completo para a tela do aluno
+            # Se chegou na 5ª mensagem, dá a resposta final
+            if contagem >= 5:
+                resposta_bot = "Agradeço muito por compartilhar seus sentimentos comigo hoje. Nossa sessão chegou ao fim. Lembre-se: este chat é um apoio inicial e não substitui o acompanhamento psicológico profissional. Por favor, procure o NAPN (Núcleo de Apoio) ou um profissional de saúde se precisar de mais ajuda. Você é muito importante! 💙"
+            else:
+                # Se não chegou no limite, chama o Gemini normalmente
+                resposta_bot = gerar_pergunta_diario(emocao_ptbr, texto_aluno)
+
             return JsonResponse({
                 'sucesso': True,
                 'mensagem_aluno': texto_aluno,
                 'emocao_detectada': emocao_ptbr,
-                'resposta_assistente': resposta_bot
+                'resposta_assistente': resposta_bot,
+                'fim_de_sessao': contagem >= 5  # Avisa o Javascript se acabou
             }, status=200)
 
         except json.JSONDecodeError:
-            return JsonResponse({'erro': 'Formato de dado inválido. Envie um JSON.'}, status=400)
+            return JsonResponse({'erro': 'Formato inválido.'}, status=400)
         except Exception as e:
-            logger.error(f"Erro na View enviar_desabafo: {e}")
+            logger.error(f"Erro na View: {e}")
             return JsonResponse({'erro': 'Erro interno no servidor.'}, status=500)
 
-    # Se tentarem acessar a URL direto pelo navegador (método GET)
-    return JsonResponse({'erro': 'Método não permitido. Use POST.'}, status=405)
+    return JsonResponse({'erro': 'Método não permitido.'}, status=405)

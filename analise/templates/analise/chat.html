@@ -28,7 +28,11 @@
 
 <main>
     <div class="top-section">
-        <div class="chat-icon" aria-hidden="true">💬</div>
+        <div class="chat-icon" aria-hidden="true">
+        <img src="{% static 'img/chat/coracao.png' %}" alt="Ícone do chat">
+
+        </div>
+     
         <h1>Chat de Apoio</h1>
         <p>Converse com nossa IA acolhedora</p>
     </div>
@@ -44,7 +48,7 @@
             <div class="bot-message">
                 <div class="bot-icon" aria-hidden="true">🤖</div>
                 <div class="bot-bubble">
-                    Olá, Lucas! Este é o seu espaço seguro. Como você está se sentindo hoje? Pode me contar tudo, estou aqui para te ouvir.
+                    {{ mensagem_inicial }}
                 </div>
             </div>
 

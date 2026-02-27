@@ -58,6 +58,13 @@ document.addEventListener("DOMContentLoaded", function() {
             if (resposta.ok) {
                 // Sucesso! A IA respondeu.
                 adicionarMensagemBot(dados.resposta_assistente);
+                
+                // SE A SESSÃO ACABOU (5 mensagens), TRAVA O CAMPO DE TEXTO
+                if (dados.fim_de_sessao) {
+                    inputMensagem.disabled = true;
+                    btnEnviar.disabled = true;
+                    inputMensagem.placeholder = "Sessão finalizada. Obrigado por compartilhar.";
+                }
             } else {
                 adicionarMensagemBot("Poxa, estou com um probleminha de conexão agora. Tente me mandar de novo!");
                 console.error("Erro da API:", dados.erro);

@@ -47,8 +47,8 @@ document.addEventListener("DOMContentLoaded", () => {
       })
         .then(response => response.json())
         .then(data => {
-          if (data.status === "ok") {
-            window.location.href = "/proxima-pagina/";
+          if (data.status === "success") {
+            window.location.href = "/analise/chat/";
           } else {
             alert("Erro ao salvar emoção.");
           }
