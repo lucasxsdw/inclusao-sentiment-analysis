@@ -2,132 +2,138 @@
 {% load i18n %}
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Diário de Bordo da Inclusão</title>
-<link rel="stylesheet" href="{% static 'diario/css/home.css' %}">
-<link rel="stylesheet" href="{% static 'diario/css/emotions.css' %}">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diário de Bordo da Inclusão</title>
+  <link rel="stylesheet" href="{% static 'diario/css/home.css' %}">
+  <link rel="stylesheet" href="{% static 'diario/css/emotions.css' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 
 </head>
-
+B
 <body>
 
 
 
-<header class="header" role="banner">
-  <div class="header-container">
 
-    <div class="logo-area">
-      <a href="#" class="logo-link" aria-label="Página inicial do Diário de Bordo">
-        <span class="logo-icon" aria-hidden="true">📘</span>
-        <div class="logo-text">
-          <strong>Diário de Bordo</strong>
-          <span class="subtitle">da Inclusão</span>
-        </div>
-      </a>
+
+  <header class="header" role="banner">
+    <div class="header-container">
+
+      <div class="logo-area">
+        <a href="#" class="logo-link" aria-label="Página inicial do Diário de Bordo">
+          <img src="{% static 'diario/img/emocoes/Book.png' %}" alt="" class="logo-icon">
+          <div class="logo-text">
+            <strong>Diário de Bordo</strong>
+            <span class="subtitle">da Inclusão</span>
+          </div>
+        </a>
+      </div>
+
+      <nav class="nav" role="navigation" aria-label="Menu principal">
+        <ul class="nav-list">
+          <li>
+            <a href="{% url 'home' %}" class="nav-link">
+              <span aria-hidden="true">
+                <img class="nav-icon" src="{% static 'diario/img/emocoes/home.png' %}" alt="">
+              </span>
+              <span>Home</span>
+
+            </a>
+          </li>
+
+          <li>
+            <a href="{% url 'emotions' %}" class="nav-link " aria-current="page">
+              <span aria-hidden="true">
+                <img class="nav-icon" src="{% static 'diario/img/emocoes/bookBlack.png' %}" alt="">
+              </span>
+              <span>Registrar Sentimento</span>
+            </a>
+          </li>
+
+
+          <li>
+            <a href="#" class="nav-link">
+              <span aria-hidden="true">
+                <img class="nav-icon" src="{% static 'diario/img/emocoes/history.png' %}" alt="">
+              </span>
+              <span>Meu Histórico</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="user-area">
+        <span class="user-name">Lucas Ryan</span>
+        <span class="user-role">Aluno</span>
+      </div>
+
+      <button class="logout-btn" aria-label="Sair do sistema">
+        <img class="nav-icon" src="{% static 'diario/img/emocoes/sair.png' %}" alt="">
+      </button>
+
     </div>
-
-    <nav class="nav" role="navigation" aria-label="Menu principal">
-      <ul class="nav-list">
-        <li>
-          <a href="{% url 'home' %}" class="nav-link">
-            <span aria-hidden="true">
-              <img src="{% static 'img/emocoes/home.png' %}" alt="">
-            </span>
-            <span>Home</span>
-            
-          </a>
-        </li>
-
-        <li>
-          <a href="" class="nav-link active" aria-current="page">
-            <span aria-hidden="true">
-              <img src="{% static 'img/emocoes/Book.png' %}" alt="">
-            </span>
-            <span>Registrar Sentimento</span>
-          </a>
-        </li>
-
-        <li>
-          <a href="{% url 'enviar_desabafo' %}" class="nav-link">
-            <span aria-hidden="true">
-              <img src="{% static 'img/emocoes/chat.png' %}" alt="">
-            </span>
-            <span>Chat de Apoio</span>
-          </a>
-        </li>
-
-        <li>
-          <a href="#" class="nav-link">
-            <span aria-hidden="true">
-              <img src="{% static 'img/emocoes/history.png' %}" alt="">
-            </span>
-            <span>Meu Histórico</span>
-          </a>
-        </li>
-      </ul>
-    </nav>
-
-    <div class="user-area">
-      <span class="user-name">Lucas Ryan</span>
-      <span class="user-role">Aluno</span>
-    </div>
-
-    <button class="logout-btn" aria-label="Sair do sistema">
-      <img src="{% static 'img/emocoes/sair.png' %}" alt="">
-    </button>
-
-  </div>
-</header>
+  </header>
 
 
-<div class="container">
+
+  <div class="container">
 
     <div class="hero">
-        <div style="font-size:14px; opacity:0.8;">☀️ Boa tarde</div>
-        <h1>Olá, lucasryangomes 👋</h1>
-        <p>Este é o seu espaço seguro. Como você está se sentindo hoje?</p>
+      <div style="font-size:14px; opacity:0.8;">☀️ Boa tarde</div>
+      <h1>Olá, lucasryangomes 👋</h1>
+      <p>Este é o seu espaço seguro. Como você está se sentindo hoje?</p>
     </div>
 
     <div class="section-title">✨ O que você gostaria de fazer?</div>
 
     <div class="cards">
-        <a href="{% url 'emotions' %}" class="card">
-            <div class="icon-box green">💚</div>
-            <h3>Registrar Sentimento</h3>
-            <p>Como você está se sentindo agora?</p>
-        </a>
+      <a href="{% url 'emotions' %}" class="card">
+        <div class="icon-box green">💚</div>
+        <h3>Registrar Sentimento</h3>
+        <p>Como você está se sentindo agora?</p>
+      </a>
 
-        <a href="{% url 'enviar_desabafo' %}" class="card">
-            <div class="icon-box purple">💬</div>
-            <h3>Chat de Apoio</h3>
-            <p>Converse com nossa IA acolhedora</p>
-        </a>
 
-        <a href="" class="card">
-            <div class="icon-box orange">⏱</div>
-            <h3>Meu Histórico</h3>
-            <p>Veja sua jornada emocional</p>
-        </a>
+
+      <a href="" class="card">
+        <div class="icon-box orange">⏱</div>
+        <h3>Meu Histórico</h3>
+        <p>Veja sua jornada emocional</p>
+      </a>
+
+
+      <a href="{% url 'emotions' %}" class="card">
+        <div class="icon-box purple">📊</div>
+        <h3>Sobre</h3>
+        <p>Informações gerais e contexto do sistema.</p>
+      </a>
+
+
+
     </div>
 
     <div class="info">
-        <div class="info-icon">❤️</div>
-        <div>
-            <h4>Lembre-se: seus sentimentos são válidos</h4>
-            <p>Estamos aqui para te apoiar. Não hesite em registrar como você se sente.</p>
-        </div>
+      <div class="info-icon">
+        <img src="{% static 'diario/img/emocoes/coracao.png' %}" alt="">
+      </div>
+
+      <div>
+        <h4>Lembre-se: seus sentimentos são válidos</h4>
+        <p>Estamos aqui para te apoiar. Não hesite em registrar como você se sente.</p>
+      </div>
     </div>
 
-</div>
+  </div>
 
-<footer>
+  <footer>
     <div>🛡 Seus dados são protegidos conforme a LGPD</div>
     <div>© 2024 Diário de Bordo da Inclusão - NAPN</div>
-</footer>
+  </footer>
 
 </body>
+
 </html>

@@ -1,0 +1,130 @@
+/*Reset css*/
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  background: #020617;
+  overflow: hidden;
+  position: relative;
+  font-family: Arial, sans-serif;
+  color: #fff;
+}
+
+body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 100% 30%, rgba(139, 92, 246, 0.25), transparent 30%),
+    radial-gradient(circle at 20% 40%, rgba(16, 185, 129, 0.25), transparent 15%),
+    radial-gradient(circle at 10% 100%, rgba(0, 0, 0, 0.2), transparent 100%),
+    
+    radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.15), transparent 10%);
+  filter: blur(100px);
+  animation: floatGlow 12s ease-in-out infinite;
+  z-index: -1;
+}
+
+@keyframes floatGlow {
+  0% { transform: translate(0px, 0px); }
+  50% { transform: translate(20px, -20px); }
+  100% { transform: translate(0px, 0px); }
+}
+
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  margin-top: 120px;
+}
+
+.home-container  {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.container-icon {
+    display: flex;
+    flex-direction: row;
+    align-items: center; 
+    border-radius: 20px;
+    border: 1px solid #3a404d;
+    padding: 10px 15px;
+    font-size: 15px;
+    gap: 10px;
+    font-weight: 600;
+}
+
+.icon-logo{
+  height: 20px;
+}
+
+.home-container h1 {
+  font-size: 75px;
+  font-weight: bold;
+  color: #fff;
+  padding-top: 20px;
+}
+
+.titulo-gradient {
+  background: linear-gradient(
+    90deg,
+    #ecfff8 0%,
+    #ab68ed 50%,
+    #7beec2 100%
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  font-size: 20px;
+  color: #b6b6b6;
+  max-width: 600px;
+}
+
+.subtitle-green{
+    color: #34d399;
+}
+
+.subtitle-purple{
+    color: #a78bfa;
+}
+
+.subtitle-blue{
+    color: #60a5fa;
+}
+
+
+.container-button{
+    display: flex;
+    margin: 30px;
+    gap: 20px;
+}
+.button-login, .button-register{
+    background-color: #fff;
+    padding: 15px 50px;
+    border-radius: 15px;
+    text-decoration: none;
+}
+
+.button-login{
+    color: #ffff;
+    background-color: #9574f8;
+    font-size: 20px;
+    font-weight: 500;
+    box-shadow:  0 1px 5px #8a66f7;
+}

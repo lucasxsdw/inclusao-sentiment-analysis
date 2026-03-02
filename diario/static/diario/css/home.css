@@ -1,61 +1,19 @@
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family: 'Inter', sans-serif;
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-body{
-    background:#f5f7f9;
-    color:#1e293b;
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background-color: #f5f7f8;
 }
+
+
 
 /* HEADER */
 
-header{
-    background:#ffffff;
-    padding:18px 40px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    border-bottom:1px solid #e5e7eb;
-}
-
-.logo{
-    display:flex;
-    align-items:center;
-    gap:12px;
-}
-
-.logo-box{
-    width:40px;
-    height:40px;
-    background:#16a085;
-    border-radius:12px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:white;
-    font-weight:600;
-}
-
-.logo-text{
-    font-weight:600;
-    font-size:18px;
-}
-
-.nav{
-    display:flex;
-    gap:30px;
-    color:#64748b;
-    font-weight:500;
-}
-
-.user{
-    text-align:right;
-    font-size:14px;
-}
 
 /* MAIN */
 
@@ -135,6 +93,7 @@ header{
 .purple{ background:linear-gradient(135deg,#a855f7,#ec4899); }
 .orange{ background:#f97316; }
 
+
 .card h3{
     font-size:18px;
     font-weight:600;
@@ -149,7 +108,7 @@ header{
 /* INFO CARD */
 
 .info{
-    background:#f3e8ff;
+    background:#f6effe;
     padding:25px;
     border-radius:18px;
     margin-top:30px;
@@ -190,7 +149,7 @@ footer{
     justify-content:space-between;
     color:#64748b;
     font-size:14px;
-    border-top:1px solid #e5e7eb;
+    border-top:1px solid #5cf9e7;
 }
 
 /* RESPONSIVO */

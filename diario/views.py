@@ -2,7 +2,7 @@ import json
 from django.http import JsonResponse
 from django.views.generic import TemplateView
 from diario.models import SessaoEmocional, Diario
-from diario.models import Resposta, Pergunta
+from diario.models import Resposta
 from analise.services.sentimento_service import analisar_e_salvar
 
 
@@ -95,3 +95,6 @@ def salvar_resposta(request):
     return JsonResponse({'status': 'error'}, status=405)
 
 
+
+class homePageViews(TemplateView):
+    template_name = 'diario/homePage.html'
