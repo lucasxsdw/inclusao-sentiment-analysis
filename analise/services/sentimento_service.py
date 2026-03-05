@@ -72,7 +72,7 @@ def analisar_e_salvar(resposta_obj):
 
         # traduz a emocao com segurança usando o get
         #se a Ia retornar uma label desconhecida, ela será mapeada para "desconhecido"
-        emocao_em_portugues = mapa_emocoes.get(resultado["label"], "desconecido")
+        emocao_em_portugues = mapa_emocoes.get(resultado["label"], "desconhecido")
         # 3. Salva no banco de dados
         AnaliseResposta.objects.create(
             resposta=resposta_obj,

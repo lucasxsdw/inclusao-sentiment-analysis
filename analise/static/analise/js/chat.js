@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     const chatBox = document.getElementById("chat-box");
     const inputMensagem = document.getElementById("mensagem-input");
     const btnEnviar = document.getElementById("btn-enviar");
@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function() {
     btnEnviar.addEventListener("click", enviarMensagem);
 
     // 2. Enviar ao apertar "Enter" (sem Shift, para permitir quebra de linha)
-    inputMensagem.addEventListener("keydown", function(event) {
+    inputMensagem.addEventListener("keydown", function (event) {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault(); // Impede de pular linha
             enviarMensagem();
@@ -15,10 +15,10 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // 3. Função que aumenta o tamanho do campo de texto conforme o aluno digita
-    inputMensagem.addEventListener("input", function() {
+    inputMensagem.addEventListener("input", function () {
         this.style.height = "auto";
         this.style.height = (this.scrollHeight) + "px";
-        if(this.value === "") this.style.height = "auto";
+        if (this.value === "") this.style.height = "auto";
     });
 
     // --- FUNÇÃO PRINCIPAL DE ENVIO ---
@@ -37,6 +37,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const idLoading = mostrarLoadingBot();
 
         try {
+            
             // Pegamos o token de segurança do Django
             const csrftoken = getCookie('csrftoken');
 
@@ -51,14 +52,14 @@ document.addEventListener("DOMContentLoaded", function() {
             });
 
             const dados = await resposta.json();
-            
+
             // Remove o balãozinho de "digitando..."
             removerLoadingBot(idLoading);
 
             if (resposta.ok) {
                 // Sucesso! A IA respondeu.
                 adicionarMensagemBot(dados.resposta_assistente);
-                
+
                 // SE A SESSÃO ACABOU (5 mensagens), TRAVA O CAMPO DE TEXTO
                 if (dados.fim_de_sessao) {
                     inputMensagem.disabled = true;

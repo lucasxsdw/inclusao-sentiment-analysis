@@ -21,7 +21,7 @@ def salvar_emocao(request):
         emocao = data.get('emocao')
 
         if emocao:
-            # 1️⃣ Criar sessão
+            # 1️ Criar sessão
             sessao = SessaoEmocional.objects.create(
                 emocao_selecionada=emocao,
                 status_sessao='ativa'
@@ -41,13 +41,13 @@ def salvar_emocao(request):
             # Se a emoção não for achada, usa um texto padrão
             mensagem_personalizada = mensagens_iniciais.get(emocao, "Olá, estou aqui para te ouvir. Como você está?")
 
-            # 2️⃣ Criar diário automaticamente com a mensagem dinâmica
+            # 2️ Criar diário automaticamente com a mensagem dinâmica
             diario = Diario.objects.create(
                 sessao_emocional=sessao,
                 mensagem_inicial_ia=mensagem_personalizada
             )
 
-            # 3️⃣ A MÁGICA DA SESSÃO: Guardar na "memória" do navegador para o Chat ler depois!
+            # 3️ A MÁGICA DA SESSÃO: Guardar na "memória" do navegador para o Chat ler depois!
             request.session['diario_atual_id'] = diario.id
             request.session['emocao_inicial'] = emocao
             request.session['contagem_mensagens'] = 0  # Já preparando o seu limite de 5 perguntas!
@@ -61,39 +61,6 @@ def salvar_emocao(request):
         return JsonResponse({'status': 'error'}, status=400)
 
     return JsonResponse({'status': 'error'}, status=405)
-
-
-
-
-def salvar_resposta(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-
-        diario_id = data.get('diario_id')
-        pergunta_id = data.get('pergunta_id')
-        texto = data.get('texto')
-
-        if diario_id and pergunta_id and texto:
-
-            resposta = Resposta.objects.create(
-                diario_id=diario_id,
-                pergunta_id=pergunta_id,
-                texto_resposta=texto
-            )
-
-            # 🔥 Roda IA automaticamente
-            resultado = analisar_e_salvar(resposta)
-
-            return JsonResponse({
-                'status': 'success',
-                'sentimento_detectado': resultado['label'],
-                'score': resultado['score']
-            })
-
-        return JsonResponse({'status': 'error'}, status=400)
-
-    return JsonResponse({'status': 'error'}, status=405)
-
 
 
 class homePageViews(TemplateView):

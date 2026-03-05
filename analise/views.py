@@ -2,9 +2,7 @@ import json
 import logging
 from django.http import JsonResponse
 from django.shortcuts import render
-
-from .models import Resposta 
-from diario.models import Diario, Pergunta 
+from diario.models import Diario, Pergunta, Resposta
 
 from .services.sentimento_service import analisar_e_salvar
 from .services.chat_service import gerar_pergunta_diario
@@ -45,7 +43,11 @@ def enviar_desabafo(request):
                 return JsonResponse({'erro': 'Sessão expirada. Volte à página inicial.'}, status=400)
 
             diario_vinculo = Diario.objects.get(id=diario_id)
-            pergunta_vinculo = Pergunta.objects.first() 
+            #Se não houver nenhuma Pergunta no banco, retorna None e a criação da Resposta lança IntegrityError não tratado.
+            pergunta_vinculo = Pergunta.objects.order_by("?").first()
+            
+            if not pergunta_vinculo:
+                return JsonResponse({'erro': 'Nenhuma pergunta cadastrada no sistema.'}, status=500)
 
             # SALVA A RESPOSTA NO BANCO
             nova_resposta = Resposta.objects.create(
@@ -58,14 +60,12 @@ def enviar_desabafo(request):
             resultado_ia = analisar_e_salvar(nova_resposta)
             emocao_ptbr = resultado_ia["label"] if resultado_ia else "neutro"
 
-            # --- A MÁGICA DA CONTAGEM DAS 5 MENSAGENS ---
-            contagem = request.session.get('contagem_mensagens', 0)
-            contagem += 1
-            request.session['contagem_mensagens'] = contagem
+            # ---  CONTAGEM DAS 5 MENSAGENS ---
+            total_mensagens = Resposta.objects.filter(diario=diario_vinculo).count()
 
-            # Se chegou na 5ª mensagem, dá a resposta final
-            if contagem >= 5:
-                resposta_bot = "Agradeço muito por compartilhar seus sentimentos comigo hoje. Nossa sessão chegou ao fim. Lembre-se: este chat é um apoio inicial e não substitui o acompanhamento psicológico profissional. Por favor, procure o NAPN (Núcleo de Apoio) ou um profissional de saúde se precisar de mais ajuda. Você é muito importante! 💙"
+            # Se chegou na 5 mensagem, dá a resposta final
+            if total_mensagens >= 5:
+                resposta_bot = "Agradeço muito por compartilhar seus sentimentos comigo hoje. Nossa sessão chegou ao fim. Lembre-se: este chat é um apoio inicial e não substitui o acompanhamento psicológico profissional. Por favor, procure o NAPN ( Núcleo de Apoio à Pessoa com Necessidades Específicas) ou um profissional de saúde se precisar de mais ajuda. Você é muito importante! 💙"
             else:
                 # Se não chegou no limite, chama o Gemini normalmente
                 resposta_bot = gerar_pergunta_diario(emocao_ptbr, texto_aluno)
@@ -75,7 +75,7 @@ def enviar_desabafo(request):
                 'mensagem_aluno': texto_aluno,
                 'emocao_detectada': emocao_ptbr,
                 'resposta_assistente': resposta_bot,
-                'fim_de_sessao': contagem >= 5  # Avisa o Javascript se acabou
+                'fim_de_sessao': total_mensagens >= 5  # Avisa o Javascript se acabou
             }, status=200)
 
         except json.JSONDecodeError:

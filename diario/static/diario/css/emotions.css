@@ -81,6 +81,8 @@ body {
 
 .nav-icon {
   height: 17px;
+  
+ 
 }
 
 .nav-link:focus-visible {
@@ -122,9 +124,16 @@ body {
   border: none;
   cursor: pointer;
   font-size: 18px;
-  margin-left: -200px;
+  margin-left: -180px;
   margin-right: 250px;
+  
 
+
+}
+
+.icon-logout{
+  height: 17px;
+  padding-left: 50px;
 
 }
 

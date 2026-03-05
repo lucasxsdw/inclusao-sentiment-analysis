@@ -1,66 +1,257 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
-
-<head>
+<html lang="pt-BR"> <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Page</title>
+    <meta name="description" content="Diário de Bordo da Inclusão: Plataforma de análise emocional inteligente para ambientes educacionais inclusivos.">
+    <title>Início | Diário de Bordo da Inclusão</title>
     <link rel="stylesheet" href="{% static 'diario/css/homePage.css' %}">
 </head>
 
 <body>
-    <main>
-        <div class="home-container ">
-            <div class="container-icon">
-                <img class="icon-logo" src="{% static 'diario/img/emocoes/starHome.png' %}"
-                    alt="Ícone do Diário de Bordo">
+    <a href="#conteudo-principal" class="sr-only">Pular para o conteúdo principal</a>
+
+    <main id="conteudo-principal" role="main">
+        <div class="home-container">
+            <div class="container-icon" aria-hidden="true"> <img class="icon-logo" src="{% static 'diario/img/emocoes/starHome.png' %}" alt="">
                 <p>Tecnologia a serviço da inclusão</p>
             </div>
 
             <h1 class="titulo">
-                Diário de 
+                Diário de
                 <span class="titulo-gradient"> Bordo <br> da Inclusão</span>
             </h1>
             <p class="subtitle">
                 Análise emocional inteligente para um ambiente educacional mais <br>
-                 <span class="subtitle-green">acolhedor,</span>
-        
-                 <span class="subtitle-purple">inclusivo,</span>
-                 e
-                 <span class="subtitle-blue">humano.</span>
-
+                <span class="subtitle-green">acolhedor,</span>
+                <span class="subtitle-purple">inclusivo,</span>
+                e
+                <span class="subtitle-blue">humano.</span>
             </p>
+
+            <div class="container-btn">
+                <a href="/login" class="btn-login" aria-label="Entrar no sistema">
+                    Entrar
+                    <img src="{% static 'diario/img/emocoes/seta.png' %}" alt="" aria-hidden="true" class="icone-seta">
+                </a>
+
+                <a href="/cadastro" class="btn-register" aria-label="Cadastrar novo usuário">
+                    <img src="{% static 'diario/img/emocoes/user.png' %}" alt="" aria-hidden="true" class="icone-user">
+                    Cadastrar
+                </a>
+            </div>
+
+            <div class="functionality-container" aria-label="Principais pilares">
+                <div class="functionality-1">
+                    <img src="{% static 'diario/img/emocoes/heart.png' %}" alt="" aria-hidden="true"> Bem-estar emocional
+                </div>
+                <div class="functionality-2">
+                    <img src="{% static 'diario/img/emocoes/analise.png' %}" alt="" aria-hidden="true"> IA para análise
+                </div>
+                <div class="functionality-3">
+                    <img src="{% static 'diario/img/emocoes/user.png' %}" alt="" aria-hidden="true"> Apoio inclusivo
+                </div>
+            </div>
+
+            <section class="home-container-first" aria-labelledby="titulo-funcionalidades">
+                <div class="container-text" aria-hidden="true">
+                    <p>Funcionalidades</p>
+                </div>
+
+                <h2 id="titulo-funcionalidades">
+                    Tecnologia que <br>
+                    <span class="titulo-gradient-2">transforma vidas</span>
+                </h2>
+
+                <p class="subtitle-2">
+                    Ferramentas inteligentes para criar ambientes educacionais mais inclusivos e emocionalmente saudáveis.
+                </p>
+            </section>
+
+            <div class="container-cards" role="list" aria-label="Lista de Funcionalidades">
                 
+                <article class="card destaque" role="listitem">
+                    <div class="icon pink" aria-hidden="true">
+                        <img src="{% static 'diario/img/emocoes/coracao.png' %}" alt="">
+                    </div>
+                    <h3>Registro Emocional</h3>
+                    <p>Acompanhe e registre estados emocionais de forma segura e empática.</p>
+                </article>
 
-            <div class="container-button">
-                <a href="" class="button-login">
-                    <img src="" alt="">Entrar</a>
-                <a href="" class="button-register">
-                    <img src="" alt="">Cadastro</a>
+                <article class="card" role="listitem">
+                    <div class="icon purple" aria-hidden="true">
+                        <img src="{% static 'diario/img/emocoes/graficos.png' %}" alt="">
+                    </div>
+                    <h3>Análise Inteligente</h3>
+                    <p>IA avançada que identifica padrões e oferece insights valiosos.</p>
+                </article>
+
+                <article class="card" role="listitem">
+                    <div class="icon green" aria-hidden="true">
+                        <img src="{% static 'diario/img/emocoes/acessibilidade.png' %}" alt="">
+                    </div>
+                    <h3>100% Acessível</h3>
+                    <p>Design inclusivo pensado para todas as necessidades especiais.</p>
+                </article>
+
+                <article class="card" role="listitem">
+                    <div class="icon blue" aria-hidden="true">
+                        <img src="{% static 'diario/img/emocoes/escudo.png' %}" alt="">
+                    </div>
+                    <h3>Total Segurança</h3>
+                    <p>Seus dados protegidos com criptografia de ponta a ponta.</p>
+                </article>
+
+                <article class="card" role="listitem">
+                    <div class="icon orange" aria-hidden="true">
+                        <img src="{% static 'diario/img/emocoes/lampada.png' %}" alt="">
+                    </div>
+                    <h3>Insights Educacionais</h3>
+                    <p>Recomendações personalizadas para educadores e gestores.</p>
+                </article>
+
+                <article class="card" role="listitem">
+                    <div class="icon cyan" aria-hidden="true">
+                        <img src="{% static 'diario/img/emocoes/mao-coração.png' %}" alt="">
+                    </div>
+                    <h3>Apoio Contínuo</h3>
+                    <p>Suporte humanizado e acompanhamento especializado.</p>
+                </article>
+
             </div>
 
-            <div class="container-icone">
+            <section class="sobre-container" aria-labelledby="titulo-sobre">
+                <div class="sobre-left">
+                    <div class="badge-sobre" aria-hidden="true">Sobre o Sistema</div>
 
-                <div class="iconexample-1">
-                    <img src="" alt=""> Bem-estar emocional
-                </div>
-                <div class="iconexample-2">
-                    <img src="" alt="">IA para análise
-                </div>
-                <div class="iconexample-3">
-                    <img src="" alt="">Apoio inclusivo
-                </div>
-            </div>
+                    <h2 class="sobre-titulo" id="titulo-sobre">
+                        Construindo pontes para uma <br>
+                        <span class="text-teal">educação verdadeiramente <br> inclusiva</span>
+                    </h2>
 
+                    <p class="sobre-desc">
+                        O Diário de Bordo da Inclusão é uma plataforma inovadora que utiliza inteligência artificial
+                        para monitorar o bem-estar emocional dos estudantes, especialmente aqueles com necessidades
+                        especiais, criando um ambiente educacional mais acolhedor e eficaz.
+                    </p>
+
+                    <ul class="checklist" aria-label="Benefícios do sistema">
+                        <li class="check-item">
+                            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M8 12l3 3 5-6"></path>
+                            </svg>
+                            Monitoramento contínuo do bem-estar emocional
+                        </li>
+                        <li class="check-item">
+                            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M8 12l3 3 5-6"></path>
+                            </svg>
+                            Relatórios detalhados para educadores
+                        </li>
+                        <li class="check-item">
+                            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M8 12l3 3 5-6"></path>
+                            </svg>
+                            Interface adaptada para pessoas com deficiência
+                        </li>
+                        <li class="check-item">
+                            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M8 12l3 3 5-6"></path>
+                            </svg>
+                            Alertas inteligentes para intervenção precoce
+                        </li>
+                        <li class="check-item">
+                            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M8 12l3 3 5-6"></path>
+                            </svg>
+                            Comunicação facilitada entre escola e família
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="sobre-right">
+                    <div class="testimonial-card">
+                        <svg class="quote-icon" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+                        </svg>
+
+                        <blockquote class="quote-text">
+                            "Cada pessoa é única. A tecnologia deve servir para amplificar suas vozes, não silenciá-las."
+                        </blockquote>
+
+                        <div class="divider" aria-hidden="true"></div>
+
+                        <div class="stats-grid" aria-label="Estatísticas do sistema">
+                            <div class="stat-item">
+                                <h4>100%</h4>
+                                <p>Acessível</p>
+                            </div>
+                            <div class="stat-item destaque-stat">
+                                <h4>24h / 7 dias</h4>
+                                <p>Monitoramento</p>
+                            </div>
+                            <div class="stat-item">
+                                <h4>IA</h4>
+                                <p>Inteligente</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="floating-btn" role="note" aria-label="Aviso: Este é um projeto acadêmico">
+                        Projeto Acadêmico
+                    </div>
+                </div>
+            </section>
         </div>
     </main>
 
-    <footer>
+    <footer class="site-footer" role="contentinfo">
+        <div class="footer-container">
+            <div class="footer-main">
+                <div class="footer-brand">
+                    <div class="footer-logo" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                        </svg>
+                    </div>
+                    <span class="footer-title">Diário de Bordo da Inclusão</span>
+                </div>
 
+                <nav class="footer-links" aria-label="Links do rodapé">
+                    <a href="https://github.com/lucasxsdw/inclusao-sentiment-analysis" class="footer-link" target="_blank" rel="noopener noreferrer">
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                        </svg>
+                        Código (Abre em nova aba)
+                    </a>
+                    <a href="#" class="footer-link">
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                        Contato
+                    </a>
+                </nav>
+
+                <div class="footer-credits">
+                    Feito com <span class="heart" aria-label="amor">❤️</span> para a inclusão
+                </div>
+            </div>
+
+            <div class="footer-divider" aria-hidden="true"></div>
+
+            <div class="footer-bottom">
+                © 2026 Diário de Bordo da Inclusão • Projeto Acadêmico
+            </div>
+        </div>
     </footer>
-
-
+    
+    <script src="{% static 'diario/js/homePage.js' %}"></script>
 </body>
-
 </html>
