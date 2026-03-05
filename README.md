@@ -1,116 +1,251 @@
+# 📓 Diário de Bordo da Inclusão
 
+> Plataforma de apoio emocional com Inteligência Artificial para alunos com necessidades específicas, desenvolvida para o **NAPN — Núcleo de Apoio às Pessoas com Necessidades Específicas**.
 
+<br>
 
-# 📓 Diário de Bordo da inclusão - Análise de Sentimentos para Pessoas com Deficiência 
-```markdown
-> ⚠️ **Status do Projeto:** Em Desenvolvimento ativo (Work in Progress) 🏗️
-
-O **Diário de Bordo da inclusão** é uma plataforma de apoio emocional voltada para o ambiente escolar. Seu objetivo é oferecer um espaço seguro e acolhedor onde os alunos possam desabafar. 
-
-O sistema utiliza inteligência artificial para ler o relato do aluno, classificar a emoção predominante e gerar uma resposta empática, no formato de uma pergunta reflexiva, sem fornecer diagnósticos ou conselhos diretivos.
+![Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow?style=for-the-badge)
+![Python](https://img.shields.io/badge/Python-3.12-blue?style=for-the-badge&logo=python)
+![Django](https://img.shields.io/badge/Django-6.x-092E20?style=for-the-badge&logo=django)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-configurado-336791?style=for-the-badge&logo=postgresql)
+![Gemini](https://img.shields.io/badge/Gemini_2.5_Flash-IA_Generativa-4285F4?style=for-the-badge&logo=google)
+![HuggingFace](https://img.shields.io/badge/Hugging_Face-NLP-FFD21E?style=for-the-badge)
 
 ---
 
-## 🚀 Arquitetura e Tecnologias
+## 📌 Sobre o Projeto
 
-Este projeto foi construído com foco em resiliência, separação de responsabilidades e integração com serviços avançados de IA.
+O **Diário de Bordo da Inclusão** é uma ponte inteligente entre o aluno que precisa desabafar e a equipe de apoio da instituição.
 
-* **Linguagem & Framework:** Python 3, Django
-* **Motor de Classificação de Sentimentos (Cérebro):** * Modelo: `j-hartmann/emotion-english-distilroberta-base` (via Hugging Face).
-    * Mapeia o desabafo em 7 emoções: raiva, nojo, medo, alegria, neutro, tristeza e surpresa.
-    * Possui uma camada de tradução automática (PT-BR -> EN) sob o capô para garantir alta precisão do modelo NLP.
-* **Motor Gerativo de Respostas (Voz):** * Modelo: `gemini-2.5-flash` (via Google Gemini API / `google-genai`).
-    * Utiliza Engenharia de Prompt restrita (System Prompt) para garantir que a IA atue como um conselheiro acolhedor, retornando respostas curtas, empáticas e seguras.
+Muitos alunos têm dificuldade de expressar suas emoções diretamente para um psicólogo ou coordenador. O sistema oferece um **espaço seguro, intuitivo e sem julgamentos** onde o aluno pode registrar como está se sentindo. Em paralelo, transforma esses relatos em dados estruturados, permitindo que o NAPN identifique de forma proativa quais alunos precisam de mais atenção.
+
+> ⚠️ O sistema **não atua como substituto de acompanhamento psicológico**. O chat é limitado a 5 mensagens e sempre encaminha o aluno para atendimento humano no NAPN.
+
+---
+
+## 🖥️ Telas do Sistema
+
+| Tela | Descrição |
+|------|-----------|
+| **Home Page** | Página de entrada com apresentação do sistema e acesso ao diário |
+| **Home** | Painel principal do aluno após entrar na plataforma |
+| **Seleção de Emoções** | Interface visual para o aluno escolher como está se sentindo |
+| **Chat** | Sessão de conversa com a IA, limitada a 5 mensagens por sessão |
+
+---
+
+## 🔄 Fluxo da Aplicação
+
+```
+Aluno acessa → Seleciona emoção → Chat com IA (máx. 5 msg) → Encaminhamento ao NAPN
+                     ↓                        ↓
+              Cria SessaoEmocional     Análise de sentimento
+              e Diario no banco        salva no banco (HuggingFace)
+                                               ↓
+                                       Gemini gera resposta empática
+```
+
+---
+
+## 🧠 Arquitetura de IA
+
+O sistema utiliza dois modelos de IA com responsabilidades distintas:
+
+### 🔬 Motor de Classificação — Hugging Face (NLP)
+- **Modelo:** `j-hartmann/emotion-english-distilroberta-base`
+- Classifica o texto em 7 emoções: `raiva`, `nojo`, `medo`, `alegria`, `neutro`, `tristeza`, `surpresa`
+- **Camada de tradução automática:** PT-BR → EN antes da análise, garantindo alta precisão do modelo
+- Resultado salvo no banco com score de confiança
+
+### 💬 Motor Generativo — Google Gemini
+- **Modelo:** `gemini-2.5-flash`
+- Gera respostas empáticas baseadas na emoção detectada e no texto do aluno
+- Opera com **System Prompt restrito**: nunca dá diagnósticos, nunca minimiza o problema
+- Respostas curtas (máximo 2 frases) no estilo de mensagens de chat
+- Possui fallback: se a API falhar, retorna uma resposta padrão acolhedora
+
+---
+
+## 🗂️ Estrutura do Projeto
+
+```
+inclusao-sentiment-analysis/
+│
+├── config/                  # Configurações globais do Django
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+│
+├── accounts/                # App de usuários (em desenvolvimento)
+│   └── models.py            # Modelo Aluno
+│
+├── diario/                  # App principal do fluxo do aluno
+│   ├── models.py            # SessaoEmocional, Diario, Pergunta, Resposta
+│   ├── views.py             # HomeView, EmotionsView, salvar_emocao()
+│   ├── urls.py
+│   ├── templates/
+│   │   └── diario/
+│   │       ├── homePage.html
+│   │       ├── home.html
+│   │       └── emotions.html
+│   └── static/
+│
+├── analise/                 # App de IA e análise de sentimentos
+│   ├── models.py            # AnaliseResposta, AnaliseSessao
+│   ├── views.py             # enviar_desabafo() — endpoint principal
+│   ├── urls.py
+│   ├── services/
+│   │   ├── chat_service.py       # Integração com Google Gemini
+│   │   └── sentimento_service.py # Integração com Hugging Face
+│   └── templates/
+│       └── analise/
+│           └── chat.html
+│
+├── .env.example             # Variáveis de ambiente necessárias
+├── requeriments.txt
+└── manage.py
+```
 
 ---
 
 ## 🔌 Documentação da API
 
-A aplicação expõe um endpoint principal para comunicação com o Frontend.
-
 ### `POST /analise/api/chat/`
 
-Recebe o desabafo do aluno, processa a análise de sentimento, salva no banco de dados e retorna a interação da IA.
+Recebe o desabafo do aluno, processa a análise de sentimento, salva no banco e retorna a resposta da IA.
 
-**Request Body (JSON):**
+**Request Body:**
 ```json
 {
-  "texto_resposta": "Estou muito ansioso com as provas finais, sinto que não estudei o suficiente e vou reprovar."
+  "texto_resposta": "Estou muito ansioso com as provas finais, sinto que não vou conseguir."
 }
-
 ```
 
-**Response (200 OK):**
-
+**Response `200 OK`:**
 ```json
 {
   "sucesso": true,
-  "mensagem_aluno": "Estou muito ansioso com as provas finais, sinto que não estudei o suficiente e vou reprovar.",
+  "mensagem_aluno": "Estou muito ansioso com as provas finais, sinto que não vou conseguir.",
   "emocao_detectada": "medo",
-  "resposta_assistente": "Nossa, é muito compreensível sentir esse peso com as provas chegando. O que está te deixando mais inseguro em relação aos seus estudos?"
+  "resposta_assistente": "Esse peso que você está sentindo é muito real. O que está te deixando mais inseguro em relação aos seus estudos?",
+  "fim_de_sessao": false
 }
-
 ```
 
-**Erros Mapeados:**
+**Erros mapeados:**
 
-* `400 Bad Request`: Payload vazio ou formato JSON inválido.
-* `405 Method Not Allowed`: Tentativa de acesso via GET.
-* `500 Internal Server Error`: Falhas genéricas (possui sistema de Fallback para as IAs não deixarem o usuário sem resposta).
+| Código | Situação |
+|--------|----------|
+| `400` | Payload vazio ou JSON inválido |
+| `400` | Sessão expirada (diário não encontrado) |
+| `405` | Método não permitido (GET) |
+| `500` | Erro interno — possui fallback, o usuário nunca fica sem resposta |
 
 ---
 
-## 🛠️ Instalação e Configuração (Local)
+## ⚙️ Instalação e Configuração
 
-1. Clone este repositório.
-2. Crie e ative seu ambiente virtual (`python -m venv venv`).
-3. Instale as dependências listadas:
+### Pré-requisitos
+- Python 3.12+
+- PostgreSQL instalado e rodando
+- Conta no [Google AI Studio](https://aistudio.google.com/) (chave Gemini)
+- Conta na [Hugging Face](https://huggingface.co/) (token de acesso)
+
+### Passo a passo
+
+**1. Clone o repositório**
 ```bash
-pip install django google-genai
-# Demais dependências do requirements.txt
-
+git clone https://github.com/lucasxsdw/inclusao-sentiment-analysis.git
+cd inclusao-sentiment-analysis
 ```
 
+**2. Crie e ative o ambiente virtual**
+```bash
+python -m venv venv
 
-4. Crie um arquivo `.env` na raiz do projeto e configure suas variáveis de ambiente:
+# Windows
+venv\Scripts\activate
+
+# Linux/macOS
+source venv/bin/activate
+```
+
+**3. Instale as dependências**
+```bash
+pip install -r requeriments.txt
+```
+
+**4. Configure as variáveis de ambiente**
+
+Copie o arquivo de exemplo e preencha com suas credenciais:
+```bash
+cp .env.example .env
+```
+
+Edite o `.env`:
 ```env
-GEMINI_API_KEY=sua_chave_do_google_ai_studio_aqui
+SECRET_KEY=sua-chave-secreta-django
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
 
+GEMINI_API_KEY=sua-chave-do-google-ai-studio
+HF_TOKEN=seu-token-da-hugging-face
+
+DATABASE_NAME=diario_inclusao
+DATABASE_USER=postgres
+DATABASE_PASSWORD=sua-senha
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
 ```
 
-
-5. Realize as migrações do banco de dados:
+**5. Crie o banco de dados e rode as migrações**
 ```bash
 python manage.py migrate
-
 ```
 
-
-6. Inicie o servidor:
+**6. Inicie o servidor**
 ```bash
 python manage.py runserver
-
 ```
 
-
+Acesse: [http://localhost:8000](http://localhost:8000)
 
 ---
 
-## 🗺️ Roadmap / Próximos Passos
+## 🗺️ Roadmap
 
-* [x] Estruturação da modelagem de dados no Django.
-* [x] Integração com API de análise de sentimentos (Hugging Face).
-* [x] Integração com LLM para respostas dinâmicas (Google Gemini).
-* [x] Criação do endpoint da API (`/analise/api/chat/`).
-* [ ] Construção da interface Frontend (HTML/JS com Fetch API).
-* [ ] Implementação das políticas de segurança e privacidade (LGPD) no banco de dados.
-* [ ] Sistema de autenticação e histórico do aluno.
-  [ ] Lado dos servidores.
+### ✅ Concluído
+- [x] Modelagem de dados (SessaoEmocional, Diario, Resposta, AnaliseResposta)
+- [x] Integração com Hugging Face para análise de sentimentos
+- [x] Pipeline de tradução automática PT-BR → EN
+- [x] Integração com Google Gemini para respostas empáticas
+- [x] Endpoint da API `/analise/api/chat/`
+- [x] Limite ético de 5 mensagens por sessão com encaminhamento ao NAPN
+- [x] Interface Frontend — HomPage, Home, Seleção de Emoções e Chat
+- [x] Configuração de ambiente com `.env` e PostgreSQL
 
-```
+### 🔧 Em desenvolvimento
+- [ ] Sistema de autenticação e perfil do aluno
+- [ ] Painel do NAPN — visualização de sessões e estatísticas emocionais
+- [ ] Implementação de políticas de privacidade (LGPD)
+- [ ] Deploy em servidor de produção
 
-***
+---
 
-Esse documento já eleva o nível da apresentação do seu código no GitHub! 
+## 🛡️ Segurança e Privacidade
 
-```
+Este sistema lida com **dados emocionais sensíveis** de alunos, potencialmente menores de idade. As seguintes práticas estão implementadas ou planejadas:
+
+- ✅ Segredos gerenciados via variáveis de ambiente (`.env`)
+- ✅ Banco de dados PostgreSQL com credenciais externas ao código
+- ✅ Limite de sessão de chat para evitar dependência do sistema
+- ⏳ Autenticação de alunos (em desenvolvimento)
+- ⏳ Conformidade com LGPD — consentimento, retenção e exclusão de dados (planejado)
+
+---
+
+## 🤝 Contexto Acadêmico
+
+Projeto desenvolvido como **Trabalho de Conclusão de Curso (TCC)**, com foco em impacto social real. O sistema foi projetado para ser utilizado pelo NAPN de instituições de ensino como ferramenta de apoio — não de substituição — ao acompanhamento psicológico profissional.
+
+---
