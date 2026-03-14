@@ -1,0 +1,186 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Diário de Bordo da Inclusão</title>
+
+<link rel="stylesheet" href="{% static 'accounts/css/register.css' %}">
+
+</head>
+
+<body>
+
+<main class="container">
+
+<!-- LADO ESQUERDO -->
+<section class="info-area">
+
+<header class="logo-area">
+ <div class="logo-icon" aria-hidden="true"><img src="{% static 'diario/img/emocoes/Book.png' %}" alt=""></div>
+
+<div>
+<h1>Diário de Bordo</h1>
+<p class="subtitle">da Inclusão</p>
+</div>
+
+</header>
+
+
+<div class="hero-text">
+
+<h2>Faça parte da nossa comunidade</h2>
+
+<p>
+Crie sua conta e comece a registrar sua jornada emocional
+em um ambiente seguro e acolhedor.
+</p>
+
+</div>
+
+
+<div class="lgpd-box" role="region" aria-label="Informação sobre proteção de dados">
+
+<h3>Proteção de Dados (LGPD)</h3>
+
+<p>
+Ao se cadastrar, você concorda com nossa política de privacidade.
+Seus dados serão usados apenas para fins educacionais e de acompanhamento,
+nunca sendo compartilhados com terceiros.
+</p>
+
+</div>
+
+
+<ul class="benefits">
+
+<li>Dados criptografados e seguros</li>
+<li>Acesso restrito por perfil</li>
+<li>Uso ético de Inteligência Artificial</li>
+
+</ul>
+
+</section>
+
+
+
+<!-- FORMULÁRIO -->
+
+<section class="form-area">
+
+<div class="form-card">
+
+<a href="#" class="back-link">← Voltar ao login</a>
+
+<h2>Criar conta</h2>
+
+<p class="form-subtitle">
+Preencha seus dados para se cadastrar
+</p>
+
+
+<form method="post" aria-label="Formulário de cadastro">
+
+{% csrf_token %}
+
+{% if form.errors %}
+    <div style="color:red">
+        {{ form.errors }}
+    </div>
+{% endif %}
+
+{% if aluno_form.errors %}
+    <div style="color:red">
+        {{ aluno_form.errors }}
+    </div>
+{% endif %}
+
+
+<legend>Você é:</legend>
+
+<div class="role-select">
+
+<label>
+<img class="role-icon" src="{% static 'accounts/img/hat.png' %}" alt="Aluno">
+<span>Aluno</span>
+</label>
+
+<label>
+<img class="role-icon" src="{% static 'accounts/img/user.png' %}" alt="Servidor">
+
+<span>Servidor</span>
+</label>
+
+</div>
+
+
+
+
+<div class="form-group">
+
+<label for="nome">Nome completo</label>
+
+
+{{form.username}}
+
+</div>
+
+
+<div class="form-group">
+
+<label for="email">E-mail</label>
+
+
+{{form.email}}
+
+
+</div>
+
+
+<div class="form-group">
+
+<label for="data">Data de nascimento</label>
+
+{{ aluno_form.data_nascimento }}  
+
+</div>
+
+<div class="form-group">
+    <label>Senha</label>
+    {{ form.password1 }}
+</div>
+
+<div class="form-group">
+    <label>Confirmar senha</label>
+    {{ form.password2 }}
+</div>
+
+
+<div class="form-group">
+
+<label for="deficiencia">
+Tipo de deficiência 
+</label>
+
+{{ aluno_form.tipo_deficiencia }} 
+{{ aluno_form.necessidades_especificas }} 
+</div>
+
+
+<button type="submit" class="submit-btn">
+Criar conta →
+</button>
+
+</form>
+
+</div>
+
+</section>
+
+</main>
+
+</body>
+</html>

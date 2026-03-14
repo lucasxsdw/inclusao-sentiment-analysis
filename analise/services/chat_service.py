@@ -13,10 +13,10 @@ def gerar_pergunta_diario(emocao_ptbr, texto_aluno):
     Gera uma pergunta empática usando a IA do Gemini, baseada na emoção e no texto do aluno.
     """
     try:
-        # Usamos o modelo atualizado e gratuito do Google
+        # modelo atualizado e gratuito do Google
         modelo = 'gemini-2.5-flash'
         
-        #  Prompt de Sistema 
+        #  prompt de Sistema 
         prompt = f"""Você é o assistente virtual do 'Diário de Inclusão', um ambiente seguro e acolhedor para alunos desabafarem.
         Seu tom é informal, empático e amigável, como um conselheiro escolar jovem.
         

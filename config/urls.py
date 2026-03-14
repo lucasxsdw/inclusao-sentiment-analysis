@@ -21,6 +21,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('diario/', include('diario.urls')),
     path('analise/', include('analise.urls')),
+    # Add this line to include Django’s auth URLs
+    path('accounts/', include('accounts.urls')),
     
     
     

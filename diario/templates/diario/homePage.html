@@ -30,12 +30,12 @@
             </p>
 
             <div class="container-btn">
-                <a href="/login" class="btn-login" aria-label="Entrar no sistema">
+                <a href="{% url 'accounts:login' %}" class="btn-login" aria-label="Entrar no sistema">
                     Entrar
                     <img src="{% static 'diario/img/emocoes/seta.png' %}" alt="" aria-hidden="true" class="icone-seta">
                 </a>
 
-                <a href="/cadastro" class="btn-register" aria-label="Cadastrar novo usuário">
+                <a href="{% url 'accounts:register' %}" class="btn-register" aria-label="Cadastrar novo usuário">
                     <img src="{% static 'diario/img/emocoes/user.png' %}" alt="" aria-hidden="true" class="icone-user">
                     Cadastrar
                 </a>
