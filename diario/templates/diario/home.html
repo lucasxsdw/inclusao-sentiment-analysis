@@ -68,9 +68,12 @@
         <span class="user-role">{{ request.user.tipo_usuario }}</span>
       </div>
 
-      <button class="logout-btn" aria-label="Sair do sistema">
-        <img class="icon-logout" src="{% static 'diario/img/emocoes/sair.png' %}" alt="">
-      </button>
+    <form method="POST" action="{% url 'accounts:logout' %}">
+  {% csrf_token %}
+  <button type="submit" class="logout-btn" aria-label="Sair do sistema">
+    <img class="icon-logout" src="{% static 'diario/img/emocoes/sair.png' %}" alt="">
+  </button>
+</form>
 
     </div>
   </header>
