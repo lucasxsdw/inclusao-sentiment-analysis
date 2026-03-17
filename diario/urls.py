@@ -8,5 +8,6 @@ urlpatterns = [
     path('homePage/', views.homePageViews.as_view(), name='homePage'), 
     path('home/', views.HomeView.as_view(), name='home'),
     path('emotions/', EmotionsView.as_view(), name='emotions'),
-    path("salvar-emocao/", views.salvar_emocao, name="salvar_emocao"),
+    path('salvar-emocao/', views.salvar_emocao, name="salvar_emocao"),
+    path('sobre/', views.sobre.as_view(), name='sobre')
 ]

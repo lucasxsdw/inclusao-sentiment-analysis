@@ -1,123 +1,128 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat de Apoio - Diário de Inclusão</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'analise/css/chat.css' %}">
-    <link rel="stylesheet" href="{% static 'diario/css/emotions.css' %}">
 
-    
-    
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat de Apoio - Diário de Inclusão</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'analise/css/chat.css' %}">
+  <link rel="stylesheet" href="{% static 'diario/css/emotions.css' %}">
+
+
+
 </head>
+
 <body>
 
 
 
-<header class="header" role="banner">
-  <div class="header-container">
+  <header class="header" role="banner">
+    <div class="header-container">
 
-    <div class="logo-area">
-      <a href="#" class="logo-link" aria-label="Página inicial do Diário de Bordo">
-        <img src="{% static 'diario/img/emocoes/Book.png' %}" alt="" class="logo-icon">
-        <div class="logo-text">
-          <strong>Diário de Bordo</strong>
-          <span class="subtitle">da Inclusão</span>
-        </div>
-      </a>
+      <div class="logo-area">
+        <a href="#" class="logo-link" aria-label="Página inicial do Diário de Bordo">
+          <img src="{% static 'diario/img/emocoes/Book.png' %}" alt="" class="logo-icon">
+          <div class="logo-text">
+            <strong>Diário de Bordo</strong>
+            <span class="subtitle">da Inclusão</span>
+          </div>
+        </a>
+      </div>
+
+      <nav class="nav" role="navigation" aria-label="Menu principal">
+        <ul class="nav-list">
+          <li>
+            <a href="{% url 'home' %}" class="nav-link">
+              <span aria-hidden="true">
+                <img class="nav-icon" src="{% static 'diario/img/emocoes/home.png' %}" alt="">
+              </span>
+              <span>Home</span>
+
+            </a>
+          </li>
+
+          <li>
+            <a href="{% url 'emotions' %}" class="nav-link " aria-current="page">
+              <span aria-hidden="true">
+                <img class="nav-icon" src="{% static 'diario/img/emocoes/bookBlack.png' %}" alt="">
+              </span>
+              <span>Registrar Sentimento</span>
+            </a>
+          </li>
+
+
+          <li>
+            <a href="#" class="nav-link">
+              <span aria-hidden="true">
+                <img class="nav-icon" src="{% static 'diario/img/emocoes/history.png' %}" alt="">
+              </span>
+              <span>Meu Histórico</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="user-area">
+        <span class="user-name">{{ request.user.get_full_name }}</span>
+        <span class="user-role">{{ request.user.tipo_usuario }}</span>
+      </div>
+
+      <button class="logout-btn" aria-label="Sair do sistema">
+        <img class="nav-icon" src="{% static 'diario/img/emocoes/sair.png' %}" alt="">
+      </button>
+
     </div>
+  </header>
 
-    <nav class="nav" role="navigation" aria-label="Menu principal">
-      <ul class="nav-list">
-        <li>
-          <a href="{% url 'home' %}" class="nav-link">
-            <span aria-hidden="true">
-              <img class="nav-icon" src="{% static 'diario/img/emocoes/home.png' %}" alt="">
-            </span>
-            <span>Home</span>
-            
-          </a>
-        </li>
-
-        <li>
-          <a href="{% url 'emotions' %}" class="nav-link " aria-current="page">
-            <span aria-hidden="true">
-              <img class="nav-icon" src="{% static 'diario/img/emocoes/bookBlack.png' %}"  alt="">
-            </span>
-            <span>Registrar Sentimento</span>
-          </a>
-        </li>
-
-       
-        <li>
-          <a href="#" class="nav-link">
-            <span aria-hidden="true">
-              <img class="nav-icon" src="{% static 'diario/img/emocoes/history.png' %}" alt="">
-            </span>
-            <span>Meu Histórico</span>
-          </a>
-        </li>
-      </ul>
-    </nav>
-
-    <div class="user-area">
-      <span class="user-name">Lucas Ryan</span>
-      <span class="user-role">Aluno</span>
-    </div>
-
-    <button class="logout-btn" aria-label="Sair do sistema">
-      <img  class="nav-icon" src="{% static 'diario/img/emocoes/sair.png' %}" alt="">
-    </button>
-
-  </div>
-</header>
-
-<main>
+  <main>
     <div class="top-section">
-        <div class="chat-icon" aria-hidden="true">
+      <div class="chat-icon" aria-hidden="true">
         <img src="{% static 'analise/img/coracao-chat.png' %}" alt="Ícone coração do chat">
 
-        </div>
-     
-        <h1>Chat de Apoio</h1>
-        <p>Converse com nossa IA acolhedora</p>
+      </div>
+
+      <h1>Chat de Apoio</h1>
+      <p>Converse com nossa IA acolhedora</p>
     </div>
 
     <div class="alert" role="alert">
-        ⚠ Este chat oferece apoio emocional, mas <strong>não substitui</strong> acompanhamento psicológico profissional. 
-        Em caso de emergência, procure ajuda imediatamente.
+      ⚠ Este chat oferece apoio emocional, mas <strong>não substitui</strong> acompanhamento psicológico profissional.
+      Em caso de emergência, procure ajuda imediatamente.
     </div>
 
     <div class="chat-container">
-        <div class="chat-messages" id="chat-box" role="log" aria-live="polite" aria-atomic="false">
-            
-            <div class="bot-message">
-                <div class="bot-icon" aria-hidden="true">🤖</div>
-                <div class="bot-bubble">
-                    {{ mensagem_inicial }}
-                </div>
-            </div>
+      <div class="chat-messages" id="chat-box" role="log" aria-live="polite" aria-atomic="false">
 
+        <div class="bot-message">
+          <div class="bot-icon" aria-hidden="true">🤖</div>
+          <div class="bot-bubble">
+            {{ mensagem_inicial }}
+          </div>
         </div>
 
-        <div class="chat-input-area">
-            <div class="chat-input">
-                <textarea id="mensagem-input" rows="1" placeholder="Digite seu desabafo aqui..." aria-label="Campo de texto para desabafo"></textarea>
-                <button id="btn-enviar" aria-label="Enviar mensagem">➤</button>
-            </div>
-            <div class="chat-info" aria-hidden="true">
-                Pressione Enter para enviar • Shift + Enter para quebrar linha
-            </div>
+      </div>
+
+      <div class="chat-input-area">
+        <div class="chat-input">
+          <textarea id="mensagem-input" rows="1" placeholder="Digite seu desabafo aqui..."
+            aria-label="Campo de texto para desabafo"></textarea>
+          <button id="btn-enviar" aria-label="Enviar mensagem">➤</button>
         </div>
+        <div class="chat-info" aria-hidden="true">
+          Pressione Enter para enviar • Shift + Enter para quebrar linha
+        </div>
+      </div>
     </div>
-</main>
+  </main>
 
-<footer role="contentinfo">
+  <footer role="contentinfo">
     <div>🛡 Seus dados são protegidos conforme a LGPD</div>
     <div>© 2026 Diário de Bordo da Inclusão - NAPN</div>
-</footer>
+  </footer>
 
-<script src="{% static 'analise/js/chat.js' %}?v=1"></script></body>
+  <script src="{% static 'analise/js/chat.js' %}?v=1"></script>
+</body>
+
 </html>

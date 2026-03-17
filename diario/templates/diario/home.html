@@ -64,8 +64,8 @@
       </nav>
 
       <div class="user-area">
-        <span class="user-name">{{ request.user }}</span>
-        <span class="user-role">Aluno</span>
+        <span class="user-name">{{ request.user.get_full_name }}</span>
+        <span class="user-role">{{ request.user.tipo_usuario }}</span>
       </div>
 
       <button class="logout-btn" aria-label="Sair do sistema">
@@ -103,7 +103,7 @@
       </a>
 
 
-      <a href="{% url 'emotions' %}" class="card">
+      <a href="{% url 'sobre' %}" class="card">
         <div class="icon-box purple">📊</div>
         <h3>Sobre</h3>
         <p>Informações gerais e contexto do sistema.</p>

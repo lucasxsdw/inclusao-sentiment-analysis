@@ -65,3 +65,7 @@ def salvar_emocao(request):
 
 class homePageViews(TemplateView):
     template_name = 'diario/homePage.html'
+
+
+class sobre(TemplateView):
+    template_name = 'diario/sobre.html'

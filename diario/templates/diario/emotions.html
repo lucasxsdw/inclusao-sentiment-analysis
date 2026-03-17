@@ -66,9 +66,9 @@
         </ul>
       </nav>
 
-      <div class="user-area">
-        <span class="user-name">Lucas Ryan</span>
-        <span class="user-role">Aluno</span>
+           <div class="user-area">
+        <span class="user-name">{{ request.user.get_full_name }}</span>
+        <span class="user-role">{{ request.user.tipo_usuario }}</span>
       </div>
 
       <button class="logout-btn" aria-label="Sair do sistema">
