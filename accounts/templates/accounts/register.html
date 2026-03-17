@@ -3,184 +3,131 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Diário de Bordo da Inclusão</title>
-
-<link rel="stylesheet" href="{% static 'accounts/css/register.css' %}">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Criar conta — Diário de Bordo da Inclusão</title>
+  <link rel="stylesheet" href="{% static 'accounts/css/register.css' %}">
 </head>
 
 <body>
-
 <main class="container">
 
-<!-- LADO ESQUERDO -->
-<section class="info-area">
+  <!-- LADO ESQUERDO -->
+  <section class="info-area">
 
-<header class="logo-area">
- <div class="logo-icon" aria-hidden="true"><img src="{% static 'diario/img/emocoes/Book.png' %}" alt=""></div>
+    <header class="logo-area">
+      <div class="logo-icon" aria-hidden="true">
+        <img src="{% static 'diario/img/emocoes/Book.png' %}" alt="">
+      </div>
+      <div>
+        <h1>Diário de Bordo</h1>
+        <p class="subtitle">da Inclusão</p>
+      </div>
+    </header>
 
-<div>
-<h1>Diário de Bordo</h1>
-<p class="subtitle">da Inclusão</p>
-</div>
-
-</header>
-
-
-<div class="hero-text">
-
-<h2>Faça parte da nossa comunidade</h2>
-
-<p>
-Crie sua conta e comece a registrar sua jornada emocional
-em um ambiente seguro e acolhedor.
-</p>
-
-</div>
-
-
-<div class="lgpd-box" role="region" aria-label="Informação sobre proteção de dados">
-
-<h3>Proteção de Dados (LGPD)</h3>
-
-<p>
-Ao se cadastrar, você concorda com nossa política de privacidade.
-Seus dados serão usados apenas para fins educacionais e de acompanhamento,
-nunca sendo compartilhados com terceiros.
-</p>
-
-</div>
-
-
-<ul class="benefits">
-
-<li>Dados criptografados e seguros</li>
-<li>Acesso restrito por perfil</li>
-<li>Uso ético de Inteligência Artificial</li>
-
-</ul>
-
-</section>
-
-
-
-<!-- FORMULÁRIO -->
-
-<section class="form-area">
-
-<div class="form-card">
-
-<a href="#" class="back-link">← Voltar ao login</a>
-
-<h2>Criar conta</h2>
-
-<p class="form-subtitle">
-Preencha seus dados para se cadastrar
-</p>
-
-
-<form method="post" aria-label="Formulário de cadastro">
-
-{% csrf_token %}
-
-{% if form.errors %}
-    <div style="color:red">
-        {{ form.errors }}
+    <div class="hero-text">
+      <h2>Faça parte da nossa comunidade</h2>
+      <p>Crie sua conta e comece a registrar sua jornada emocional em um ambiente seguro e acolhedor.</p>
     </div>
-{% endif %}
 
-{% if aluno_form.errors %}
-    <div style="color:red">
-        {{ aluno_form.errors }}
+    <div class="lgpd-box" role="region" aria-label="Informação sobre proteção de dados">
+      <h3>Proteção de Dados (LGPD)</h3>
+      <p>Ao se cadastrar, você concorda com nossa política de privacidade. Seus dados serão usados apenas para fins educacionais e de acompanhamento, nunca sendo compartilhados com terceiros.</p>
     </div>
-{% endif %}
 
+    <ul class="benefits">
+      <li>Dados criptografados e seguros</li>
+      <li>Acesso restrito por perfil</li>
+      <li>Uso ético de Inteligência Artificial</li>
+    </ul>
 
-<legend>Você é:</legend>
+  </section>
 
-<div class="role-select">
+  <!-- FORMULÁRIO -->
+  <section class="form-area">
+    <div class="form-card">
 
-<label>
-<img class="role-icon" src="{% static 'accounts/img/hat.png' %}" alt="Aluno">
-<span>Aluno</span>
-</label>
+      <a href="{% url 'accounts:login' %}" class="back-link">← Possui conta? Faça login</a>
 
-<label>
-<img class="role-icon" src="{% static 'accounts/img/user.png' %}" alt="Servidor">
+      <h2>Criar conta</h2>
+      <p class="form-subtitle">Preencha seus dados para se cadastrar</p>
 
-<span>Servidor</span>
-</label>
+      <form method="POST" novalidate aria-label="Formulário de cadastro">
+        {% csrf_token %}
 
-</div>
+        <!-- NOME COMPLETO -->
+        <div class="form-group">
+          <label for="{{ form.first_name.id_for_label }}">Nome completo</label>
+          {{ form.first_name }}
+          {% if form.first_name.errors %}
+            <span class="erro" role="alert">{{ form.first_name.errors.0 }}</span>
+          {% endif %}
+        </div>
 
+        <!-- EMAIL -->
+        <div class="form-group">
+          <label for="{{ form.email.id_for_label }}">E-mail</label>
+          {{ form.email }}
+          {% if form.email.errors %}
+            <span class="erro" role="alert">{{ form.email.errors.0 }}</span>
+          {% endif %}
+        </div>
 
+        <!-- DATA DE NASCIMENTO -->
+        <div class="form-group">
+          <label for="{{ aluno_form.data_nascimento.id_for_label }}">Data de nascimento</label>
+          {{ aluno_form.data_nascimento }}
+          {% if aluno_form.data_nascimento.errors %}
+            <span class="erro" role="alert">{{ aluno_form.data_nascimento.errors.0 }}</span>
+          {% endif %}
+        </div>
 
+        <!-- SENHA -->
+        <div class="form-group">
+          <label for="{{ form.password1.id_for_label }}">Senha</label>
+          {{ form.password1 }}
+          {% if form.password1.errors %}
+            <span class="erro" role="alert">{{ form.password1.errors.0 }}</span>
+          {% endif %}
+        </div>
 
-<div class="form-group">
+        <!-- CONFIRMAR SENHA -->
+        <div class="form-group">
+          <label for="{{ form.password2.id_for_label }}">Confirmar senha</label>
+          {{ form.password2 }}
+          {% if form.password2.errors %}
+            <span class="erro" role="alert">{{ form.password2.errors.0 }}</span>
+          {% endif %}
+        </div>
 
-<label for="nome">Nome completo</label>
+        <!-- TIPO DE DEFICIÊNCIA -->
+        <div class="form-group">
+          <label for="{{ aluno_form.tipo_deficiencia.id_for_label }}">Tipo de deficiência (opcional)</label>
+          {{ aluno_form.tipo_deficiencia }}
+          {% if aluno_form.tipo_deficiencia.errors %}
+            <span class="erro" role="alert">{{ aluno_form.tipo_deficiencia.errors.0 }}</span>
+          {% endif %}
+        </div>
 
+        <!-- NECESSIDADES ESPECÍFICAS -->
+        <div class="form-group">
+          <label for="{{ aluno_form.necessidades_especificas.id_for_label }}">
+            Necessidades específicas (opcional)
+          </label>
+          {{ aluno_form.necessidades_especificas }}
+          {% if aluno_form.necessidades_especificas.errors %}
+            <span class="erro" role="alert">{{ aluno_form.necessidades_especificas.errors.0 }}</span>
+          {% endif %}
+        </div>
 
-{{form.username}}
+        <button type="submit" class="submit-btn">
+          Criar conta →
+        </button>
 
-</div>
-
-
-<div class="form-group">
-
-<label for="email">E-mail</label>
-
-
-{{form.email}}
-
-
-</div>
-
-
-<div class="form-group">
-
-<label for="data">Data de nascimento</label>
-
-{{ aluno_form.data_nascimento }}  
-
-</div>
-
-<div class="form-group">
-    <label>Senha</label>
-    {{ form.password1 }}
-</div>
-
-<div class="form-group">
-    <label>Confirmar senha</label>
-    {{ form.password2 }}
-</div>
-
-
-<div class="form-group">
-
-<label for="deficiencia">
-Tipo de deficiência 
-</label>
-
-{{ aluno_form.tipo_deficiencia }} 
-{{ aluno_form.necessidades_especificas }} 
-</div>
-
-
-<button type="submit" class="submit-btn">
-Criar conta →
-</button>
-
-</form>
-
-</div>
-
-</section>
+      </form>
+    </div>
+  </section>
 
 </main>
-
 </body>
 </html>

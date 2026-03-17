@@ -2,10 +2,16 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class Usuario(AbstractUser):
+    
     TIPO_USUARIO_CHOICES = (
         ('aluno', 'Aluno'),
         ('educador', 'Educador'),
     )
+
+    email = models.EmailField(unique=True) 
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
+
     tipo_usuario = models.CharField(
         max_length=20,
         choices=TIPO_USUARIO_CHOICES,

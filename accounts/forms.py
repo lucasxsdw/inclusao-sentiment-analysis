@@ -6,9 +6,16 @@ from .models import Usuario, Aluno
 #cada form corresponde a um modelo, nesse caso o modelo Usuario, e os campos que queremos usar para criar um novo usuário. 
 # O UserCreationForm já tem os campos de senha e confirmação de senha, então não precisamos adicioná-los manualmente.
 class RegisterUserForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+    first_name = forms.CharField(
+    required=True,
+    label="Nome completo",
+    max_length=150
+)
+
     class Meta:
         model = Usuario
-        fields = ("username", "email", "password1", "password2")
+        fields = ("first_name", "email", "password1", "password2")
 
 
 class AlunoForm(forms.ModelForm):

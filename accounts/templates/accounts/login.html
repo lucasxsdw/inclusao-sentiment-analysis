@@ -1,11 +1,103 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Diário de Bordo da Inclusão</title>
+  <link rel="stylesheet" href="{% static 'accounts/css/register.css' %}">
+</head>
+
+<body>
+  <main class="container">
+
+    <!-- LADO ESQUERDO -->
+    <section class="info-area">
+
+      <header class="logo-area">
+        <div class="logo-icon" aria-hidden="true">
+          <img src="{% static 'diario/img/emocoes/Book.png' %}" alt="">
+        </div>
+        <div>
+          <h1>Diário de Bordo</h1>
+          <p class="subtitle">da Inclusão</p>
+        </div>
+      </header>
+
+      <div class="hero-text">
+        <h2>Faça parte da nossa comunidade</h2>
+        <p>Crie sua conta e comece a registrar sua jornada emocional em um ambiente seguro e acolhedor.</p>
+      </div>
+
+      <div class="lgpd-box" role="region" aria-label="Informação sobre proteção de dados">
+        <h3>Proteção de Dados (LGPD)</h3>
+        <p>Ao se cadastrar, você concorda com nossa política de privacidade. Seus dados serão usados apenas para fins
+          educacionais e de acompanhamento, nunca sendo compartilhados com terceiros.</p>
+      </div>
+
+      <ul class="benefits">
+        <li>Dados criptografados e seguros</li>
+        <li>Acesso restrito por perfil</li>
+        <li>Uso ético de Inteligência Artificial</li>
+      </ul>
+
+    </section>
+
+    <!-- FORMULÁRIO -->
+    <section class="form-area">
+      <div class="form-card">
+
+        <a href="{% url 'accounts:register' %}" class="back-link">← Não tem conta? Cadastre-se</a>
+
+        <h2>Login</h2>
+        <p class="form-subtitle">Preencha seus dados para entrar</p>
+
+        <form method="POST" novalidate aria-label="Formulário de cadastro">
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+          <span class="erro" role="alert">E-mail ou senha incorretos.</span>
+          {% endif %}
+
+          {% if messages %}
+          {% for message in messages %}
+          <p class="sucesso">{{ message }}</p>
+          {% endfor %}
+          {% endif %}
 
 
-{% extends "base.html" %}
-{% block content %}
-  <h2>Login</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Login</button>
-  </form>
-{% endblock %}
+          <!-- Email -->
+          <div class="form-group">
+            {{ form.username.label_tag }}
+            {{ form.username }}
+            {% if form.username.errors %}
+            <span class="erro" role="alert">{{ form.username.errors.0 }}</span>
+            {% endif %}
+          </div>
+
+          <!-- Senha -->
+          <div class="form-group">
+            {{ form.password.label_tag }}
+            {{ form.password }}
+            {% if form.password.errors %}
+            <span class="erro" role="alert">{{ form.password.errors.0 }}</span>
+            {% endif %}
+
+
+          </div>
+
+
+          <button type="submit" class="submit-btn">
+            Entrar →
+          </button>
+
+        </form>
+      </div>
+    </section>
+
+  </main>
+</body>
+
+</html>
