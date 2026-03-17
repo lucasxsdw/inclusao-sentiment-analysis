@@ -1,16 +1,18 @@
 import json
 from django.http import JsonResponse
 from django.views.generic import TemplateView
-from diario.models import SessaoEmocional, Diario
+from diario.models import SessaoEmocional, Diario, Resposta
 from diario.models import Resposta
-from analise.services.sentimento_service import analisar_e_salvar
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 
 
+# pagina inicial 
 
 class HomeView(TemplateView):
     template_name = 'diario/home.html'  
 
-    
+# registra sentimentos 
 class EmotionsView(TemplateView):
     template_name = 'diario/emotions.html'
 
@@ -23,9 +25,10 @@ def salvar_emocao(request):
         if emocao:
             # 1️ Criar sessão
             sessao = SessaoEmocional.objects.create(
-                emocao_selecionada=emocao,
-                status_sessao='ativa'
-            )
+            emocao_selecionada=emocao,
+            status_sessao='ativa',
+            aluno=request.user.perfil_aluno if request.user.is_authenticated else None
+        )
 
             # 💡 NOVIDADE: Mapeando a emoção para a primeira mensagem personalizada!
             mensagens_iniciais = {
@@ -63,9 +66,98 @@ def salvar_emocao(request):
     return JsonResponse({'status': 'error'}, status=405)
 
 
+# template inical + apresentcao do sistema 
 class homePageViews(TemplateView):
     template_name = 'diario/homePage.html'
 
-
+# sobre 
 class sobre(TemplateView):
     template_name = 'diario/sobre.html'
+
+
+
+# Mapeamento de emoções para emojis
+EMOCAO_EMOJI = {
+    'muito_feliz': '😄',
+    'feliz': '😊',
+    'neutro': '😐',
+    'triste': '😢',
+    'muito_triste': '😭',
+    'ansioso': '😰',
+    'irritado': '😠',
+    'cansado': '😴',
+    'alegria': '😊',
+    'tristeza': '😢',
+    'medo': '😨',
+    'raiva': '😠',
+    'surpresa': '😲',
+    'nojo': '🤢',
+}
+
+# Emoções que indicam atenção
+EMOCOES_ATENCAO = ['triste', 'muito_triste', 'ansioso', 'irritado', 'tristeza', 'medo', 'raiva']
+
+
+@login_required
+def historico_emocional(request):
+    try:
+        aluno = request.user.perfil_aluno
+    except Exception:
+        aluno = None
+
+    sessoes = []
+
+    if aluno:
+        sessoes_qs = SessaoEmocional.objects.filter(
+            aluno=aluno
+        ).order_by('-data_inicio')
+
+        for sessao in sessoes_qs:
+            # Busca o diário vinculado
+            try:
+                diario = sessao.diario
+            except Exception:
+                continue
+
+            # Busca todas as respostas do diário com suas análises
+            respostas = Resposta.objects.filter(
+                diario=diario
+            ).prefetch_related('analiseresposta')
+
+            analises = []
+            for resposta in respostas:
+                try:
+                    analise = resposta.analiseresposta
+                    analises.append({
+                        'sentimento': analise.sentimento_detectado or 'neutro',
+                        'score': round((analise.score_sentimento or 0) * 100),
+                        'texto': resposta.texto_resposta,
+                    })
+                except Exception:
+                    pass
+
+            # Emoção predominante da sessão (maior score)
+            emocao_predominante = sessao.emocao_selecionada
+            score_predominante = 0
+            if analises:
+                melhor = max(analises, key=lambda x: x['score'])
+                emocao_predominante = melhor['sentimento']
+                score_predominante = melhor['score']
+
+            emoji = EMOCAO_EMOJI.get(sessao.emocao_selecionada, '😐')
+            precisa_atencao = sessao.emocao_selecionada in EMOCOES_ATENCAO
+
+            sessoes.append({
+                'sessao': sessao,
+                'diario': diario,
+                'analises': analises,
+                'emocao_predominante': emocao_predominante,
+                'score_predominante': score_predominante,
+                'emoji': emoji,
+                'precisa_atencao': precisa_atencao,
+            })
+
+    return render(request, 'diario/historico.html', {
+        'sessoes': sessoes,
+        'total_sessoes': len(sessoes),
+    })
