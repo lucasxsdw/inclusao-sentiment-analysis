@@ -1,76 +1,16 @@
-
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sobre o Projeto</title>
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'diario/css/emotions.css' %}">
 <link rel="stylesheet" href="{% static 'diario/css/sobre.css' %}">
- <link rel="stylesheet" href="{% static 'diario/css/emotions.css' %}">
-</head>
 
-<body>
+{% endblock %}
 
-    
-  <header class="header" role="banner">
-    <div class="header-container">
-
-      <div class="logo-area">
-        <a href="#" class="logo-link" aria-label="Página inicial do Diário de Bordo">
-          <img src="{% static 'diario/img/emocoes/Book.png' %}" alt="" class="logo-icon">
-          <div class="logo-text">
-            <strong>Diário de Bordo</strong>
-            <span class="subtitle">da Inclusão</span>
-          </div>
-        </a>
-      </div>
-
-      <nav class="nav" role="navigation" aria-label="Menu principal">
-        <ul class="nav-list">
-          <li>
-            <a href="{% url 'home' %}" class="nav-link">
-              <span aria-hidden="true">
-                <img class="nav-icon" src="{% static 'diario/img/emocoes/home.png' %}" alt="">
-              </span>
-              <span>Home</span>
-
-            </a>
-          </li>
-
-          <li>
-            <a href="{% url 'emotions' %}" class="nav-link " aria-current="page">
-              <span aria-hidden="true">
-                <img class="nav-icon" src="{% static 'diario/img/emocoes/bookBlack.png' %}" alt="">
-              </span>
-              <span>Registrar Sentimento</span>
-            </a>
-          </li>
+{% block content %}
 
 
-            <li>
-            <a href="{% url 'historico' %}" class="nav-link">
-              <span aria-hidden="true">
-                <img class="nav-icon" src="{% static 'diario/img/emocoes/history.png' %}" alt="">
-              </span>
-              <span>Meu Histórico</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-
-           <div class="user-area">
-        <span class="user-name">{{ request.user.get_full_name }}</span>
-        <span class="user-role">{{ request.user.tipo_usuario }}</span>
-      </div>
-
-      <button class="logout-btn" aria-label="Sair do sistema">
-        <img class="nav-icon" src="{% static 'diario/img/emocoes/sair.png' %}" alt="">
-      </button>
-
-    </div>
-  </header>
+<main class="main-content" role="main">
 
 <div class="container">
 
@@ -131,6 +71,7 @@
     </div>
 
 </div>
+</main>
+{% endblock %}
+    
 
-</body>
-</html>

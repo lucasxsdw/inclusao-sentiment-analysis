@@ -1,84 +1,19 @@
+
+{% extends 'base.html' %}
 {% load static %}
 {% load i18n %}
-<!DOCTYPE html>
-<html lang="pt-br">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Diário de Bordo da Inclusão</title>
+  {% block extra_css %}
   <link rel="stylesheet" href="{% static 'diario/css/home.css' %}">
   <link rel="stylesheet" href="{% static 'diario/css/emotions.css' %}">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+ {% endblock %}
 
 
-</head>
-
-<body>
-
-
-  <header class="header" role="banner">
-    <div class="header-container">
-
-      <div class="logo-area">
-        <a href="#" class="logo-link" aria-label="Página inicial do Diário de Bordo">
-          <img src="{% static 'diario/img/emocoes/Book.png' %}" alt="" class="logo-icon">
-          <div class="logo-text">
-            <strong>Diário de Bordo</strong>
-            <span class="subtitle">da Inclusão</span>
-          </div>
-        </a>
-      </div>
-
-      <nav class="nav" role="navigation" aria-label="Menu principal">
-        <ul class="nav-list">
-          <li>
-            <a href="{% url 'home' %}" class="nav-link">
-              <span aria-hidden="true">
-                <img class="nav-icon" src="{% static 'diario/img/emocoes/home.png' %}" alt="">
-              </span>
-              <span>Home</span>
-
-            </a>
-          </li>
-
-          <li>
-            <a href="{% url 'emotions' %}" class="nav-link " aria-current="page">
-              <span aria-hidden="true">
-                <img class="nav-icon" src="{% static 'diario/img/emocoes/bookBlack.png' %}" alt="">
-              </span>
-              <span>Registrar Sentimento</span>
-            </a>
-          </li>
-
-
-          <li>
-            <a href="{% url 'historico' %}" class="nav-link">
-              <span aria-hidden="true">
-                <img class="nav-icon" src="{% static 'diario/img/emocoes/history.png' %}" alt="">
-              </span>
-              <span>Meu Histórico</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-
-      <div class="user-area">
-        <span class="user-name">{{ request.user.get_full_name }}</span>
-        <span class="user-role">{{ request.user.tipo_usuario }}</span>
-      </div>
-
-    <form method="POST" action="{% url 'accounts:logout' %}">
-  {% csrf_token %}
-  <button type="submit" class="logout-btn" aria-label="Sair do sistema">
-    <img class="icon-logout" src="{% static 'diario/img/emocoes/sair.png' %}" alt="">
-  </button>
-</form>
-
-    </div>
-  </header>
-
-
+ {% block content %}
+<main class="main-content" role="main">
 
   <div class="container">
 
@@ -99,7 +34,7 @@
 
 
 
-      <a href="" class="card">
+      <a href="{% url 'historico' %}" class="card">
         <div class="icon-box orange">⏱</div>
         <h3>Meu Histórico</h3>
         <p>Veja sua jornada emocional</p>
@@ -129,11 +64,10 @@
 
   </div>
 
+  </main>
   <footer>
     <div>🛡 Seus dados são protegidos conforme a LGPD</div>
     <div>© 2024 Diário de Bordo da Inclusão - NAPN</div>
   </footer>
 
-</body>
-
-</html>
+{% endblock %}

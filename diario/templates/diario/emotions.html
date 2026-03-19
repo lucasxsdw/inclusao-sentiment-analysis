@@ -1,98 +1,23 @@
+{% extends 'base.html' %}
 {% load static %}
-{% load i18n %}
 
-<!DOCTYPE html>
-<html lang="pt-BR">
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'diario/css/emotions.css' %}">
+{% endblock %}
 
-<head>
-  <meta charset="UTF-8">
-  <title>Diário de Bordo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="color-scheme" content="light dark">
-  <meta name="csrf-token" content="{{ csrf_token }}">
-
-
-  <link rel="stylesheet" href="{% static 'diario/css/emotions.css' %}">
-
-</head>
-
-<body>
-
-
-
-  <header class="header" role="banner">
-    <div class="header-container">
-
-      <div class="logo-area">
-        <a href="#" class="logo-link" aria-label="Página inicial do Diário de Bordo">
-          <img src="{% static 'diario/img/emocoes/Book.png' %}" alt="" class="logo-icon">
-          <div class="logo-text">
-            <strong>Diário de Bordo</strong>
-            <span class="subtitle">da Inclusão</span>
-          </div>
-        </a>
-      </div>
-
-      <nav class="nav" role="navigation" aria-label="Menu principal">
-        <ul class="nav-list">
-          <li>
-            <a href="{% url 'home' %}" class="nav-link">
-              <span aria-hidden="true">
-                <img class="nav-icon" src="{% static 'diario/img/emocoes/home.png' %}" alt="">
-              </span>
-              <span>Home</span>
-
-            </a>
-          </li>
-
-          <li>
-            <a href="{% url 'emotions' %}" class="nav-link " aria-current="page">
-              <span aria-hidden="true">
-                <img class="nav-icon" src="{% static 'diario/img/emocoes/bookBlack.png' %}" alt="">
-              </span>
-              <span>Registrar Sentimento</span>
-            </a>
-          </li>
-
-
-             <li>
-            <a href="{% url 'historico' %}" class="nav-link">
-              <span aria-hidden="true">
-                <img class="nav-icon" src="{% static 'diario/img/emocoes/history.png' %}" alt="">
-              </span>
-              <span>Meu Histórico</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-
-           <div class="user-area">
-        <span class="user-name">{{ request.user.get_full_name }}</span>
-        <span class="user-role">{{ request.user.tipo_usuario }}</span>
-      </div>
-
-      <button class="logout-btn" aria-label="Sair do sistema">
-        <img class="nav-icon" src="{% static 'diario/img/emocoes/sair.png' %}" alt="">
-      </button>
-
-    </div>
-  </header>
+{% block content %}
 
   <main class="main-content" role="main">
 
     <div class="top-section-emotions">
       <div class="book-icon-container" aria-hidden="true">
-        <img class="book-icon" src="{% static 'diario/img/emocoes/book.png' %}" alt="Ícone coração do chat">
-
+        <img class="book-icon" src="{% static 'diario/img/emocoes/book.png' %}" alt="">
       </div>
-
       <h1>Diário Emocional</h1>
       <p>Este é um espaço seguro para você expressar como se sente. <br> Suas respostas são confidenciais.</p>
     </div>
 
-
     <section class="emotion-selection" aria-labelledby="emotion-selection-title">
-
       <div class="emotion-header">
         <h1 id="emotion-selection-title">
           <img src="{% static 'diario/img/emocoes/star.png' %}" alt="" class="star-icon" aria-hidden="true">
@@ -101,52 +26,41 @@
         <p>Escolha a emoção que melhor representa como você está agora.</p>
       </div>
 
-
       <div class="emotions">
-
         <button type="button" class="emotion-btn" data-emotion="muito_feliz">
           <span class="emoji" aria-hidden="true">😄</span>
           <span>Muito Feliz</span>
         </button>
-
         <button type="button" class="emotion-btn" data-emotion="feliz">
           <span class="emoji" aria-hidden="true">😊</span>
           <span>Feliz</span>
         </button>
-
         <button type="button" class="emotion-btn" data-emotion="neutro">
           <span class="emoji" aria-hidden="true">😐</span>
           <span>Neutro</span>
         </button>
-
         <button type="button" class="emotion-btn" data-emotion="triste">
           <span class="emoji" aria-hidden="true">😢</span>
           <span>Triste</span>
         </button>
-
         <button type="button" class="emotion-btn" data-emotion="muito_triste">
           <span class="emoji" aria-hidden="true">😭</span>
           <span>Muito Triste</span>
         </button>
-
         <button type="button" class="emotion-btn" data-emotion="ansioso">
           <span class="emoji" aria-hidden="true">😰</span>
           <span>Ansioso(a)</span>
         </button>
-
         <button type="button" class="emotion-btn" data-emotion="irritado">
           <span class="emoji" aria-hidden="true">😠</span>
           <span>Irritado(a)</span>
         </button>
-
         <button type="button" class="emotion-btn" data-emotion="cansado">
           <span class="emoji" aria-hidden="true">😴</span>
           <span>Cansado(a)</span>
         </button>
-
       </div>
     </section>
-
 
     <button class="continuar-btn" disabled aria-disabled="true">
       <span>Continuar</span>
@@ -161,7 +75,4 @@
 
   <script src="{% static 'diario/js/emotions.js' %}"></script>
 
-
-</body>
-
-</html>
+{% endblock %}

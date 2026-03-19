@@ -1,13 +1,69 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% load static %}
     {% block extra_css %}{% endblock %}
     <title>Diário de Bordo da Inclusão</title>
 </head>
 <body>
-    {% block content %}{% endblock %}
+
+    <header class="header" role="banner">
+        <meta name="csrf-token" content="{{ csrf_token }}">
+        <div class="header-container">
+
+            <div class="logo-area">
+                <a href="#" class="logo-link" aria-label="Página inicial do Diário de Bordo">
+                    <img src="{% static 'diario/img/emocoes/Book.png' %}" alt="" class="logo-icon">
+                    <div class="logo-text">
+                        <strong>Diário de Bordo</strong>
+                        <span class="subtitle">da Inclusão</span>
+                    </div>
+                </a>
+            </div>
+
+            <nav class="nav" role="navigation" aria-label="Menu principal">
+                <ul class="nav-list">
+                    <li>
+                        <a href="{% url 'home' %}" class="nav-link">
+                            <img class="nav-icon" src="{% static 'diario/img/emocoes/home.png' %}" alt="">
+                            <span>Home</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'emotions' %}" class="nav-link">
+                            <img class="nav-icon" src="{% static 'diario/img/emocoes/bookBlack.png' %}" alt="">
+                            <span>Registrar Sentimento</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'historico' %}" class="nav-link">
+                            <img class="nav-icon" src="{% static 'diario/img/emocoes/history.png' %}" alt="">
+                            <span>Meu Histórico</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="user-area">
+                <span class="user-name">{{ request.user.get_full_name }}</span>
+                <span class="user-role">{{ request.user.tipo_usuario }}</span>
+            </div>
+
+            <form method="POST" action="{% url 'accounts:logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn" aria-label="Sair do sistema">
+                    <img class="icon-logout" src="{% static 'diario/img/emocoes/sair.png' %}" alt="">
+                </button>
+            </form>
+
+        </div>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
 </body>
 </html>
