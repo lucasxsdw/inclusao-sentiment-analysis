@@ -17,14 +17,19 @@ body {
 }
 
 .header-container {
-  height: 70px;
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 18px 15px;
+  height: auto;
+  padding: 10px 15px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Menu toggle */
+.menu-toggle {
+  display: none;
+  font-size: 26px;
+  cursor: pointer;
 }
 
 /* Logo */
@@ -47,7 +52,7 @@ body {
   padding: 10px;
   border-radius: 11px;
   background-color: #14b8a6;
-  margin-left: 250px;
+
 }
 
 .logo-text strong {
@@ -60,11 +65,23 @@ body {
   color: #14b8a6;
 }
 
-/* Navegação */
+/* NAV */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* separa esquerda, meio e direita */
+  max-width: 1200px; /* controla largura */
+  margin: 0 auto; /* CENTRALIZA TUDO */
+  padding: 0 20px; /* respiro nas laterais */
+}
+
+
 .nav-list {
   display: flex;
   list-style: none;
-  gap: 20px;
+  gap: 25px;
+  margin: 0 auto; /* empurra pro centro */
+  padding: 0;
 }
 
 .nav-link {
@@ -98,15 +115,11 @@ body {
   font-weight: 600;
 }
 
-/* Usuário */
+/* Agrupar user + logout */
 .user-area {
   display: flex;
-  align-items: center;
   flex-direction: column;
-  gap: 8px;
-  font-size: 14px;
-
-
+  align-items: flex-end;
 }
 
 .user-name {
@@ -120,21 +133,11 @@ body {
 }
 
 .logout-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 18px;
-  margin-left: -180px;
-  margin-right: 150px;
-  
-
-
+  margin: 0;
 }
 
 .icon-logout{
   height: 17px;
-  padding-left: 50px;
-
 }
 
 .logout-btn:focus-visible {
@@ -325,12 +328,42 @@ body {
   transition: all 0.2s ease;
 }
 
-footer {
-  margin-top: 60px;
-  padding: 20px 40px;
-  display: flex;
-  justify-content: space-between;
-  color: #64748b;
-  font-size: 14px;
-  border-top: 1px solid #5cf9e7;
+
+
+/*Responsividade*/
+@media (max-width: 768px) {
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .nav {
+    display: none;
+    width: 100%;
+  }
+
+  .nav.active {
+    display: flex;
+  }
+
+  .nav-list {
+    flex-direction: column;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .nav-link {
+    width: 100%;
+    padding: 12px;
+  }
+
+  .user-area {
+    width: 100%;
+    align-items: flex-start;
+    margin-top: 10px;
+  }
+
+  .header-container {
+    align-items: flex-start;
+  }
 }

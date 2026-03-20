@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path
 from .views import historico_emocional
 from diario import views
-from diario.views import EmotionsView, homePageViews
+from diario.views import EmotionsView
 
 urlpatterns = [
 

@@ -2,6 +2,7 @@ import json
 import logging
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.views.generic import TemplateView
 from diario.models import Diario, Pergunta, Resposta
 from accounts.models import Aluno
 
@@ -92,3 +93,8 @@ def enviar_desabafo(request):
             return JsonResponse({'erro': 'Erro interno no servidor.'}, status=500)
 
     return JsonResponse({'erro': 'Método não permitido.'}, status=405)
+
+
+class Painel(TemplateView):
+    template_name = 'analise/painel_napne.html'
+

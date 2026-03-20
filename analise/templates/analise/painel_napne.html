@@ -1,5 +1,5 @@
 
-{% extends 'base.html' %}
+{% extends 'base_napne.html' %}
 {% load static %}
 {% load i18n %}
 
@@ -7,7 +7,7 @@
   <title>Diário de Bordo da Inclusão</title>
   {% block extra_css %}
   <link rel="stylesheet" href="{% static 'diario/css/home.css' %}">
-<link rel="stylesheet" href="{% static 'diario/css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'diario/css/base_napne.css' %}">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
  {% endblock %}
 
@@ -18,12 +18,12 @@
   <div class="container">
 
     <div class="hero">
-      <div style="font-size:14px; opacity:0.8;">☀️ Boa tarde</div>
+      <div style="font-size:14px; opacity:0.8;">Painel do servidor</div>
       <h1>Olá, {{ request.user.get_full_name }} 👋</h1>
-      <p>Este é o seu espaço seguro. Como você está se sentindo hoje?</p>
+      <p>Acompanhe o bem-estar emocional dos alunos de forma ética e segura.</p>
     </div>
 
-    <div class="section-title">✨ O que você gostaria de fazer?</div>
+    <div class="section-title">Os dados exibidos são apenas para apoio ao acompanhamento educacional, respeitando a privacidade e a LGPD.</div>
 
     <div class="cards">
       <a href="{% url 'emotions' %}" class="card">
