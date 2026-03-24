@@ -1,0 +1,56 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selecionar Perfil</title>
+    <link rel="stylesheet" href="{% static 'accounts/css/tipoUser.css' %}">
+
+</head>
+
+<body>
+
+    <main class="container" role="main">
+
+        <div class="logo" aria-hidden="true">📖</div>
+
+        <h1>Bem-vindo, Usuário!</h1>
+        <p class="subtitle">Selecione seu perfil para continuar</p>
+
+        <form aria-label="Seleção de perfil">
+
+            <div class="options">
+
+                <a href="{% url 'accounts:register' %}"class="option" role="button">
+                    
+                    <div class="icon">👤</div>
+                    <div class="text">
+                        <strong>Sou Aluno</strong>
+                        <span>Acessar o Diário de Bordo</span>
+                    </div>
+                </a>
+
+                <a href="{% url 'accounts:registerServ' %}" class="option" role="button">
+                    <div class="icon">👥</div>
+                    <div class="text">
+                        <strong>Sou Servidor NAPNE</strong>
+                        <span>Acessar o painel de acompanhamento</span>
+                    </div>
+                </a>
+
+            </div>
+            </label>
+
+        </form>
+
+    </main>
+
+    <script src="{% static 'accounts/js/tipoUser.js' %}"></script>
+
+
+</body>
+
+</html>
