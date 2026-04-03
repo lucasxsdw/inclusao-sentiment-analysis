@@ -1,0 +1,110 @@
+{% extends 'base_napne.html' %}
+{% load static %}
+{% load i18n %}
+
+
+<title>Diário de Bordo da Inclusão</title>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'diario/css/home.css' %}">
+<link rel="stylesheet" href="{% static 'diario/css/base_napne.css' %}">
+<link rel="stylesheet" href="{% static 'analise/css/perfil_aluno_napne.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+
+<div class="dashboard-container">
+    <header class="profile-header">
+        <div class="user-info">
+            <div class="avatar-icon"><img src="{% static 'analise/img/users.png' %}" alt=""></div>
+            <div>
+                <h1>{{ aluno.nome }}</h1>
+                <p>{{ aluno.user.email }}</p>
+            </div>
+        </div>
+        <div class="stats-grid">
+            
+            <div class="stat-item">
+                <span class="label">Tipo de Deficiência</span>
+                <span class="value">{{ aluno.tipo_deficiencia }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="label">Total de Registros</span>
+                <span class="value">{{ total_registro }}</span>
+            </div>
+            <div class="stat-item">
+                <span class="label">Alertas de Atenção</span>
+                <span class="value" style="color: #f39c12;">{{ total_alertas }}</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="info-banner">
+        <span class="icon">🛡️</span>
+        <p>Estes dados são confidenciais e devem ser usados apenas para fins de acompanhamento educacional, respeitando a privacidade do aluno conforme a LGPD.</p>
+    </div>
+
+    <section class="card alert-card">
+        <div class="card-header warning-text">
+            <span class="icon">⚠️</span> Registros que Merecem Atenção
+        </div>
+        <p class="description">Os seguintes registros indicam que o aluno pode estar passando por dificuldades emocionais. Considere uma abordagem acolhedora e, se necessário, encaminhe para atendimento especializado.</p>
+        <div class="list-item-highlight">
+            <span class="emoji">😊</span>
+            <div>
+                <span class="status">Feliz</span>
+                <span class="timestamp">3 de fevereiro às 19:25</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="card-header section-title">
+            <span class="icon">📈</span> Evolução Emocional
+        </div>
+        <div class="chart-container">
+            <div class="chart-placeholder">
+                <img src="https://via.placeholder.com/800x200?text=Grafico+de+Evolucao+Emocional" alt="Gráfico de Evolução" style="width: 100%;">
+            </div>
+            <div class="chart-legend">
+                <span class="legend-item"><span class="dot sadness"></span> Tristeza</span>
+                <span class="legend-item"><span class="dot anxiety"></span> Ansiedade</span>
+                <span class="legend-item"><span class="dot wellbeing"></span> Bem-estar</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="card-header section-title">
+            <span class="icon">📅</span> Histórico de Registros
+        </div>
+        <div class="history-list">
+            <div class="history-item">
+                <div class="item-main">
+                    <span class="emoji">😊</span>
+                    <div>
+                        <span class="status">Feliz</span>
+                        <span class="timestamp">3 de fevereiro às 20:01</span>
+                    </div>
+                </div>
+                <span class="arrow-down">⌄</span>
+            </div>
+            <div class="history-item attention">
+                <div class="item-main">
+                    <span class="emoji">😊</span>
+                    <div>
+                        <span class="status">Feliz</span>
+                        <span class="timestamp">3 de fevereiro às 19:25</span>
+                    </div>
+                </div>
+                <div class="badge">Atenção <span class="arrow-down">⌄</span></div>
+            </div>
+        </div>
+    </section>
+</div>
+
+</body>
+</html>
+
+{% endblock %}

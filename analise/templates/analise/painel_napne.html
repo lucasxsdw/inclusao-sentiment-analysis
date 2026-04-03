@@ -1,18 +1,18 @@
-
 {% extends 'base_napne.html' %}
 {% load static %}
 {% load i18n %}
 
 
-  <title>Diário de Bordo da Inclusão</title>
-  {% block extra_css %}
-  <link rel="stylesheet" href="{% static 'diario/css/home.css' %}">
-  <link rel="stylesheet" href="{% static 'diario/css/base_napne.css' %}">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
- {% endblock %}
+<title>Diário de Bordo da Inclusão</title>
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'diario/css/home.css' %}">
+<link rel="stylesheet" href="{% static 'diario/css/base_napne.css' %}">
+<link rel="stylesheet" href="{% static 'analise/css/painel_napne.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+{% endblock %}
 
 
- {% block content %}
+{% block content %}
 <main class="main-content" role="main">
 
   <div class="container">
@@ -23,33 +23,67 @@
       <p>Acompanhe o bem-estar emocional dos alunos de forma ética e segura.</p>
     </div>
 
-    <div class="section-title">Os dados exibidos são apenas para apoio ao acompanhamento educacional, respeitando a privacidade e a LGPD.</div>
+    <div class="section-title"> <img src="{% static 'analise/img/shield.png' %}" alt="Atenção"> Os dados exibidos são
+      apenas para apoio ao acompanhamento educacional, respeitando a privacidade e a LGPD.</div>
 
     <div class="cards">
-      <a href="{% url 'emotions' %}" class="card">
-        <div class="icon-box green">💚</div>
-        <h3>Registrar Sentimento</h3>
-        <p>Como você está se sentindo agora?</p>
+
+      {% for item in alunos_atencao %}
+      <a href="{% url 'perfil_aluno_napne' item.aluno.id %}" class="card" style="border-left: 4px solid #f59e0b;">
+
+        <div class="icon-box orange">
+          <span style="font-size: 24px;" aria-hidden="true">{{ item.emoji }}</span>
+        </div>
+
+        <h3>{{ item.aluno.usuario.get_full_name|default:item.aluno.usuario.username }}</h3>
+
+        <span class="badge-atencao" style="color: #d97706; font-weight: bold; font-size: 12px;">
+          ⚠ Requer Atenção
+        </span>
+
       </a>
 
-
-
-      <a href="{% url 'historico' %}" class="card">
-        <div class="icon-box orange">⏱</div>
-        <h3>Meu Histórico</h3>
-        <p>Veja sua jornada emocional</p>
-      </a>
-
-
-      <a href="{% url 'sobre' %}" class="card">
-        <div class="icon-box purple">📊</div>
-        <h3>Sobre</h3>
-        <p>Informações gerais e contexto do sistema.</p>
-      </a>
-
-
+      {% empty %}
+      <div class="card" style="background-color: #ecfdf5; border: none;">
+        <p style="color: #059669; margin: 0;">🎉 Ótimas notícias! Nenhum aluno requer atenção emergencial no momento.
+        </p>
+      </div>
+      {% endfor %}
 
     </div>
+
+    <div class="container-cards">
+
+  <a class="card-dashboard card-alunos" href="{% url 'alunos' %}">
+    <div class="icon">
+      <img src="{% static 'analise/img/users.png' %}">
+    </div>
+
+    <div class="content">
+      <h3>Lista de Alunos</h3>
+      <p>Ver todos os alunos cadastrados</p>
+    </div>
+
+    <div class="arrow">→</div>
+  </a>
+
+  <a class="card-dashboard card-static" href="{% url 'alunos' %}">
+    <div class="icon">
+      <img src="{% static 'analise/img/trending-up.png' %}">
+    </div>
+
+    <div class="content">
+      <h3>Estatísticas Gerais</h3>
+      <p>Análise consolidada dos dados</p>
+    </div>
+
+    <div class="arrow">→</div>
+  </a>
+
+</div>
+
+
+
 
     <div class="info">
       <div class="info-icon">
@@ -64,7 +98,7 @@
 
   </div>
 
-  </main>
-  
+</main>
+
 
 {% endblock %}

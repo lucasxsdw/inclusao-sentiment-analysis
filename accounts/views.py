@@ -4,10 +4,18 @@ from django.views.generic.edit import FormView
 from django.contrib.auth.views import LoginView
 from .forms import RegisterUserForm, AlunoForm, EducadorForm
 from django.urls import reverse_lazy
+from django.shortcuts import redirect
+from django.contrib.auth.views import LoginView
 
 
 class Login(LoginView):
     template_name = "accounts/login.html"
+
+    def get_success_url(self):
+        user = self.request.user
+        if user.tipo_usuario == 'educador':
+            return '/analise/painel/'
+        return '/diario/home/'
 
 
 class TipoUser(TemplateView):

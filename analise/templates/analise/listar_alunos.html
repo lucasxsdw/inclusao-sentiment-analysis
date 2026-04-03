@@ -1,0 +1,108 @@
+{% extends 'base_napne.html' %}
+{% load static %}
+{% load i18n %}
+
+ <title>Diário de Bordo da Inclusão</title>
+  {% block extra_css %}
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'analise/css/lista_alunos.css' %}">
+  <link rel="stylesheet" href="{% static 'diario/css/base_napne.css' %}">
+  <link rel="stylesheet" href="{% static 'diario/css/home.css' %}">
+
+  {% endblock %}
+
+{% block content %}
+<main class="lista-container" role="main">
+
+    <header class="lista-header">
+        <h1>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            Lista de Alunos
+        </h1>
+        <p>{{ total_alunos }} alunos cadastrados</p>
+    </header>
+
+    <form method="get" action="" class="controls-bar">
+         <div class="search-box">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input  type="text" name="buscar" placeholder="Buscar por nome ou e-mail..." value="{{ buscar_aluno }}" autocomplete="off" >
+        </div>
+
+        <div class="filter-box">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+            <select name="deficiencia" >
+                <option value="">Todas as deficiências</option>
+                <option value="multipla" {% if tipo_deficiencia == "multipla" %}selected{% endif %}>Múltipla</option>
+                <option value="visual" {% if tipo_deficiencia == "visual" %}selected{% endif %}>Visual</option>
+                <option value="auditiva" {% if tipo_deficiencia == "auditiva" %}selected{% endif %}>Auditiva</option>
+            </select>
+        </div>
+
+        <button class="button-filter" type="submit" >Filtrar</button>
+    </form>
+
+
+
+    <div class="cards-grid">
+        
+        {% for item in alunos_lista %}
+        <div class="aluno-card {% if item.precisa_atencao %}atencao{% endif %}">
+            
+            <div class="card-top">
+                <div class="perfil-info">
+                    <div class="avatar">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
+                    <div class="nome-email">
+                        <h3>{{ item.aluno.usuario.first_name|default:item.aluno.usuario.username }}</h3>
+                        <p>{{ item.aluno.usuario.email }}</p>
+                    </div>
+                </div>
+                
+                {% if item.precisa_atencao %}
+                <div class="badge-atencao">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    Atenção
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="badge-deficiencia">
+                {{ item.aluno.get_tipo_deficiencia_display|default:"Não informado" }}
+            </div>
+
+            <div class="card-stats">
+                <div class="stat-row">
+                    <span class="stat-label">Registros</span>
+                    <span class="stat-value">{{ item.total_registros }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Último registro</span>
+                    <span class="stat-value">
+                        {% if item.data_ultimo_registro %}
+                            {{ item.emoji_ultimo }} {{ item.data_ultimo_registro|date:"d/m/Y" }}
+                        {% else %}
+                            Sem registros
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <div class="card-action">
+                <a href="{% url 'perfil_aluno_napne' item.aluno.id %}" class="link-perfil">
+                    Ver perfil completo 
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </a>
+            </div>
+
+        </div>
+        {% empty %}
+        <p style="color: #6b7280; grid-column: 1 / -1; text-align: center;">Nenhum aluno encontrado.</p>
+        {% endfor %}
+
+    </div>
+
+   
+
+</main>
+{% endblock %}
