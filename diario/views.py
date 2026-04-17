@@ -1,36 +1,60 @@
 import json
+from datetime import timedelta
 from django.http import JsonResponse
 from django.views.generic import TemplateView
+from django.utils import timezone
 from diario.models import SessaoEmocional, Diario, Resposta
-from diario.models import Resposta
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.utils.decorators import method_decorator # <-- NOVO: Para proteger classes
+from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
 
+# ====================================================================
+# 🛡️ REGRAS DE SEGURANÇA (O "CRÁCHA" DO ALUNO)
+# ====================================================================
+def is_aluno(user):
+    return user.is_authenticated and user.tipo_usuario == 'aluno'
 
-# pagina inicial 
+aluno_required = user_passes_test(is_aluno, login_url='/login/', redirect_field_name=None)
+# ====================================================================
 
+# ---------------------------------------------------------
+# PÁGINAS PÚBLICAS (Qualquer um pode ver)
+# ---------------------------------------------------------
+class homePageViews(TemplateView):
+    template_name = 'diario/homePage.html'
+
+class sobre(TemplateView):
+    template_name = 'diario/sobre.html'
+
+# ---------------------------------------------------------
+# PÁGINAS DO ALUNO (Protegidas)
+# ---------------------------------------------------------
+
+# Para proteger uma Class-Based View, usamos o @method_decorator
+@method_decorator(aluno_required, name='dispatch')
 class HomeView(TemplateView):
     template_name = 'diario/home.html'  
 
-# registra sentimentos 
+@method_decorator(aluno_required, name='dispatch')
 class EmotionsView(TemplateView):
     template_name = 'diario/emotions.html'
 
-
+@aluno_required
 def salvar_emocao(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         emocao = data.get('emocao')
 
         if emocao:
-            # 1️ Criar sessão
+            # 1️ Criar sessão (Como a view é protegida, request.user sempre será um aluno válido)
             sessao = SessaoEmocional.objects.create(
             emocao_selecionada=emocao,
             status_sessao='ativa',
-            aluno=request.user.perfil_aluno if request.user.is_authenticated else None
+            aluno=request.user.perfil_aluno 
         )
 
-            # 💡 NOVIDADE: Mapeando a emoção para a primeira mensagem personalizada!
             mensagens_iniciais = {
                 'muito_feliz': "Que incrível ver que você está muito feliz hoje! Quer me contar o que aconteceu?",
                 'feliz': "Que bom que você está se sentindo feliz! Quer compartilhar o motivo?",
@@ -41,19 +65,16 @@ def salvar_emocao(request):
                 'irritado': "Vejo que algo te deixou irritado(a). Quer desabafar sobre isso?",
                 'cansado': "Você parece exausto(a). O que tem sugado as suas energias ultimamente?"
             }
-            # Se a emoção não for achada, usa um texto padrão
             mensagem_personalizada = mensagens_iniciais.get(emocao, "Olá, estou aqui para te ouvir. Como você está?")
 
-            # 2️ Criar diário automaticamente com a mensagem dinâmica
             diario = Diario.objects.create(
                 sessao_emocional=sessao,
                 mensagem_inicial_ia=mensagem_personalizada
             )
 
-            # 3️ A MÁGICA DA SESSÃO: Guardar na "memória" do navegador para o Chat ler depois!
             request.session['diario_atual_id'] = diario.id
             request.session['emocao_inicial'] = emocao
-            request.session['contagem_mensagens'] = 0  # Já preparando o seu limite de 5 perguntas!
+            request.session['contagem_mensagens'] = 0  
 
             return JsonResponse({
                 'status': 'success',
@@ -66,98 +87,74 @@ def salvar_emocao(request):
     return JsonResponse({'status': 'error'}, status=405)
 
 
-# template inical + apresentcao do sistema 
-class homePageViews(TemplateView):
-    template_name = 'diario/homePage.html'
+@aluno_required
+def painel_aluno(request):
+    aluno = request.user.perfil_aluno 
 
-# sobre 
-class sobre(TemplateView):
-    template_name = 'diario/sobre.html'
+    hoje = timezone.now().date()
+    trinta_dias_atras = hoje - timedelta(days=29)
 
+    sessoes = SessaoEmocional.objects.filter(
+        aluno=aluno, 
+        data_inicio__date__gte=trinta_dias_atras
+    ).values_list('data_inicio__date', flat=True)
+    
+    datas_com_sessao = set(sessoes)
 
+    ofensiva = 0
+    dia_cheque = hoje
+    
+    if dia_cheque not in datas_com_sessao:
+        dia_cheque -= timedelta(days=1)
 
-# Mapeamento de emoções para emojis
-EMOCAO_EMOJI = {
-    'muito_feliz': '😄',
-    'feliz': '😊',
-    'neutro': '😐',
-    'triste': '😢',
-    'muito_triste': '😭',
-    'ansioso': '😰',
-    'irritado': '😠',
-    'cansado': '😴',
-    'alegria': '😊',
-    'tristeza': '😢',
-    'medo': '😨',
-    'raiva': '😠',
-    'surpresa': '😲',
-    'nojo': '🤢',
-}
+    while dia_cheque in datas_com_sessao:
+        ofensiva += 1
+        dia_cheque -= timedelta(days=1)
 
-# Emoções que indicam atenção
-EMOCOES_ATENCAO = ['triste', 'muito_triste', 'ansioso', 'irritado', 'tristeza', 'medo', 'raiva']
+    heatmap_dias = []
+    for i in range(29, -1, -1):
+        dia_atual = hoje - timedelta(days=i)
+        heatmap_dias.append({
+            'data': dia_atual,
+            'preenchido': dia_atual in datas_com_sessao
+        })
 
+    dias_pendentes = []
+    data_criacao_conta = request.user.date_joined.date() 
 
-@login_required
-def historico_emocional(request):
-    try:
-        aluno = request.user.perfil_aluno
-    except Exception:
-        aluno = None
+    for i in range(1, 8):
+        dia_atual = hoje - timedelta(days=i)
+        if dia_atual >= data_criacao_conta and dia_atual not in datas_com_sessao:
+            dias_pendentes.append(dia_atual)
 
-    sessoes = []
-
-    if aluno:
-        sessoes_qs = SessaoEmocional.objects.filter(
-            aluno=aluno
-        ).order_by('-data_inicio')
-
-        for sessao in sessoes_qs:
-            # Busca o diário vinculado
-            try:
-                diario = sessao.diario
-            except Exception:
-                continue
-
-            # Busca todas as respostas do diário com suas análises
-            respostas = Resposta.objects.filter(
-                diario=diario
-            ).prefetch_related('analiseresposta')
-
-            analises = []
-            for resposta in respostas:
-                try:
-                    analise = resposta.analiseresposta
-                    analises.append({
-                        'sentimento': analise.sentimento_detectado or 'neutro',
-                        'score': round((analise.score_sentimento or 0) * 100),
-                        'texto': resposta.texto_resposta,
-                    })
-                except Exception:
-                    pass
-
-            # Emoção predominante da sessão (maior score)
-            emocao_predominante = sessao.emocao_selecionada
-            score_predominante = 0
-            if analises:
-                melhor = max(analises, key=lambda x: x['score'])
-                emocao_predominante = melhor['sentimento']
-                score_predominante = melhor['score']
-
-            emoji = EMOCAO_EMOJI.get(sessao.emocao_selecionada, '😐')
-            precisa_atencao = sessao.emocao_selecionada in EMOCOES_ATENCAO
-
-            sessoes.append({
-                'sessao': sessao,
-                'diario': diario,
-                'analises': analises,
-                'emocao_predominante': emocao_predominante,
-                'score_predominante': score_predominante,
-                'emoji': emoji,
-                'precisa_atencao': precisa_atencao,
-            })
-
-    return render(request, 'diario/historico.html', {
-        'sessoes': sessoes,
-        'total_sessoes': len(sessoes),
+    return render(request, 'diario/painel_aluno.html', {
+        'ofensiva': ofensiva,
+        'heatmap_dias': heatmap_dias,
+        'dias_pendentes': dias_pendentes,
     })
+
+
+@aluno_required
+def configuracoes_perfil(request):
+    if request.method == 'POST':
+        senha_atual = request.POST.get('senha_atual')
+        nova_senha = request.POST.get('nova_senha')
+        confirmar_senha = request.POST.get('confirmar_senha')
+
+        if senha_atual and nova_senha and confirmar_senha:
+            if not request.user.check_password(senha_atual):
+                messages.error(request, 'A senha atual está incorreta.')
+            elif nova_senha != confirmar_senha:
+                messages.error(request, 'As novas senhas não coincidem.')
+            elif len(nova_senha) < 8:
+                messages.error(request, 'A nova senha deve ter pelo menos 8 caracteres.')
+            else:
+                request.user.set_password(nova_senha)
+                request.user.save()
+                update_session_auth_hash(request, request.user)
+                messages.success(request, 'Senha atualizada com sucesso! 🚀')
+                return redirect('configuracoes_perfil')
+        else:
+            messages.error(request, 'Preencha todos os campos para trocar a senha.')
+
+    return render(request, 'diario/configuracoes.html')

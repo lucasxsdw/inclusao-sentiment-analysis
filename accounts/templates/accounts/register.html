@@ -12,15 +12,14 @@
 <body>
 <main class="container">
 
-  <!-- LADO ESQUERDO -->
-  <section class="info-area">
+  <section class="info-area" aria-labelledby="titulo-info">
 
     <header class="logo-area">
       <div class="logo-icon" aria-hidden="true">
         <img src="{% static 'diario/img/emocoes/Book.png' %}" alt="">
       </div>
       <div>
-        <h1>Diário de Bordo</h1>
+        <h1 id="titulo-info">Diário de Bordo</h1>
         <p class="subtitle">da Inclusão</p>
       </div>
     </header>
@@ -35,7 +34,7 @@
       <p>Ao se cadastrar, você concorda com nossa política de privacidade. Seus dados serão usados apenas para fins educacionais e de acompanhamento, nunca sendo compartilhados com terceiros.</p>
     </div>
 
-    <ul class="benefits">
+    <ul class="benefits" aria-label="Benefícios do sistema">
       <li>Dados criptografados e seguros</li>
       <li>Acesso restrito por perfil</li>
       <li>Uso ético de Inteligência Artificial</li>
@@ -43,80 +42,64 @@
 
   </section>
 
-  <!-- FORMULÁRIO -->
-  <section class="form-area">
+  <section class="form-area" aria-labelledby="titulo-form">
     <div class="form-card">
 
-      <a href="{% url 'accounts:login' %}" class="back-link">← Possui conta? Faça login</a>
+      <a href="{% url 'accounts:login' %}" class="back-link" aria-label="Voltar para a página de login">← Possui conta? Faça login</a>
 
-      <h2>Criar conta</h2>
+      <h2 id="titulo-form">Criar conta</h2>
       <p class="form-subtitle">Preencha seus dados para se cadastrar</p>
 
       <form method="POST" novalidate aria-label="Formulário de cadastro">
         {% csrf_token %}
 
-        <!-- NOME COMPLETO -->
         <div class="form-group">
           <label for="{{ form.first_name.id_for_label }}">Nome completo</label>
           {{ form.first_name }}
           {% if form.first_name.errors %}
-            <span class="erro" role="alert">{{ form.first_name.errors.0 }}</span>
+            <span class="erro" role="alert" aria-live="assertive">{{ form.first_name.errors.0 }}</span>
           {% endif %}
         </div>
 
-        <!-- EMAIL -->
         <div class="form-group">
           <label for="{{ form.email.id_for_label }}">E-mail</label>
           {{ form.email }}
           {% if form.email.errors %}
-            <span class="erro" role="alert">{{ form.email.errors.0 }}</span>
+            <span class="erro" role="alert" aria-live="assertive">{{ form.email.errors.0 }}</span>
           {% endif %}
         </div>
 
-        <!-- DATA DE NASCIMENTO 
-        <div class="form-group">
-          <label for="{{ aluno_form.data_nascimento.id_for_label }}">Data de nascimento</label>
-          {{ aluno_form.data_nascimento }}
-          {% if aluno_form.data_nascimento.errors %}
-            <span class="erro" role="alert">{{ aluno_form.data_nascimento.errors.0 }}</span>
-          {% endif %}
-        </div> -->
-
-        <!-- SENHA -->
         <div class="form-group">
           <label for="{{ form.password1.id_for_label }}">Senha</label>
           {{ form.password1 }}
           {% if form.password1.errors %}
-            <span class="erro" role="alert">{{ form.password1.errors.0 }}</span>
+            <span class="erro" role="alert" aria-live="assertive">{{ form.password1.errors.0 }}</span>
           {% endif %}
         </div>
 
-        <!-- CONFIRMAR SENHA -->
         <div class="form-group">
           <label for="{{ form.password2.id_for_label }}">Confirmar senha</label>
           {{ form.password2 }}
           {% if form.password2.errors %}
-            <span class="erro" role="alert">{{ form.password2.errors.0 }}</span>
+            <span class="erro" role="alert" aria-live="assertive">{{ form.password2.errors.0 }}</span>
           {% endif %}
         </div>
 
-        <!-- TIPO DE DEFICIÊNCIA -->
         <div class="form-group">
           <label for="{{ aluno_form.tipo_deficiencia.id_for_label }}">Tipo de deficiência (opcional)</label>
           {{ aluno_form.tipo_deficiencia }}
           {% if aluno_form.tipo_deficiencia.errors %}
-            <span class="erro" role="alert">{{ aluno_form.tipo_deficiencia.errors.0 }}</span>
+            <span class="erro" role="alert" aria-live="assertive">{{ aluno_form.tipo_deficiencia.errors.0 }}</span>
           {% endif %}
         </div>
 
-        <!-- NECESSIDADES ESPECÍFICAS -->
         <div class="form-group">
           <label for="{{ aluno_form.necessidades_especificas.id_for_label }}">
             Necessidades específicas (opcional)
           </label>
           {{ aluno_form.necessidades_especificas }}
           {% if aluno_form.necessidades_especificas.errors %}
-            <span class="erro" role="alert">{{ aluno_form.necessidades_especificas.errors.0 }}</span>
+            <span class="erro" role="alert" aria-live="assertive">{{ aluno_form.necessidades_especificas.errors.0 }}</span>
           {% endif %}
         </div>
 

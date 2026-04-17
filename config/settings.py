@@ -15,12 +15,17 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
+
+# Suas variáveis originais
 HF_TOKEN = os.getenv("HF_TOKEN")
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG') == 'True'
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# A Nova configuração de segurança padronizada com o resto do código
+CHAVE_ACESSO_NAPNE = os.getenv('CHAVE_ACESSO_NAPNE', 'senha_de_emergencia')
 
 
 # Quick-start development settings - unsuitable for production

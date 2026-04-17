@@ -1,0 +1,109 @@
+{% extends 'base_napne.html' %}  
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'diario/css/base_napne.css' %}">
+
+<style>
+    /* Mantemos exatamente o mesmo CSS luxuoso de antes! */
+    .settings-container { max-width: 1000px; margin: 40px auto 80px auto; padding: 0 20px; font-family: 'Inter', sans-serif; animation: fadeIn 0.5s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .settings-header { margin-bottom: 30px; }
+    .settings-header h1 { font-size: 2rem; color: #111; margin-bottom: 8px; }
+    .settings-header p { color: #64748b; font-size: 1rem; }
+    .settings-grid { display: grid; grid-template-columns: 300px 1fr; gap: 30px; }
+    @media (max-width: 768px) { .settings-grid { grid-template-columns: 1fr; } }
+    .card { background: white; border-radius: 16px; padding: 30px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 25px; }
+    .card-title { font-size: 1.2rem; color: #111; font-weight: 600; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 8px; }
+    .profile-badge { text-align: center; }
+    .avatar-large { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #14b8a6, #5cf9e7); margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white; border: 4px solid #f8fafc; box-shadow: 0 4px 15px rgba(20, 184, 166, 0.2); }
+    .profile-name { font-size: 1.4rem; font-weight: 700; color: #111; margin-bottom: 5px; }
+    .profile-role { display: inline-block; background: #e0f2f1; color: #0f766e; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 20px; }
+    .profile-stat { color: #64748b; font-size: 0.9rem; border-top: 1px solid #f1f5f9; padding-top: 15px; margin-top: 15px; }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 0.9rem; font-weight: 600; color: #334155; margin-bottom: 8px; }
+    .form-control { width: 100%; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; color: #334155; transition: all 0.2s; box-sizing: border-box; }
+    .form-control:focus { outline: none; border-color: #14b8a6; box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15); }
+    .form-control:disabled { background-color: #f8fafc; color: #94a3b8; cursor: not-allowed; }
+    .btn-save { background: #14b8a6; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; width: 100%; }
+    .btn-save:hover { background: #0f766e; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(20, 184, 166, 0.2); }
+    .alert { padding: 15px; border-radius: 8px; margin-bottom: 25px; font-size: 0.95rem; display: flex; align-items: center; gap: 10px; }
+    .alert-success { background-color: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+    .alert-error { background-color: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+
+    <div class="settings-header">
+        <h1>⚙️ Configurações do Servidor</h1>
+        <p>Gerencie suas informações administrativas e senha de acesso.</p>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+                {% if message.tags == 'error' %}⚠️{% else %}✅{% endif %}
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="settings-grid">
+        
+        <div class="settings-sidebar">
+            <div class="card profile-badge">
+                <div class="avatar-large">👨‍🏫</div>
+                <div class="profile-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+                <div class="profile-role">EQUIPE NAPNE</div>
+                
+                <div class="profile-stat">
+                    Membro desde: <strong>{{ request.user.date_joined|date:"M Y" }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-content">
+            
+            <div class="card">
+                <h2 class="card-title"><span>👤</span> Dados do Servidor</h2>
+                <div class="form-group">
+                    <label class="form-label">Nome Completo</label>
+                    <input type="text" class="form-control" value="{{ request.user.get_full_name }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">E-mail Institucional</label>
+                    <input type="email" class="form-control" value="{{ request.user.email }}" disabled>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title"><span>🔒</span> Alterar Senha</h2>
+                
+                <form method="POST" action="{% url 'configuracoes_servidor' %}">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label class="form-label">Senha Atual</label>
+                        <input type="password" name="senha_atual" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Nova Senha</label>
+                        <input type="password" name="nova_senha" class="form-control" required minlength="8">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Confirmar Nova Senha</label>
+                        <input type="password" name="confirmar_senha" class="form-control" required minlength="8">
+                    </div>
+                    
+                    <button type="submit" class="btn-save">Atualizar Senha Administrativa</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

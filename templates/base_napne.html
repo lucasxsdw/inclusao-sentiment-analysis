@@ -5,6 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     {% block extra_css %}{% endblock %}
     <title>Diário de Bordo da Inclusão</title>
 </head>
@@ -17,7 +18,7 @@
         <div class="header-container">
             <div class="menu-toggle" onclick="toggleMenu()">☰</div>
             <div class="logo-area">
-                <a href="{% url 'home' %}" class="logo-link" aria-label="Página inicial do Diário de Bordo">
+                <a href="{% url 'painel' %}" class="logo-link" aria-label="Página inicial do Diário de Bordo">
                     <img src="{% static 'diario/img/emocoes/Book.png' %}" alt="" class="logo-icon">
                     <div class="logo-text">
                         <strong>Diário de Bordo</strong>
@@ -25,7 +26,6 @@
                     </div>
                 </a>
             </div>
-
 
             <nav class="nav" role="navigation" aria-label="Menu principal">
                 <ul class="nav-list">
@@ -42,9 +42,15 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="nav-link">
+                        <a href="{% url 'estatisticas_gerais' %}" class="nav-link">
                             <img class="nav-icon" src="{% static 'analise/img/chart-column.png' %}" alt="">
                             <span>Estatística</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'configuracoes_servidor' %}" class="nav-link">
+                            <img class="nav-icon" src="{% static 'analise/img/settings.png' %}" alt="Configurações">
+                            <span>Configurações</span>
                         </a>
                     </li>
                 </ul>
@@ -74,7 +80,7 @@
 
     <footer>
         <div>🛡 Seus dados são protegidos conforme a LGPD</div>
-        <div>© 2025 Diário de Bordo da Inclusão - NAPNE</div>
+        <div>© 2026 Diário de Bordo da Inclusão - NAPNE</div>
     </footer>
 
     <script>

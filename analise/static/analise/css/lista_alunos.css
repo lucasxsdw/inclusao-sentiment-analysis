@@ -7,6 +7,16 @@
     color: #1f2937;
 }
 
+/* Foco de Acessibilidade Global */
+input:focus-visible, 
+select:focus-visible, 
+button:focus-visible, 
+a:focus-visible {
+    outline: 3px solid #f59e0b;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
 /* Cabeçalho */
 .lista-header {
     margin-bottom: 2rem;
@@ -29,6 +39,7 @@
 /* Barra de Pesquisa e Filtro */
 .controls-bar {
     display: flex;
+    flex-wrap: wrap; /* NOVO: Permite que os itens quebrem linha se faltar espaço */
     gap: 1rem;
     background: #ffffff;
     padding: 0.75rem 1rem;
@@ -40,6 +51,7 @@
 
 .search-box {
     flex: 1;
+    min-width: 200px; /* Garante que a barra de pesquisa não fique muito fina */
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -52,6 +64,7 @@
     width: 100%;
     font-size: 0.875rem;
     color: #374151;
+    background: transparent;
 }
 
 .filter-box {
@@ -72,10 +85,27 @@
     background: transparent;
 }
 
+.button-filter {
+    background-color: #0d9488;
+    color: white;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.button-filter:hover {
+    background-color: #0f766e;
+}
+
 /* Grid de Cards */
 .cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    /* Reduzido de 320px para 280px para caber perfeitamente em telas menores */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.5rem;
     margin-bottom: 3rem;
 }
@@ -93,7 +123,8 @@
 }
 
 .aluno-card:hover {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
 }
 
 /* Estilo específico para card com Atenção */
@@ -102,7 +133,7 @@
     box-shadow: 0 2px 4px rgba(251, 191, 36, 0.1);
 }
 
-/* Topo do Card (Foto, Nome, Badge Atenção) */
+/* Topo do Card */
 .card-top {
     display: flex;
     justify-content: space-between;
@@ -138,6 +169,7 @@
     font-size: 0.75rem;
     color: #6b7280;
     margin: 0;
+    word-break: break-all; /* Evita que emails muito longos quebrem o card */
 }
 
 /* Badges */
@@ -205,37 +237,43 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-radius: 4px;
+    padding: 4px 0; /* Aumenta a área de clique no mobile */
 }
 
 .link-perfil:hover {
     color: #0f766e;
 }
 
-/* Footer da Página */
-.page-footer {
-    display: flex;
-    justify-content: space-between;
-    border-top: 1px solid #e5e7eb;
-    padding-top: 1rem;
-    font-size: 0.75rem;
-    color: #9ca3af;
-}
+/* ========================================= */
+/* MODO CELULAR (Mobile)                     */
+/* ========================================= */
+@media (max-width: 768px) {
+    .lista-container {
+        padding: 1rem; /* Menos margem nas laterais */
+    }
 
-.footer-lgpd {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    color: #0d9488;
-}
+    .controls-bar {
+        flex-direction: column; /* Coloca tudo um em baixo do outro */
+        gap: 0.75rem;
+        padding: 1rem;
+    }
 
-.button-filter{
-    background-color: #0d9488;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
-    cursor: pointer;
+    .filter-box {
+        padding-left: 0;
+        border-left: none; /* Remove a linha divisória inútil no celular */
+        border-top: 1px solid #e5e7eb; /* Coloca a linha em cima */
+        padding-top: 0.75rem;
+        width: 100%;
+    }
 
+    .filter-box select {
+        width: 100%; /* Select ocupa toda a largura */
+    }
 
+    .button-filter {
+        width: 100%; /* Botão enorme e fácil de clicar no mobile */
+        margin-top: 0.5rem;
+        padding: 0.75rem;
+    }
 }

@@ -2,76 +2,79 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'diario/css/base.css' %}">
 <link rel="stylesheet" href="{% static 'diario/css/sobre.css' %}">
-
+<link rel="stylesheet" href="{% static 'diario/css/base.css' %}">
 {% endblock %}
 
 {% block content %}
-
-
 <main class="main-content" role="main">
+    <div class="sobre-container">
 
-<div class="container">
+        <header class="sobre-header">
+            <h1 class="sobre-title">Sobre o <span>Projeto</span></h1>
+            <p class="sobre-subtitle">
+                Um sistema inteligente voltado para inclusão, bem-estar emocional e apoio educacional.
+            </p>
+        </header>
 
-    <h1>Sobre o Projeto</h1>
-    <p class="subtitle">
-        Um sistema voltado para inclusão, bem-estar emocional e apoio educacional.
-    </p>
-
-    <div class="section">
-        <h2>Descrição</h2>
-        <p>
-            O Diário de Bordo da Inclusão é um projeto desenvolvido como Trabalho de Conclusão de Curso (TCC),
-            com foco no acompanhamento emocional de alunos. A proposta utiliza tecnologia para coletar e analisar
-            dados emocionais, auxiliando educadores na tomada de decisões.
-        </p>
-    </div>
-
-    <div class="section">
-        <h2>Objetivo</h2>
-        <p>
-            Promover inclusão e oferecer uma ferramenta que permita identificar padrões emocionais,
-            contribuindo para um ambiente educacional mais acolhedor e eficiente.
-        </p>
-    </div>
-
-    <div class="section">
-        <h2>Tecnologias</h2>
-        <div class="tech-list">
-            <div class="tech">Python</div>
-            <div class="tech">Django</div>
-            <div class="tech">PostgreSQL</div>
-            <div class="tech">HTML</div>
-            <div class="tech">CSS</div>
-            <div class="tech">JavaScript</div>
-            <div class="tech">APIs REST</div>
-            <div class="tech">NLP</div>
-        </div>
-    </div>
-
-    <div class="section">
-        <h2>Equipe</h2>
-
-        <div class="team">
-
-            <div class="card">
-                <img src="{% static 'diario/img/emocoes/minhafoto.png' %}" alt="Foto do aluno">
-                <h3>Lucas Ryan</h3>
-                <span>Desenvolvedor</span>
+        <div class="sobre-grid">
+            <div class="sobre-card">
+                <div class="card-icon">🎯</div>
+                <h2>Descrição</h2>
+                <p>
+                    O Diário de Bordo da Inclusão é um projeto desenvolvido como Trabalho de Conclusão de Curso (TCC),
+                    com foco no acompanhamento emocional de alunos. A proposta utiliza tecnologia de ponta para coletar e analisar
+                    dados emocionais, auxiliando educadores na tomada de decisões estratégicas.
+                </p>
             </div>
 
-            <div class="card">
-                <img src="{% static 'diario/img/emocoes/orientador.png' %}" alt="Foto do orientador">
-                <h3>Woquiton Lima </h3>
-                <span>Orientador</span>
+            <div class="sobre-card">
+                <div class="card-icon">🚀</div>
+                <h2>Objetivo</h2>
+                <p>
+                    Promover a verdadeira inclusão e oferecer uma ferramenta que permita identificar padrões emocionais,
+                    contribuindo ativamente para um ambiente educacional mais acolhedor, humanizado e eficiente.
+                </p>
             </div>
-
         </div>
-    </div>
 
-</div>
+        <div class="tech-container">
+            <h2>Tecnologias Utilizadas</h2>
+            <div class="tech-list">
+                <span class="tech-badge">Python</span>
+                <span class="tech-badge">Django</span>
+                <span class="tech-badge">PostgreSQL</span>
+                <span class="tech-badge">HTML5</span>
+                <span class="tech-badge">CSS3</span>
+                <span class="tech-badge">JavaScript</span>
+                <span class="tech-badge">APIs REST</span>
+                <span class="tech-badge">NLP (IA)</span>
+            </div>
+        </div>
+
+        <div class="team-container">
+            <h2>Quem Faz Acontecer</h2>
+            <div class="team-grid">
+                
+                <div class="team-card">
+                    <div class="team-img-wrapper">
+                        <img class="team-img" src="{% static 'diario/img/emocoes/minhafoto.png' %}" alt="Foto de Lucas Ryan">
+                    </div>
+                    <h3>Lucas Ryan</h3>
+                    <span class="team-role">Desenvolvedor Back-end</span>
+                </div>
+
+                <div class="team-card">
+                    <div class="team-img-wrapper">
+                        <img class="team-img" src="{% static 'diario/img/emocoes/orientador.png' %}" alt="Foto de Woquiton Lima">
+                    </div>
+                    <h3>Woquiton Lima</h3>
+                    <span class="team-role">Orientador Acadêmico</span>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
 </main>
 {% endblock %}
-    
-

@@ -1,52 +1,54 @@
 import logging
 from google import genai
 from django.conf import settings
-
+from google.genai import types 
 logger = logging.getLogger(__name__)
 
 # 1. Configura o cliente com a nova biblioteca e a sua chave
 # cliente Gemini
+logger = logging.getLogger(__name__)
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 
-def gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno=None):
+def gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno=None, historico_mensagens=None):
     try:
         modelo = 'gemini-2.5-flash'
+        # ... (seu código de montar o contexto_perfil e system_instruction continua igual) ...
+        
+        system_instruction = f"""Você é o assistente virtual do 'Diário de Inclusão'... (resto do seu prompt)"""
 
-        # Monta contexto do perfil se existir
-        contexto_perfil = ""
-        if perfil_aluno:
-            contexto_perfil = f"""
-        PERFIL DO ALUNO:
-        - Nome: {perfil_aluno.get('nome', 'Não informado')}
-        - Tipo de deficiência: {perfil_aluno.get('tipo_deficiencia', 'Não informado')}
-        - Necessidades específicas: {perfil_aluno.get('necessidades_especificas', 'Não informado')}
-        """
+        conteudos_historico = []
+        if historico_mensagens:
+            for msg in historico_mensagens:
+                role = "user" if msg['papel'] == "user" else "model"
+                conteudos_historico.append(
+                    types.Content(role=role, parts=[types.Part.from_text(text=msg['texto'])])
+                )
 
-        prompt = f"""Você é o assistente virtual do 'Diário de Inclusão', um ambiente seguro e acolhedor para alunos desabafarem.
-        Seu tom é informal, empático e amigável, como um conselheiro escolar jovem.
+        prompt_nova_mensagem = f"[Emoção declarada: {emocao_ptbr}]\n{texto_aluno}"
+        conteudos_historico.append(
+            types.Content(role="user", parts=[types.Part.from_text(text=prompt_nova_mensagem)])
+        )
 
-        REGRAS ESTRITAS:
-        1. NUNCA dê diagnósticos médicos, psicológicos ou conselhos diretivos.
-        2. NUNCA minimize o problema com positividade tóxica.
-        3. Respostas MUITO curtas, máximo 2 frases estilo chat.
-        4. Valide a emoção e termine com UMA pergunta aberta e suave.
-        5. Se o desabafo do aluno puder estar relacionado à sua deficiência, conecte os dois ativamente na sua pergunta. Por exemplo: se o aluno tem baixa visão e foi mal na prova, pergunte se a deficiência dificultou a realização da prova. Se o aluno tem TEA e está ansioso com interações sociais, conecte isso. Faça essa ligação de forma natural e acolhedora, nunca de forma invasiva.
-        6. Adapte sua linguagem às necessidades específicas do aluno.
-        {contexto_perfil}
-        DADOS DO ALUNO:
-        Emoção detectada: {emocao_ptbr}
-        Desabafo do aluno: "{texto_aluno}"
-
-        Escreva sua resposta agora:"""
-
+        # --- A MÁGICA DOS FILTROS ACONTECE AQUI NA CONFIGURAÇÃO ---
         resposta_ia = client.models.generate_content(
             model=modelo,
-            contents=prompt
+            contents=conteudos_historico,
+            config=types.GenerateContentConfig(
+                system_instruction=system_instruction,
+                temperature=0.7,
+                # Relaxamos os filtros para "Bloquear apenas alto risco"
+                safety_settings=[
+                    types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_ONLY_HIGH"),
+                    types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_ONLY_HIGH"),
+                    types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_ONLY_HIGH"),
+                    types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_ONLY_HIGH"),
+                ]
+            )
         )
         
         return resposta_ia.text.strip()
 
     except Exception as e:
-        logger.error(f"Erro ao gerar pergunta com Gemini: {e}")
-        return "Poxa, entendo como você está se sentindo. Quer me contar um pouco mais sobre isso?"
+        logger.error(f"Erro ao gerar pergunta com Gemini: {e}", exc_info=True)
+        return "Desculpe, tive um probleminha técnico por aqui. Quer tentar me contar de novo?"

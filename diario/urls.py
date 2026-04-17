@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django.urls import path
-from .views import historico_emocional
 from diario import views
 from diario.views import EmotionsView
 
@@ -11,5 +10,7 @@ urlpatterns = [
     path('emotions/', EmotionsView.as_view(), name='emotions'),
     path('salvar-emocao/', views.salvar_emocao, name="salvar_emocao"),
     path('sobre/', views.sobre.as_view(), name='sobre'),
-    path('historico/', historico_emocional, name='historico')
+    path('frequencia/', views.painel_aluno, name='frequencia'),
+    path('configuracoes/', views.configuracoes_perfil, name='configuracoes_perfil'),
+
 ]

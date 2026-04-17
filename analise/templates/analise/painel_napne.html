@@ -2,8 +2,6 @@
 {% load static %}
 {% load i18n %}
 
-
-<title>Diário de Bordo da Inclusão</title>
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'diario/css/home.css' %}">
 <link rel="stylesheet" href="{% static 'diario/css/base_napne.css' %}">
@@ -11,94 +9,79 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 {% endblock %}
 
-
 {% block content %}
-<main class="main-content" role="main">
+<main class="main-content" role="main" aria-labelledby="main-heading">
 
   <div class="container">
 
-    <div class="hero">
-      <div style="font-size:14px; opacity:0.8;">Painel do servidor</div>
-      <h1>Olá, {{ request.user.get_full_name }} 👋</h1>
+    <section class="hero" aria-labelledby="main-heading">
+      <div style="font-size:14px; opacity:0.9; font-weight: 500;">Painel do Servidor NAPNE</div>
+      <h1 id="main-heading">Olá, {{ request.user.get_full_name|default:request.user.username }} <span aria-hidden="true">👋</span></h1>
       <p>Acompanhe o bem-estar emocional dos alunos de forma ética e segura.</p>
+    </section>
+
+    <div class="section-title" role="alert"> 
+        <img src="{% static 'analise/img/shield.png' %}" alt="" aria-hidden="true"> 
+        <span>Os dados exibidos são apenas para apoio ao acompanhamento educacional, respeitando a privacidade e a LGPD.</span>
     </div>
 
-    <div class="section-title"> <img src="{% static 'analise/img/shield.png' %}" alt="Atenção"> Os dados exibidos são
-      apenas para apoio ao acompanhamento educacional, respeitando a privacidade e a LGPD.</div>
-
-    <div class="cards">
-
-      {% for item in alunos_atencao %}
-      <a href="{% url 'perfil_aluno_napne' item.aluno.id %}" class="card" style="border-left: 4px solid #f59e0b;">
-
-        <div class="icon-box orange">
-          <span style="font-size: 24px;" aria-hidden="true">{{ item.emoji }}</span>
+    <section aria-label="Alunos que requerem atenção">
+        <div class="cards">
+          {% for item in alunos_atencao %}
+          <a href="{% url 'perfil_aluno_napne' item.aluno.id %}" class="card" style="border-left: 4px solid #f59e0b;">
+            <div class="icon-box orange" aria-hidden="true">
+              <span style="font-size: 24px;">{{ item.emoji }}</span>
+            </div>
+            <h3>{{ item.aluno.usuario.get_full_name|default:item.aluno.usuario.username }}</h3>
+            <span class="badge-atencao" style="color: #d97706; font-weight: bold; font-size: 12px; display: inline-block; margin-top: 8px;">
+              ⚠ Requer Atenção
+            </span>
+          </a>
+          {% empty %}
+          <div class="card" style="background-color: #ecfdf5; border: 1px solid #a7f3d0; cursor: default; transform: none; box-shadow: none;">
+            <p style="color: #047857; margin: 0; font-weight: 500; font-size: 15px; display: flex; align-items: center; gap: 8px;">
+              <span aria-hidden="true" style="font-size: 20px;">🎉</span> 
+              Ótimas notícias! Nenhum aluno requer atenção emergencial no momento.
+            </p>
+          </div>
+          {% endfor %}
         </div>
+    </section>
 
-        <h3>{{ item.aluno.usuario.get_full_name|default:item.aluno.usuario.username }}</h3>
-
-        <span class="badge-atencao" style="color: #d97706; font-weight: bold; font-size: 12px;">
-          ⚠ Requer Atenção
-        </span>
-
+    <nav class="container-cards" aria-label="Acesso Rápido ao Sistema">
+      <a class="card-dashboard card-alunos" href="{% url 'alunos' %}">
+        <div class="icon" aria-hidden="true">
+          <img src="{% static 'analise/img/users.png' %}" alt="">
+        </div>
+        <div class="content">
+          <h3>Lista de Alunos</h3>
+          <p>Ver todos os alunos cadastrados</p>
+        </div>
+        <div class="arrow" aria-hidden="true">→</div>
       </a>
 
-      {% empty %}
-      <div class="card" style="background-color: #ecfdf5; border: none;">
-        <p style="color: #059669; margin: 0;">🎉 Ótimas notícias! Nenhum aluno requer atenção emergencial no momento.
-        </p>
-      </div>
-      {% endfor %}
+      <a class="card-dashboard card-static" href="{% url 'estatisticas_gerais' %}">
+        <div class="icon" aria-hidden="true">
+          <img src="{% static 'analise/img/trending-up.png' %}" alt="">
+        </div>
+        <div class="content">
+          <h3>Estatísticas Gerais</h3>
+          <p>Análise consolidada dos dados</p>
+        </div>
+        <div class="arrow" aria-hidden="true">→</div>
+      </a>
+    </nav>
 
-    </div>
-
-    <div class="container-cards">
-
-  <a class="card-dashboard card-alunos" href="{% url 'alunos' %}">
-    <div class="icon">
-      <img src="{% static 'analise/img/users.png' %}">
-    </div>
-
-    <div class="content">
-      <h3>Lista de Alunos</h3>
-      <p>Ver todos os alunos cadastrados</p>
-    </div>
-
-    <div class="arrow">→</div>
-  </a>
-
-  <a class="card-dashboard card-static" href="{% url 'alunos' %}">
-    <div class="icon">
-      <img src="{% static 'analise/img/trending-up.png' %}">
-    </div>
-
-    <div class="content">
-      <h3>Estatísticas Gerais</h3>
-      <p>Análise consolidada dos dados</p>
-    </div>
-
-    <div class="arrow">→</div>
-  </a>
-
-</div>
-
-
-
-
-    <div class="info">
-      <div class="info-icon">
+    <aside class="info" aria-labelledby="info-educador">
+      <div class="info-icon" aria-hidden="true">
         <img src="{% static 'diario/img/emocoes/coracao.png' %}" alt="">
       </div>
-
       <div>
-        <h4>Lembre-se: seus sentimentos são válidos</h4>
-        <p>Estamos aqui para te apoiar. Não hesite em registrar como você se sente.</p>
+        <h4 id="info-educador">O NAPNE faz a diferença</h4>
+        <p>Sua atuação é fundamental para construir uma rede de apoio e garantir a permanência e o êxito dos estudantes.</p>
       </div>
-    </div>
+    </aside>
 
   </div>
-
 </main>
-
-
 {% endblock %}

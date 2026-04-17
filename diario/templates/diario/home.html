@@ -1,70 +1,60 @@
-
 {% extends 'base.html' %}
 {% load static %}
 {% load i18n %}
 
-
-  <title>Diário de Bordo da Inclusão</title>
-  {% block extra_css %}
+{% block extra_css %}
   <link rel="stylesheet" href="{% static 'diario/css/home.css' %}">
   <link rel="stylesheet" href="{% static 'diario/css/base.css' %}">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
- {% endblock %}
+{% endblock %}
 
-
- {% block content %}
-<main class="main-content" role="main">
+{% block content %}
+<main class="main-content" role="main" aria-labelledby="main-heading">
 
   <div class="container">
 
-    <div class="hero">
-      <div style="font-size:14px; opacity:0.8;">☀️ Boa tarde</div>
-      <h1>Olá, {{ request.user.get_full_name }} 👋</h1>
+    <section class="hero" aria-labelledby="main-heading">
+      <div style="font-size:14px; opacity:0.9; font-weight: 500;">☀️ Boa tarde</div>
+      <h1 id="main-heading">Olá, {{ request.user.get_full_name|default:"Aluno" }} <span aria-hidden="true">👋</span></h1>
       <p>Este é o seu espaço seguro. Como você está se sentindo hoje?</p>
-    </div>
+    </section>
 
-    <div class="section-title">✨ O que você gostaria de fazer?</div>
+    <h2 class="section-title">✨ O que você gostaria de fazer?</h2>
 
-    <div class="cards">
+    <nav class="cards" aria-label="Navegação rápida">
+      
       <a href="{% url 'emotions' %}" class="card">
-        <div class="icon-box green">💚</div>
+        <div class="icon-box green" aria-hidden="true">💚</div>
         <h3>Registrar Sentimento</h3>
         <p>Como você está se sentindo agora?</p>
       </a>
 
-
-
-      <a href="{% url 'historico' %}" class="card">
-        <div class="icon-box orange">⏱</div>
-        <h3>Meu Histórico</h3>
+      <a href="{% url 'frequencia' %}" class="card">
+        <div class="icon-box orange" aria-hidden="true">⏱</div>
+        <h3>Minha Frequência</h3>
         <p>Veja sua jornada emocional</p>
       </a>
 
-
       <a href="{% url 'sobre' %}" class="card">
-        <div class="icon-box purple">📊</div>
+        <div class="icon-box purple" aria-hidden="true">📊</div>
         <h3>Sobre</h3>
         <p>Informações gerais e contexto do sistema.</p>
       </a>
 
+    </nav>
 
-
-    </div>
-
-    <div class="info">
-      <div class="info-icon">
+    <aside class="info" aria-labelledby="info-heading">
+      <div class="info-icon" aria-hidden="true">
         <img src="{% static 'diario/img/emocoes/coracao.png' %}" alt="">
       </div>
 
       <div>
-        <h4>Lembre-se: seus sentimentos são válidos</h4>
+        <h4 id="info-heading">Lembre-se: seus sentimentos são válidos</h4>
         <p>Estamos aqui para te apoiar. Não hesite em registrar como você se sente.</p>
       </div>
-    </div>
+    </aside>
 
   </div>
 
-  </main>
-  
-
+</main>
 {% endblock %}

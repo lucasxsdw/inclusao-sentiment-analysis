@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'diario/css/base.css' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    /* Estilos base da página */
+    .dashboard-container { max-width: 1000px; margin: 40px auto 80px auto; padding: 0 20px; font-family: 'Inter', sans-serif; animation: fadeIn 0.5s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Cabeçalho do Aluno */
+    .aluno-header { display: flex; align-items: center; gap: 20px; margin-bottom: 40px; }
+    .aluno-avatar { width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, #14b8a6, #5cf9e7); display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; border: 4px solid #fff; box-shadow: 0 4px 10px rgba(20, 184, 166, 0.2); }
+    .aluno-header h1 { margin: 0; color: #111; font-size: 1.8rem; }
+    .aluno-header p { margin: 5px 0 0 0; color: #64748b; }
+
+    /* Grid Principal */
+    .painel-grid { display: grid; grid-template-columns: 1fr 350px; gap: 30px; }
+    @media (max-width: 768px) { .painel-grid { grid-template-columns: 1fr; } }
+
+    /* Cartões Padrão */
+    .card { background: white; border-radius: 16px; padding: 25px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+    .card-title { font-size: 1.2rem; color: #111; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+
+    /* Ofensiva (Streak) */
+    .ofensiva-container { display: flex; align-items: center; gap: 20px; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #f1f5f9; }
+    .fire-icon { font-size: 3rem; background: #fffbeb; width: 80px; height: 80px; display: flex; justify-content: center; align-items: center; border-radius: 20px; border: 1px solid #fde68a; }
+    .ofensiva-number { font-size: 2.5rem; font-weight: 700; color: #f59e0b; line-height: 1; }
+    .ofensiva-text { color: #64748b; font-size: 0.95rem; font-weight: 500; }
+
+    /* Heatmap estilo GitHub */
+    .heatmap-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; }
+    .dia-block { aspect-ratio: 1; border-radius: 6px; background-color: #f1f5f9; border: 1px solid #e2e8f0; transition: transform 0.2s; position: relative; }
+    .dia-block:hover { transform: scale(1.1); z-index: 10; }
+    
+    /* Cores de presença */
+    .dia-block.preenchido { background-color: #14b8a6; border-color: #0d9488; box-shadow: 0 0 8px rgba(20, 184, 166, 0.4); }
+    
+    /* Legenda do Heatmap */
+    .heatmap-legend { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 15px; font-size: 0.8rem; color: #64748b; }
+    .legend-box { width: 12px; height: 12px; border-radius: 3px; }
+
+    /* Lembretes / Pendências */
+    .lembrete-list { display: flex; flex-direction: column; gap: 12px; }
+    .lembrete-item { display: flex; justify-content: space-between; align-items: center; background: #fff1f2; border: 1px solid #ffe4e6; padding: 15px; border-radius: 10px; }
+    .lembrete-data { color: #e11d48; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+    .btn-registrar { background: #e11d48; color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: background 0.2s; }
+    .btn-registrar:hover { background: #be123c; }
+
+    .tudo-certo { text-align: center; color: #10b981; font-weight: 500; padding: 20px; background: #ecfdf5; border-radius: 10px; border: 1px solid #d1fae5; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+
+    <div class="aluno-header">
+        <div class="aluno-avatar">👨‍🎓</div>
+        <div>
+            <h1>Olá, {{ request.user.first_name|default:"Aluno" }}!</h1>
+            <p>Seja bem-vindo ao seu painel de consistência emocional.</p>
+        </div>
+    </div>
+
+    <div class="painel-grid">
+        
+        <div class="painel-main">
+            <div class="card">
+                
+                <div class="ofensiva-container">
+                    <div class="fire-icon">🔥</div>
+                    <div>
+                        <div class="ofensiva-number">{{ ofensiva }} Dias</div>
+                        <div class="ofensiva-text">Sua ofensiva atual de registros seguidos. Continue assim!</div>
+                    </div>
+                </div>
+
+                <div class="card-title">📅 Seu progresso nos últimos 30 dias</div>
+                <div class="heatmap-grid">
+                    {% for dia in heatmap_dias %}
+                        <div class="dia-block {% if dia.preenchido %}preenchido{% endif %}" 
+                             title="{{ dia.data|date:'d/m/Y' }}{% if dia.preenchido %} - Preenchido{% else %} - Vazio{% endif %}">
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="heatmap-legend">
+                    <span>Ausente</span>
+                    <div class="legend-box" style="background: #f1f5f9; border: 1px solid #e2e8f0;"></div>
+                    <div class="legend-box" style="background: #14b8a6;"></div>
+                    <span>Presente</span>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="painel-sidebar">
+            <div class="card">
+                <div class="card-title">🔔 Lembretes</div>
+                
+                {% if dias_pendentes %}
+                    <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 15px;">
+                        Você esqueceu de preencher o diário em alguns dias recentes. Que tal registrar agora?
+                    </p>
+                    <div class="lembrete-list">
+                        {% for pendente in dias_pendentes %}
+                        <div class="lembrete-item">
+                            <span class="lembrete-data">
+                                <span>⚠️</span> {{ pendente|date:"l, d/m" }}
+                            </span>
+                            <a href="{% url 'emotions' %}" class="btn-registrar">Registrar</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="tudo-certo">
+                        <div style="font-size: 2.5rem; margin-bottom: 10px;">🌟</div>
+                        Parabéns! Você está em dia com seus registros na última semana.
+                    </div>
+                {% endif %}
+                
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

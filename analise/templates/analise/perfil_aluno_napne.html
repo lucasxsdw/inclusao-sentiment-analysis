@@ -2,109 +2,179 @@
 {% load static %}
 {% load i18n %}
 
-
-<title>Diário de Bordo da Inclusão</title>
 {% block extra_css %}
+<title>Diário de Bordo da Inclusão - Perfil de {{ aluno.usuario.first_name }}</title>
 <link rel="stylesheet" href="{% static 'diario/css/home.css' %}">
 <link rel="stylesheet" href="{% static 'diario/css/base_napne.css' %}">
 <link rel="stylesheet" href="{% static 'analise/css/perfil_aluno_napne.css' %}">
+<link rel="stylesheet" href="{% static 'diario/css/base.css' %}">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
+<main class="dashboard-container" role="main">
 
-
-<div class="dashboard-container">
-    <header class="profile-header">
+    <header class="profile-header" aria-label="Informações principais do aluno">
         <div class="user-info">
-            <div class="avatar-icon"><img src="{% static 'analise/img/users.png' %}" alt=""></div>
+            <div class="avatar-icon" aria-hidden="true">
+                <img src="{% static 'analise/img/users.png' %}" alt="">
+            </div>
             <div>
-                <h1>{{ aluno.nome }}</h1>
-                <p>{{ aluno.user.email }}</p>
+                <h1>{{ aluno.usuario.get_full_name }}</h1>
+                <p>{{ aluno.usuario.email }}</p>
             </div>
         </div>
+        
         <div class="stats-grid">
-            
             <div class="stat-item">
-                <span class="label">Tipo de Deficiência</span>
-                <span class="value">{{ aluno.tipo_deficiencia }}</span>
+                <span class="label">Deficiência</span>
+                <span class="value">{{ aluno.get_tipo_deficiencia_display|default:"Não informado" }}</span>
             </div>
             <div class="stat-item">
-                <span class="label">Total de Registros</span>
+                <span class="label">Registros</span>
                 <span class="value">{{ total_registro }}</span>
             </div>
             <div class="stat-item">
-                <span class="label">Alertas de Atenção</span>
+                <span class="label">Alertas</span>
                 <span class="value" style="color: #f39c12;">{{ total_alertas }}</span>
             </div>
         </div>
     </header>
 
-    <div class="info-banner">
-        <span class="icon">🛡️</span>
+    <div class="info-banner" role="note" aria-label="Aviso de confidencialidade">
+        <span class="icon" aria-hidden="true">🛡️</span>
         <p>Estes dados são confidenciais e devem ser usados apenas para fins de acompanhamento educacional, respeitando a privacidade do aluno conforme a LGPD.</p>
     </div>
 
-    <section class="card alert-card">
-        <div class="card-header warning-text">
-            <span class="icon">⚠️</span> Registros que Merecem Atenção
+    {% if total_alertas > 0 %}
+    <section class="card alert-card" aria-labelledby="alerta-titulo">
+        <div class="card-header warning-text" id="alerta-titulo">
+            <span class="icon" aria-hidden="true">⚠️</span> Registros que Merecem Atenção
         </div>
         <p class="description">Os seguintes registros indicam que o aluno pode estar passando por dificuldades emocionais. Considere uma abordagem acolhedora e, se necessário, encaminhe para atendimento especializado.</p>
-        <div class="list-item-highlight">
-            <span class="emoji">😊</span>
-            <div>
-                <span class="status">Feliz</span>
-                <span class="timestamp">3 de fevereiro às 19:25</span>
+
+        {% for item in sessoes %}
+            {% if item.precisa_atencao %}
+            <div class="list-item-highlight">
+                <span class="emoji" aria-hidden="true">{{ item.emoji }}</span>
+                <div>
+                    <span class="status">{{ item.sessao.emocao_selecionada|title }}</span>
+                    <span class="timestamp">{{ item.sessao.data_inicio|date:"j \d\e F \à\s H:i" }}</span>
+                </div>
             </div>
-        </div>
+            {% endif %}
+        {% endfor %}
+    </section>
+    {% endif %}
+
+    <section class="grafico-container" aria-label="Gráfico de Evolução Emocional">
+        <h3>📈 Evolução Emocional</h3>
+        <canvas id="meuGrafico" height="100" aria-label="Gráfico mostrando a linha do tempo do bem-estar do aluno" role="img"></canvas>
     </section>
 
-    <section class="card">
-        <div class="card-header section-title">
-            <span class="icon">📈</span> Evolução Emocional
-        </div>
-        <div class="chart-container">
-            <div class="chart-placeholder">
-                <img src="https://via.placeholder.com/800x200?text=Grafico+de+Evolucao+Emocional" alt="Gráfico de Evolução" style="width: 100%;">
-            </div>
-            <div class="chart-legend">
-                <span class="legend-item"><span class="dot sadness"></span> Tristeza</span>
-                <span class="legend-item"><span class="dot anxiety"></span> Ansiedade</span>
-                <span class="legend-item"><span class="dot wellbeing"></span> Bem-estar</span>
-            </div>
-        </div>
-    </section>
+    <section aria-labelledby="timeline-titulo">
+        <h2 class="section-title" id="timeline-titulo">📅 Linha do Tempo</h2>
 
-    <section class="card">
-        <div class="card-header section-title">
-            <span class="icon">📅</span> Histórico de Registros
-        </div>
-        <div class="history-list">
-            <div class="history-item">
-                <div class="item-main">
-                    <span class="emoji">😊</span>
-                    <div>
-                        <span class="status">Feliz</span>
-                        <span class="timestamp">3 de fevereiro às 20:01</span>
+        {% if sessoes %}
+            {% for item in sessoes %}
+            <article class="sessao-card" id="card-{{ forloop.counter }}">
+
+                <div class="card-header" 
+                     role="button" 
+                     tabindex="0" 
+                     aria-expanded="false" 
+                     aria-controls="body-{{ forloop.counter }}"
+                     onclick="toggleCard('card-{{ forloop.counter }}')"
+                     onkeydown="handleKeydown(event, 'card-{{ forloop.counter }}')">
+                    
+                    <div class="card-header-left">
+                        <div class="emocao-emoji" aria-hidden="true">{{ item.emoji }}</div>
+                        <div class="card-info">
+                            <h3>{{ item.sessao.emocao_selecionada|capfirst }}</h3>
+                            <span class="data">{{ item.sessao.data_inicio|date:"j \d\e F \à\s H:i" }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-header-right">
+                        {% if item.precisa_atencao %}
+                            <span class="badge-atencao" aria-label="Requer atenção">Atenção</span>
+                        {% endif %}
+                        <span class="chevron" aria-hidden="true">▾</span>
                     </div>
                 </div>
-                <span class="arrow-down">⌄</span>
-            </div>
-            <div class="history-item attention">
-                <div class="item-main">
-                    <span class="emoji">😊</span>
-                    <div>
-                        <span class="status">Feliz</span>
-                        <span class="timestamp">3 de fevereiro às 19:25</span>
-                    </div>
+
+                <div class="card-body" id="body-{{ forloop.counter }}">
+                    {% if item.analises %}
+                        <div class="scores-grid">
+                            {% for analise in item.analises %}
+                            <div class="score-item {% cycle 'principal' 'secundario' 'positivo' %}">
+                                <div class="score-label">{{ analise.sentimento|capfirst }}</div>
+                                <div class="score-valor">{{ analise.score }}%</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <ul class="mensagens-lista">
+                            {% for analise in item.analises %}
+                            <li class="mensagem-item">
+                                {{ analise.texto }}
+                                <div class="mensagem-sentimento">
+                                    Sentimento detectado: {{ analise.sentimento|capfirst }} — {{ analise.score }}% de confiança
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p style="color: var(--text-muted); font-size: 0.9rem; padding-top: 16px;">
+                            Nenhuma mensagem registrada nesta sessão.
+                        </p>
+                    {% endif %}
                 </div>
-                <div class="badge">Atenção <span class="arrow-down">⌄</span></div>
+            </article>
+            {% endfor %}
+
+        {% else %}
+            <div class="empty-state" role="status">
+                <div class="empty-emoji" aria-hidden="true">📖</div>
+                <p>Nenhuma sessão registrada.<br>O aluno ainda não preencheu o diário.</p>
             </div>
-        </div>
+        {% endif %}
+
     </section>
-</div>
 
-</body>
-</html>
+</main>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{{ datas_grafico|json_script:"datas_grafico" }}
+{{ scores_grafico|json_script:"scores_grafico" }}
+
+<script>
+    // 1. Dados do Gráfico
+    window.dadosDoGrafico = {
+        datas: JSON.parse(document.getElementById('datas_grafico').textContent),
+        scores: JSON.parse(document.getElementById('scores_grafico').textContent)
+    };
+
+    // 2. Lógica Acessível dos Cards Expansíveis (Acordeão)
+    function toggleCard(cardId) {
+        const card = document.getElementById(cardId);
+        const header = card.querySelector('.card-header');
+        
+        card.classList.toggle('aberto');
+        
+        // Atualiza a acessibilidade para os leitores de tela
+        const isAberto = card.classList.contains('aberto');
+        header.setAttribute('aria-expanded', isAberto);
+    }
+
+    // Permite abrir apertando ENTER ou ESPAÇO
+    function handleKeydown(event, cardId) {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault(); // Impede o scroll ao apertar espaço
+            toggleCard(cardId);
+        }
+    }
+</script>
+
+<script src="{% static 'analise/js/perfil_aluno_napne.js' %}"></script>
 {% endblock %}

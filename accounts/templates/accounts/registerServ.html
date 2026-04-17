@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,108 +11,119 @@
 </head>
 
 <body>
-<main class="container">
+  <main class="container">
 
-  <!-- LADO ESQUERDO -->
-  <section class="info-area">
+    <!-- LADO ESQUERDO -->
+    <section class="info-area">
 
-    <header class="logo-area">
-      <div class="logo-icon" aria-hidden="true">
-        <img src="{% static 'diario/img/emocoes/Book.png' %}" alt="">
+      <header class="logo-area">
+        <div class="logo-icon" aria-hidden="true">
+          <img src="{% static 'diario/img/emocoes/Book.png' %}" alt="">
+        </div>
+        <div>
+          <h1>Diário de Bordo</h1>
+          <p class="subtitle">da Inclusão</p>
+        </div>
+      </header>
+
+      <div class="hero-text">
+        <h2>Faça parte da nossa comunidade</h2>
+        <p>Crie sua conta e comece a registrar sua jornada emocional em um ambiente seguro e acolhedor.</p>
       </div>
-      <div>
-        <h1>Diário de Bordo</h1>
-        <p class="subtitle">da Inclusão</p>
+
+      <div class="lgpd-box" role="region" aria-label="Informação sobre proteção de dados">
+        <h3>Proteção de Dados (LGPD)</h3>
+        <p>Ao se cadastrar, você concorda com nossa política de privacidade. Seus dados serão usados apenas para fins
+          educacionais e de acompanhamento, nunca sendo compartilhados com terceiros.</p>
       </div>
-    </header>
 
-    <div class="hero-text">
-      <h2>Faça parte da nossa comunidade</h2>
-      <p>Crie sua conta e comece a registrar sua jornada emocional em um ambiente seguro e acolhedor.</p>
-    </div>
+      <ul class="benefits">
+        <li>Dados criptografados e seguros</li>
+        <li>Acesso restrito por perfil</li>
+        <li>Uso ético de Inteligência Artificial</li>
+      </ul>
 
-    <div class="lgpd-box" role="region" aria-label="Informação sobre proteção de dados">
-      <h3>Proteção de Dados (LGPD)</h3>
-      <p>Ao se cadastrar, você concorda com nossa política de privacidade. Seus dados serão usados apenas para fins educacionais e de acompanhamento, nunca sendo compartilhados com terceiros.</p>
-    </div>
+    </section>
 
-    <ul class="benefits">
-      <li>Dados criptografados e seguros</li>
-      <li>Acesso restrito por perfil</li>
-      <li>Uso ético de Inteligência Artificial</li>
-    </ul>
+    <!-- FORMULÁRIO -->
+    <section class="form-area">
+      <div class="form-card">
 
-  </section>
+        <a href="{% url 'accounts:login' %}" class="back-link">← Possui conta? Faça login</a>
 
-  <!-- FORMULÁRIO -->
-  <section class="form-area">
-    <div class="form-card">
+        <h2>Criar conta</h2>
+        <p class="form-subtitle">Preencha seus dados para se cadastrar</p>
 
-      <a href="{% url 'accounts:login' %}" class="back-link">← Possui conta? Faça login</a>
+        <form method="POST" novalidate aria-label="Formulário de cadastro">
+          {% csrf_token %}
 
-      <h2>Criar conta</h2>
-      <p class="form-subtitle">Preencha seus dados para se cadastrar</p>
-
-      <form method="POST" novalidate aria-label="Formulário de cadastro">
-        {% csrf_token %}
-
-        <!-- NOME COMPLETO -->
-        <div class="form-group">
-          <label for="{{ form.first_name.id_for_label }}">Nome completo</label>
-          {{ form.first_name }}
-          {% if form.first_name.errors %}
+          <!-- NOME COMPLETO -->
+          <div class="form-group">
+            <label for="{{ form.first_name.id_for_label }}">Nome completo</label>
+            {{ form.first_name }}
+            {% if form.first_name.errors %}
             <span class="erro" role="alert">{{ form.first_name.errors.0 }}</span>
-          {% endif %}
-        </div>
+            {% endif %}
+          </div>
 
-        <!-- EMAIL -->
-        <div class="form-group">
-          <label for="{{ form.email.id_for_label }}">E-mail institucional</label>
-          {{ form.email }}
-          {% if form.email.errors %}
+          <!-- EMAIL -->
+          <div class="form-group">
+            <label for="{{ form.email.id_for_label }}">E-mail institucional</label>
+            {{ form.email }}
+            {% if form.email.errors %}
             <span class="erro" role="alert">{{ form.email.errors.0 }}</span>
-          {% endif %}
-        </div>
+            {% endif %}
+          </div>
 
-        
 
-        <!-- SENHA -->
-        <div class="form-group">
-          <label for="{{ form.password1.id_for_label }}">Senha</label>
-          {{ form.password1 }}
-          {% if form.password1.errors %}
+
+          <!-- SENHA -->
+          <div class="form-group">
+            <label for="{{ form.password1.id_for_label }}">Senha</label>
+            {{ form.password1 }}
+            {% if form.password1.errors %}
             <span class="erro" role="alert">{{ form.password1.errors.0 }}</span>
-          {% endif %}
-        </div>
+            {% endif %}
+          </div>
 
-        <!-- CONFIRMAR SENHA -->
-        <div class="form-group">
-          <label for="{{ form.password2.id_for_label }}">Confirmar senha</label>
-          {{ form.password2 }}
-          {% if form.password2.errors %}
+          <!-- CONFIRMAR SENHA -->
+          <div class="form-group">
+            <label for="{{ form.password2.id_for_label }}">Confirmar senha</label>
+            {{ form.password2 }}
+            {% if form.password2.errors %}
             <span class="erro" role="alert">{{ form.password2.errors.0 }}</span>
-          {% endif %}
-        </div>
+            {% endif %}
+          </div>
 
-        <!-- AREA DE ATUAÇÃO-->
-        <div class="form-group">
-          <label for="{{ educador_form.area_atuacao.id_for_label }}">Área de atuação</label>
-          {{ educador_form.area_atuacao }}
-          {% if educador_form.area_atuacao.errors %}
+          <!-- AREA DE ATUAÇÃO-->
+          <div class="form-group">
+            <label for="{{ educador_form.area_atuacao.id_for_label }}">Área de atuação</label>
+            {{ educador_form.area_atuacao }}
+            {% if educador_form.area_atuacao.errors %}
             <span class="erro" role="alert">{{ educador_form.area_atuacao.errors.0 }}</span>
-          {% endif %}
-        </div>
+            {% endif %}
+          </div>
 
-     
+          <div class="form-group">
+            <label class="form-label">🔑 Código de Autorização do NAPNE</label>
+            <input type="password" name="codigo_acesso" class="form-control"
+              placeholder="Digite o código fornecido pela instituição" required>
+            <small style="color: #64748b; margin-top: 5px; display: block;">
+              Apenas servidores autorizados possuem este código.
+            </small>
+          </div>
 
-        <button type="submit" class="submit-btn">
-          Criar conta →
-        </button>
 
-      </form>
-    </div>
-  </section>
 
-</main>
+          <button type="submit" class="submit-btn">
+            Criar conta →
+          </button>
+
+        </form>
+      </div>
+    </section>
+
+  </main>
 </body>
+
 </html>

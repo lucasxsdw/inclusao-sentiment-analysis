@@ -1,88 +1,42 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="pt-br">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% block extra_css %}{% endblock %}
-    <title>Diário de Bordo da Inclusão</title>
-</head>
-
-<body>
-
-    <header class="header" role="banner">
-        <div class="header-inner"> 
-        <meta name="csrf-token" content="{{ csrf_token }}">
-        <div class="header-container">
-            <div class="menu-toggle" onclick="toggleMenu()">☰</div>
-            <div class="logo-area">
-                <a href="{% url 'home' %}" class="logo-link" aria-label="Página inicial do Diário de Bordo">
-                    <img src="{% static 'diario/img/emocoes/Book.png' %}" alt="" class="logo-icon">
-                    <div class="logo-text">
-                        <strong>Diário de Bordo</strong>
-                        <span class="subtitle">da Inclusão</span>
-                    </div>
-                </a>
-            </div>
-
-
-            <nav class="nav" role="navigation" aria-label="Menu principal">
-                <ul class="nav-list">
-                    <li>
-                        <a href="{% url 'home' %}" class="nav-link">
-                            <img class="nav-icon" src="{% static 'diario/img/emocoes/home.png' %}" alt="">
-                            <span>Home</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'emotions' %}" class="nav-link">
-                            <img class="nav-icon" src="{% static 'diario/img/emocoes/bookBlack.png' %}" alt="">
-                            <span>Registrar Sentimento</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{% url 'historico' %}" class="nav-link">
-                            <img class="nav-icon" src="{% static 'diario/img/emocoes/history.png' %}" alt="">
-                            <span>Meu Histórico</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-            <div class="user-group">
-                <div class="user-area">
-                    <span class="user-name">{{ request.user.get_full_name }}</span>
-                    <span class="user-role">{{ request.user.tipo_usuario }}</span>
+<header class="header">
+    <div class="header-container">
+        
+        <div class="logo-area">
+            <a href="/" class="logo-link" aria-label="Página inicial">
+                <div class="logo-icon" aria-hidden="true">
+                    <img src="{% static 'diario/img/emocoes/Book.png' %}" alt="" style="width: 24px; filter: brightness(0) invert(1);">
                 </div>
-
-                <form method="POST" action="{% url 'accounts:logout' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="logout-btn" aria-label="Sair do sistema">
-                        <img class="icon-logout" src="{% static 'diario/img/emocoes/sair.png' %}" alt="">
-                    </button>
-                </form>
-
-            </div>
-
+                <div class="logo-text">
+                    <strong>Diário de Bordo</strong>
+                    <span class="subtitle">da Inclusão</span>
+                </div>
+            </a>
         </div>
+
+        <div class="menu-toggle" role="button" tabindex="0" onclick="toggleMenu()">
+            <span style="font-size: 28px;">☰</span> 
+        </div>
+
+        <div class="user-area">
+            <span class="user-name" style="display: block; font-weight: 600; color: #111;">{{ request.user.first_name|default:request.user.username }}</span>
+            <span class="user-role" style="display: block; font-size: 12px; color: #14b8a6;">{{ request.user.tipo_usuario|upper }}</span>
+        </div>
+        
+        <form method="post" action="{% url 'accounts:logout' %}" class="form-sair" style="margin: 0;">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn" aria-label="Sair" style="display: flex; align-items: center; gap: 5px;">
+                <svg class="icon-logout" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="height: 20px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                <span style="color: #ef4444; font-weight: 600; font-size: 14px;">Sair</span>
+            </button>
+        </form>
+
+        <nav class="nav" id="menu-principal" aria-label="Menu Principal">
+            <ul class="nav-list">
+                <li><a href="{% url 'emotions' %}" class="nav-link">💚 Registrar</a></li>
+                <li><a href="{% url 'frequencia' %}" class="nav-link">⏱ Frequência</a></li>
+                <li><a href="{% url 'sobre' %}" class="nav-link">📊 Sobre</a></li>
+            </ul>
+        </nav>
+
     </div>
-    </header>
-
-    <main>
-        {% block content %}{% endblock %}
-    </main>
-
-    <footer>
-        <div>🛡 Seus dados são protegidos conforme a LGPD</div>
-        <div>© 2025 Diário de Bordo da Inclusão - NAPNE</div>
-    </footer>
-
-    <script>
-        function toggleMenu() {
-            document.querySelector('.nav').classList.toggle('active');
-        }
-    </script>
-
-</body>
-
-</html>
+</header>

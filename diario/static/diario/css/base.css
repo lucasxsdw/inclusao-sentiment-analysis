@@ -1,4 +1,16 @@
-/* ================= HEADER ================= */
+
+/* ================= RESET E FONTES GLOBAIS ================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', 'Segoe UI', sans-serif; /* Força a fonte moderna em tudo! */
+}
+
+body {
+    background-color: #f8fafc; /* Um fundo cinza super clarinho para destacar os cartões brancos */
+    color: #1f2937;
+}
 
 /* Header */
 .header {
@@ -83,7 +95,7 @@
   text-decoration: none;
   color: #333;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   transition: all 0.2s ease;
 }
@@ -139,49 +151,57 @@
   outline: 3px solid #4caf50;
 }
 
-/* ================= RESPONSIVO ================= */
 @media (max-width: 768px) {
-
+  
   .header-container {
-    grid-template-columns: 1fr; /* empilha tudo */
+    display: grid;
+    grid-template-columns: 1fr auto; /* Coluna 1 cresce, Coluna 2 abraça o conteúdo */
+    
+    /* A MÁGICA ACONTECE AQUI: O mapa do layout */
+    grid-template-areas: 
+      "logo   usuario"
+      "menu   sair"
+      "nav    nav";
+    
+    row-gap: 12px; /* Espaço entre a linha de cima e a de baixo */
+    align-items: center; /* Centraliza as coisas na vertical */
   }
 
-  .menu-toggle {
-    display: block;
+  /* Posicionando cada peça no mapa */
+  .logo-area { 
+    grid-area: logo; 
+  }
+  
+  .user-area { 
+    grid-area: usuario; 
+    text-align: right; 
   }
 
-  .nav {
-    display: none;
-    width: 100%;
-    margin-top: 10px;
-  }
-
-  .nav.active {
+  .menu-toggle { 
+    grid-area: menu; 
     display: flex;
+    justify-self: start; /* Joga os 3 traços para a extrema esquerda */
+    color: #111;
   }
 
-  .nav-list {
-    flex-direction: column;
-    width: 100%;
-    gap: 10px;
+  .form-sair { 
+    grid-area: sair; 
+    justify-self: end; /* Joga o botão de sair para a extrema direita */
   }
 
-  .nav-link {
-    width: 100%;
-    padding: 12px;
+  /* Controle do Menu que abre e fecha */
+  .nav { 
+    grid-area: nav; 
+    display: none; 
+    width: 100%; 
+    border-top: 1px solid #e2e8f0; 
+    padding-top: 15px;
   }
-
-  .user-group {
-    width: 100%;
-    justify-content: space-between;
-    margin-top: 10px;
-  }
-
-  .user-area {
-    align-items: flex-start;
-  }
+  
+  .nav.active { display: flex; }
+  .nav-list { flex-direction: column; width: 100%; gap: 10px; }
+  .nav-link { width: 100%; padding: 12px; background: #f8fafc; }
 }
-
 footer {
   margin-top: 60px;
   padding: 20px 40px;

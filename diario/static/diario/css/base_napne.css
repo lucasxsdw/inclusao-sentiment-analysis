@@ -1,4 +1,16 @@
-/* ================= HEADER ================= */
+/* ================= RESET E FONTES GLOBAIS ================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', 'Segoe UI', sans-serif; /* Força a fonte moderna em tudo! */
+}
+
+body {
+    background-color: #f8fafc; /* Um fundo cinza super clarinho para destacar os cartões brancos */
+    color: #1f2937;
+}
+
 
 /* Header */
 .header {
@@ -27,7 +39,7 @@
 /* Menu toggle (mobile) */
 .menu-toggle {
   display: none;
-  font-size: 26px;
+  font-size: 23px;
   cursor: pointer;
 }
 
@@ -83,7 +95,7 @@
   text-decoration: none;
   color: #333;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   transition: all 0.2s ease;
 }
