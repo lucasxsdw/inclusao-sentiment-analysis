@@ -31,23 +31,27 @@ def gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno=None, historico
         )
 
         # --- A MÁGICA DOS FILTROS ACONTECE AQUI NA CONFIGURAÇÃO ---
+        # ... seu código anterior ...
         resposta_ia = client.models.generate_content(
             model=modelo,
             contents=conteudos_historico,
             config=types.GenerateContentConfig(
                 system_instruction=system_instruction,
-                temperature=0.7,
-                # Relaxamos os filtros para "Bloquear apenas alto risco"
+                temperature=0.4, # Abaixamos a temperatura para ser mais direto
                 safety_settings=[
-                    types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_ONLY_HIGH"),
-                    types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_ONLY_HIGH"),
-                    types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_ONLY_HIGH"),
-                    types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_ONLY_HIGH"),
+                    types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
+                    types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
+                    types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
                 ]
             )
         )
         
+        # VERIFICAÇÃO DE BLOQUEIO:
+        if not resposta_ia.candidates or not resposta_ia.candidates[0].content.parts:
+            return "Sinto muito que esteja passando por isso. Estou aqui para te ouvir."
+
         return resposta_ia.text.strip()
+        
 
     except Exception as e:
         logger.error(f"Erro ao gerar pergunta com Gemini: {e}", exc_info=True)
