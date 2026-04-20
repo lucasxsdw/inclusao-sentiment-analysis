@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ? csrfTokenElement.content
         : "";
 
-      fetch("/diario/salvar-emocao/", {
+      fetch("/diario/salvar_emocao/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
