@@ -72,12 +72,12 @@ def enviar_desabafo(request):
                 return JsonResponse({'erro': 'Sessão expirada. Volte à página inicial.'}, status=400)
 
             diario_vinculo = Diario.objects.get(id=diario_id)
-            pergunta_vinculo = Pergunta.objects.order_by("?").first()
-
+            pergunta_vinculo = Pergunta.objects.order_by("?").first()           
+            
             if not pergunta_vinculo:
-                return JsonResponse({'erro': 'Nenhuma pergunta cadastrada no sistema.'}, status=500)
-
-            # --- PARTE NOVA: BUSCAR O HISTÓRICO ---
+                pergunta_vinculo = Pergunta.objects.create(
+                    texto="Me conte mais sobre como você está lidando com isso hoje."
+                )
             # Buscamos todas as respostas já dadas NESTE diário
             respostas_anteriores = Resposta.objects.filter(diario=diario_vinculo).order_by('id')      
 
