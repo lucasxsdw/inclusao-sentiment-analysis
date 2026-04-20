@@ -100,21 +100,23 @@ def enviar_desabafo(request):
             # --- NOVO BLOCO: CAPTURA DO PERFIL DO ALUNO ---
             perfil_aluno = None
             try:
-                # Busca o objeto Aluno vinculado ao usuário logado
-                aluno_obj = request.user.perfil_aluno 
+                aluno_obj = request.user.perfil_aluno
                 perfil_aluno = {
-                    'nome': request.user.first_name or "Aluno",
+                    'nome': request.user.first_name,
                     'tipo_deficiencia': aluno_obj.get_tipo_deficiencia_display(),
-                    'necessidades_especificas': aluno_obj.necessidades_especificas or "Não informadas"
+                    'necessidades_especificas': aluno_obj.necessidades_especificas
                 }
-            except Exception as e:
-                logger.warning(f"Erro ao capturar perfil para a IA: {e}")
-                perfil_aluno = None
+            except: pass
 
-            # 5. Chama o Gemini (Agora passando o perfil_aluno preenchido!)
+            # CHAMADA DA IA
             resposta_bot = gerar_pergunta_diario(emocao, texto_aluno, perfil_aluno, historico)
 
-            # 6. Salva e responde
+            # SE DER A FRASE DE ERRO DA IA, APAGAMOS PARA NÃO CONTAR NO LIMITE
+            if "probleminha técnico" in resposta_bot:
+                nova_resposta.delete() 
+                return JsonResponse({'erro': 'IA ocupada. Tente novamente.'}, status=500)
+
+            # SALVA O SUCESSO
             nova_resposta.resposta_ia = resposta_bot
             nova_resposta.save()
 
