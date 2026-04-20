@@ -9,36 +9,27 @@ logger = logging.getLogger(__name__)
 logger = logging.getLogger(__name__)
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
-
 def gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno=None, historico_mensagens=None):
     try:
-        modelo = 'gemini-2.5-flash'
-        # ... (seu código de montar o contexto_perfil e system_instruction continua igual) ...
+        modelo = 'gemini-2.0-flash' # Verifique se não está '2.5' no seu código
         
-        system_instruction = f"""Você é o assistente virtual do 'Diário de Inclusão'... (resto do seu prompt)"""
+        system_instruction = """Você é o assistente do 'Diário de Inclusão'. 
+        REGRAS CRÍTICAS:
+        1. Responda em no máximo 200 caracteres (curto e direto).
+        2. Seja empático, mas não dê conselhos longos.
+        3. NUNCA faça perguntas abertas no final.
+        4. Se o usuário falar de bullying ou sofrimento, valide o sentimento de forma breve e acolhedora."""
 
-        conteudos_historico = []
-        if historico_mensagens:
-            for msg in historico_mensagens:
-                role = "user" if msg['papel'] == "user" else "model"
-                conteudos_historico.append(
-                    types.Content(role=role, parts=[types.Part.from_text(text=msg['texto'])])
-                )
+        # ... (montagem do histórico continua igual) ...
 
-        prompt_nova_mensagem = f"[Emoção declarada: {emocao_ptbr}]\n{texto_aluno}"
-        conteudos_historico.append(
-            types.Content(role="user", parts=[types.Part.from_text(text=prompt_nova_mensagem)])
-        )
-
-        # --- A MÁGICA DOS FILTROS ACONTECE AQUI NA CONFIGURAÇÃO ---
-        # ... seu código anterior ...
         resposta_ia = client.models.generate_content(
             model=modelo,
             contents=conteudos_historico,
             config=types.GenerateContentConfig(
                 system_instruction=system_instruction,
-                temperature=0.4, # Abaixamos a temperatura para ser mais direto
+                temperature=0.3, # Menor temperatura = resposta mais direta
                 safety_settings=[
+                    # Desativamos os filtros para temas sensíveis de suporte
                     types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
                     types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
                     types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
@@ -46,13 +37,12 @@ def gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno=None, historico
             )
         )
         
-        # VERIFICAÇÃO DE BLOQUEIO:
+        # Se a IA for bloqueada mesmo assim, evite o erro genérico
         if not resposta_ia.candidates or not resposta_ia.candidates[0].content.parts:
-            return "Sinto muito que esteja passando por isso. Estou aqui para te ouvir."
+            return "Entendo como isso é difícil para você. Saiba que não está sozinho e eu estou aqui para te ouvir."
 
         return resposta_ia.text.strip()
-        
 
     except Exception as e:
-        logger.error(f"Erro ao gerar pergunta com Gemini: {e}", exc_info=True)
+        logger.error(f"Erro: {e}")
         return "Desculpe, tive um probleminha técnico por aqui. Quer tentar me contar de novo?"

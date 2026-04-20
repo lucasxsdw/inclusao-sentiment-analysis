@@ -94,6 +94,9 @@ def salvar_emocao(request):
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
     return JsonResponse({'status': 'error'}, status=405)
+
+
+
 @aluno_required
 def painel_aluno(request):
     aluno = request.user.perfil_aluno 

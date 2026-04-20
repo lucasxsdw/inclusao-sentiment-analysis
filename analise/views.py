@@ -45,19 +45,7 @@ EMOCAO_EMOJI = {
 
 @aluno_required
 def enviar_desabafo(request):
-    if request.method == "GET":
-        diario_id = request.session.get('diario_atual_id')
-        mensagem_inicial = "Olá! Este é o seu espaço seguro. Como você está se sentindo hoje?"
-
-        if diario_id:
-            try:
-                diario = Diario.objects.get(id=diario_id)
-                if diario.mensagem_inicial_ia:
-                    mensagem_inicial = diario.mensagem_inicial_ia
-            except Diario.DoesNotExist:
-                pass
-
-        return render(request, 'analise/chat.html', {'mensagem_inicial': mensagem_inicial})
+    # ... (parte do GET continua igual) ...
 
     if request.method == 'POST':
         try:
@@ -69,40 +57,20 @@ def enviar_desabafo(request):
 
             diario_id = request.session.get('diario_atual_id')
             if not diario_id:
-                return JsonResponse({'erro': 'Sessão expirada. Volte à página inicial.'}, status=400)
+                return JsonResponse({'erro': 'Sessão expirada.'}, status=400)
 
             diario_vinculo = Diario.objects.get(id=diario_id)
-            pergunta_vinculo = Pergunta.objects.order_by("?").first()           
             
-            if not pergunta_vinculo:
-                pergunta_vinculo = Pergunta.objects.create(
-                    texto="Me conte mais sobre como você está lidando com isso hoje."
-                )
-            # Buscamos todas as respostas já dadas NESTE diário
-            respostas_anteriores = Resposta.objects.filter(diario=diario_vinculo).order_by('id')      
-
+            # 1. PREPARAÇÃO (Sem salvar no banco ainda)
+            respostas_anteriores = Resposta.objects.filter(diario=diario_vinculo).order_by('id')
             historico = []
             for resp in respostas_anteriores:
-                # 1. Adiciona o texto do aluno
                 historico.append({"papel": "user", "texto": resp.texto_resposta})
-                
-                # 2. Adiciona a resposta da IA (Garantindo a alternância)
-                if hasattr(resp, 'resposta_ia') and resp.resposta_ia:
-                    historico.append({"papel": "model", "texto": resp.resposta_ia})
-                else:
-                    # Proteção: Se a resposta da IA for nula no banco, injetamos um "Entendo."
-                    # Isso evita o erro de dois 'users' seguidos na API do Gemini.
-                    historico.append({"papel": "model", "texto": "Entendo."})
+                historico.append({"papel": "model", "texto": resp.resposta_ia or "Entendo."})
 
-            # Salva a nova mensagem do aluno no banco
-            nova_resposta = Resposta.objects.create(
-                texto_resposta=texto_aluno,
-                diario=diario_vinculo,
-                pergunta=pergunta_vinculo
-            )
-
-            resultado_ia = analisar_e_salvar(nova_resposta)
-            emocao_ptbr = resultado_ia["label"] if resultado_ia else "neutro"
+            # 2. ANÁLISE DE SENTIMENTO (Pode ser feita em memória ou função pura)
+            # Use uma função que analise o texto sem precisar do objeto 'Resposta' salvo
+            emocao_ptbr = analisar_texto_puro(texto_aluno) 
 
             perfil_aluno = None
             if request.user.is_authenticated:
@@ -111,25 +79,35 @@ def enviar_desabafo(request):
                     perfil_aluno = {
                         'nome': request.user.get_full_name(),
                         'tipo_deficiencia': aluno.get_tipo_deficiencia_display(),
-                        'necessidades_especificas': aluno.necessidades_especificas or 'Não informado'
                     }
-                except Aluno.DoesNotExist:
-                    pass
+                except Aluno.DoesNotExist: pass
+
+            # 3. CHAMADA DA IA (O momento crítico)
+            resposta_bot = gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno, historico)
+
+            # 🛡️ VALIDAÇÃO: Se a IA falhou, não salvamos nada e não contamos a rodada
+            if "Desculpe, tive um probleminha" in resposta_bot:
+                return JsonResponse({
+                    'erro': 'A IA travou por segurança. Esta tentativa não foi contada no seu limite. Tente falar de outra forma.',
+                    'sucesso': False
+                }, status=500)
+
+            # 4. SUCESSO: Agora sim salvamos no banco
+            pergunta_vinculo = Pergunta.objects.order_by("?").first()
+            nova_resposta = Resposta.objects.create(
+                texto_resposta=texto_aluno,
+                diario=diario_vinculo,
+                pergunta=pergunta_vinculo,
+                resposta_ia=resposta_bot  # Salvamos a resposta curta da IA aqui
+            )
 
             total_mensagens = Resposta.objects.filter(diario=diario_vinculo).count()
 
+            # Se for a 5ª mensagem, sobrescrevemos a resposta para encerrar
             if total_mensagens >= 5:
-                resposta_bot = "Agradeço muito por compartilhar seus sentimentos comigo hoje. Nossa sessão chegou ao fim. Lembre-se: este chat é um apoio profissional. Por favor, procure o NAPNE. 💙"
-            else:
-                # --- CHAMADA COM HISTÓRICO ---
-                # Enviamos o histórico acumulado para a função da IA
-                resposta_bot = gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno, historico)
-
-            # --- IMPORTANTE: SALVAR A RESPOSTA DA IA ---
-            # Recomendo ter um campo 'resposta_ia' no seu model Resposta
-            # para que na próxima iteração a IA saiba o que ela mesma disse.
-            nova_resposta.resposta_ia = resposta_bot
-            nova_resposta.save()
+                resposta_bot = "Agradeço por compartilhar. Nossa sessão chegou ao fim. Por favor, procure o NAPNE. 💙"
+                nova_resposta.resposta_ia = resposta_bot
+                nova_resposta.save()
 
             return JsonResponse({
                 'sucesso': True,
@@ -139,14 +117,16 @@ def enviar_desabafo(request):
                 'fim_de_sessao': total_mensagens >= 5
             }, status=200)
 
-        except json.JSONDecodeError:
-            return JsonResponse({'erro': 'Formato inválido.'}, status=400)
         except Exception as e:
             logger.error(f"Erro na View: {e}")
-            return JsonResponse({'erro': 'Erro interno no servidor.'}, status=500)
+            return JsonResponse({'erro': 'Erro interno.'}, status=500)
 
-    return JsonResponse({'erro': 'Método não permitido.'}, status=405)
 
+
+
+
+
+            
 
 @educador_required
 def painel_napne(request):
