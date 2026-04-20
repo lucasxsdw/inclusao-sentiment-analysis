@@ -58,7 +58,7 @@ O sistema utiliza dois modelos de IA com responsabilidades distintas:
 - Resultado salvo no banco com score de confiança
 
 ### 💬 Motor Generativo — Google Gemini
-- **Modelo:** `gemini-2.5-flash`
+- **Modelo:** `gemini-2.0-flash`
 - Gera respostas empáticas baseadas na emoção detectada e no texto do aluno
 - Opera com **System Prompt restrito**: nunca dá diagnósticos, nunca minimiza o problema
 - Respostas curtas (máximo 2 frases) no estilo de mensagens de chat
