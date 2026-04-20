@@ -23,16 +23,17 @@ def gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno=None, historico
         # ... (montagem do histórico continua igual) ...
 
         resposta_ia = client.models.generate_content(
-            model=modelo,
+            model='gemini-2.0-flash', # Certifique-se de que a versão está correta
             contents=conteudos_historico,
             config=types.GenerateContentConfig(
                 system_instruction=system_instruction,
-                temperature=0.3, # Menor temperatura = resposta mais direta
+                temperature=0.3,
+                # Isso impede que a IA trave ao ler palavras tristes
                 safety_settings=[
-                    # Desativamos os filtros para temas sensíveis de suporte
                     types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
                     types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
                     types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
+                    types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_NONE"),
                 ]
             )
         )
