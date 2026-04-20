@@ -48,13 +48,12 @@ def salvar_emocao(request):
             data = json.loads(request.body)
             emocao = data.get('emocao')
 
-            # Tenta pegar o perfil, se não existir, evita o erro 500
-            try:
-                perfil = request.user.perfil_aluno
-            except Exception:
-                return JsonResponse({'status': 'error', 'message': 'Usuário não possui perfil de aluno cadastrado.'}, status=400)
+            # Busca o perfil de forma direta. 
+            # Se falhar aqui, o 'except' lá de baixo vai nos dar o erro real.
+            perfil = request.user.perfil_aluno 
 
             if emocao:
+                # Cria a sessão
                 sessao = SessaoEmocional.objects.create(
                     emocao_selecionada=emocao,
                     status_sessao='ativa',

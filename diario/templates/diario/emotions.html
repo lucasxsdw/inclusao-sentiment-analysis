@@ -4,6 +4,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'diario/css/base.css' %}">
 <link rel="stylesheet" href="{% static 'diario/css/emotions.css' %}">
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
 {% endblock %}
 
 {% block content %}
