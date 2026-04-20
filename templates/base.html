@@ -1,3 +1,17 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diário de Bordo da Inclusão</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
 <header class="header">
     <div class="header-container">
         
@@ -35,8 +49,27 @@
                 <li><a href="{% url 'emotions' %}" class="nav-link">💚 Registrar</a></li>
                 <li><a href="{% url 'frequencia' %}" class="nav-link">⏱ Frequência</a></li>
                 <li><a href="{% url 'sobre' %}" class="nav-link">📊 Sobre</a></li>
+                <li>
+                        <a href="{% url 'configuracoes_perfil' %}" class="nav-link">
+                            <img class="nav-icon" src="{% static 'analise/img/settings.png' %}" alt="Configurações">
+                            <span>Configurações</span>
+                        </a>
+                    </li>
             </ul>
         </nav>
 
     </div>
 </header>
+
+{% block content %}
+{% endblock %}
+
+<script>
+    function toggleMenu() {
+        const menu = document.getElementById('menu-principal');
+        menu.classList.toggle('active');
+    }
+</script>
+
+</body>
+</html>

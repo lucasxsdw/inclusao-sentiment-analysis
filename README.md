@@ -1,6 +1,6 @@
 # 📓 Diário de Bordo da Inclusão
 
-> Plataforma de apoio emocional com Inteligência Artificial para alunos com necessidades específicas, desenvolvida para o **NAPN — Núcleo de Apoio às Pessoas com Necessidades Específicas**.
+> Plataforma de apoio emocional com Inteligência Artificial para alunos com necessidades específicas, desenvolvida para o **NAPNE — Núcleo de Apoio às Pessoas com Necessidades Específicas**.
 
 <br>
 
@@ -17,9 +17,9 @@
 
 O **Diário de Bordo da Inclusão** é uma ponte inteligente entre o aluno que precisa desabafar e a equipe de apoio da instituição.
 
-Muitos alunos têm dificuldade de expressar suas emoções diretamente para um psicólogo ou coordenador. O sistema oferece um **espaço seguro, intuitivo e sem julgamentos** onde o aluno pode registrar como está se sentindo. Em paralelo, transforma esses relatos em dados estruturados, permitindo que o NAPN identifique de forma proativa quais alunos precisam de mais atenção.
+Muitos alunos têm dificuldade de expressar suas emoções diretamente para um psicólogo ou coordenador. O sistema oferece um **espaço seguro, intuitivo e sem julgamentos** onde o aluno pode registrar como está se sentindo. Em paralelo, transforma esses relatos em dados estruturados, permitindo que o NAPNE identifique de forma proativa quais alunos precisam de mais atenção.
 
-> ⚠️ O sistema **não atua como substituto de acompanhamento psicológico**. O chat é limitado a 5 mensagens e sempre encaminha o aluno para atendimento humano no NAPN.
+> ⚠️ O sistema **não atua como substituto de acompanhamento psicológico**. O chat é limitado a 5 mensagens e sempre encaminha o aluno para atendimento humano no NAPNE.
 
 ---
 
@@ -37,7 +37,7 @@ Muitos alunos têm dificuldade de expressar suas emoções diretamente para um p
 ## 🔄 Fluxo da Aplicação
 
 ```
-Aluno acessa → Seleciona emoção → Chat com IA (máx. 5 msg) → Encaminhamento ao NAPN
+Aluno acessa → Seleciona emoção → Chat com IA (máx. 5 msg) → Encaminhamento ao NAPNE
                      ↓                        ↓
               Cria SessaoEmocional     Análise de sentimento
               e Diario no banco        salva no banco (HuggingFace)
@@ -220,13 +220,13 @@ Acesse: [http://localhost:8000](http://localhost:8000)
 - [x] Pipeline de tradução automática PT-BR → EN
 - [x] Integração com Google Gemini para respostas empáticas
 - [x] Endpoint da API `/analise/api/chat/`
-- [x] Limite ético de 5 mensagens por sessão com encaminhamento ao NAPN
+- [x] Limite ético de 5 mensagens por sessão com encaminhamento ao NAPNE
 - [x] Interface Frontend — HomPage, Home, Seleção de Emoções e Chat
 - [x] Configuração de ambiente com `.env` e PostgreSQL
 
 ### 🔧 Em desenvolvimento
 - [ ] Sistema de autenticação e perfil do aluno
-- [ ] Painel do NAPN — visualização de sessões e estatísticas emocionais
+- [ ] Painel do NAPNE — visualização de sessões e estatísticas emocionais
 - [ ] Implementação de políticas de privacidade (LGPD)
 - [ ] Deploy em servidor de produção
 
@@ -246,6 +246,6 @@ Este sistema lida com **dados emocionais sensíveis** de alunos, potencialmente 
 
 ## 🤝 Contexto Acadêmico
 
-Projeto desenvolvido como **Trabalho de Conclusão de Curso (TCC)**, com foco em impacto social real. O sistema foi projetado para ser utilizado pelo NAPN de instituições de ensino como ferramenta de apoio — não de substituição — ao acompanhamento psicológico profissional.
+Projeto desenvolvido como **Trabalho de Conclusão de Curso (TCC)**, com foco em impacto social real. O sistema foi projetado para ser utilizado pelo NAPNE de instituições de ensino como ferramenta de apoio — não de substituição — ao acompanhamento psicológico profissional.
 
 ---
