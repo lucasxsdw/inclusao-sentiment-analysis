@@ -11,24 +11,42 @@ client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 def gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno=None, historico_mensagens=None):
     try:
-        modelo = 'gemini-2.0-flash' # Verifique se não está '2.5' no seu código
+        # 1. Garante que o texto do aluno não seja nulo
+        texto_aluno = texto_aluno if texto_aluno else "Estou aqui para conversar."
         
         system_instruction = """Você é o assistente do 'Diário de Inclusão'. 
-        REGRAS CRÍTICAS:
-        1. Responda em no máximo 200 caracteres (curto e direto).
-        2. Seja empático, mas não dê conselhos longos.
-        3. NUNCA faça perguntas abertas no final.
-        4. Se o usuário falar de bullying ou sofrimento, valide o sentimento de forma breve e acolhedora."""
+        REGRAS:
+        1. Máximo 200 caracteres. Seja breve.
+        2. Não dê conselhos longos. Valide o sentimento.
+        3. Nunca termine com perguntas abertas."""
 
-        # ... (montagem do histórico continua igual) ...
+        # 2. Montagem SEGURA do histórico
+        conteudos_historico = []
+        if historico_mensagens:
+            for msg in historico_mensagens:
+                # Garante que 'texto' nunca seja vazio ou None
+                txt = msg.get('texto', '').strip()
+                if not txt:
+                    txt = "..." # Valor padrão para não quebrar a API
+                
+                role = "user" if msg['papel'] == "user" else "model"
+                conteudos_historico.append(
+                    types.Content(role=role, parts=[types.Part.from_text(text=txt)])
+                )
 
+        # 3. Adiciona a mensagem ATUAL do aluno
+        prompt_final = f"[Contexto Emocional: {emocao_ptbr}] {texto_aluno}"
+        conteudos_historico.append(
+            types.Content(role="user", parts=[types.Part.from_text(text=prompt_final)])
+        )
+
+        # 4. Chamada da API com o modelo correto e sem filtros
         resposta_ia = client.models.generate_content(
-            model='gemini-2.0-flash', # Certifique-se de que a versão está correta
+            model='gemini-2.0-flash',
             contents=conteudos_historico,
             config=types.GenerateContentConfig(
                 system_instruction=system_instruction,
                 temperature=0.3,
-                # Isso impede que a IA trave ao ler palavras tristes
                 safety_settings=[
                     types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
                     types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
@@ -38,12 +56,13 @@ def gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno=None, historico
             )
         )
         
-        # Se a IA for bloqueada mesmo assim, evite o erro genérico
-        if not resposta_ia.candidates or not resposta_ia.candidates[0].content.parts:
-            return "Entendo como isso é difícil para você. Saiba que não está sozinho e eu estou aqui para te ouvir."
-
-        return resposta_ia.text.strip()
+        # 5. Verifica se a resposta veio de fato
+        if resposta_ia and hasattr(resposta_ia, 'text') and resposta_ia.text:
+            return resposta_ia.text.strip()
+        
+        return "Entendo perfeitamente o que você está sentindo. Me conte mais."
 
     except Exception as e:
-        logger.error(f"Erro: {e}")
-        return "Desculpe, tive um probleminha técnico por aqui. Quer tentar me contar de novo?"
+        logger.error(f"ERRO CRÍTICO NO GEMINI: {e}", exc_info=True)
+        # Se tudo der errado, retorne uma frase neutra em vez da frase de erro técnica
+        return "Entendo. Sinto muito que as coisas estejam difíceis na faculdade hoje."
