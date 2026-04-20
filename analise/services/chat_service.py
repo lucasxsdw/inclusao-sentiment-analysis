@@ -67,25 +67,34 @@ REGRAS ESTRITAS:
             ),
         ]
 
-        mensagem_usuario = f"Emoção detectada: {emocao_ptbr}\nDesabafo do aluno: \"{texto_aluno}\"\n\nEscreva sua resposta agora:"
+       # Configuração do Prompt
+        mensagem_usuario = f"Emoção detectada: {emocao_ptbr}\nDesabafo do aluno: \"{texto_aluno}\""
 
-        resposta_ia = client.models.generate_content(
+        # Chamada com logs de depuração
+        response = client.models.generate_content(
             model=MODELO,
-            contents=mensagem_usuario,
+            contents=[
+                types.Content(
+                    role="user",
+                    parts=[types.Part.from_text(text=mensagem_usuario)]
+                )
+            ],
             config=types.GenerateContentConfig(
                 system_instruction=system_prompt,
                 safety_settings=safety_settings,
-                max_output_tokens=200,
-                temperature=0.7,
+                max_output_tokens=250, # Aumentado um pouco para evitar corte abrupto
+                temperature=0.6, # Ligeiramente menor para mais estabilidade
             )
         )
 
-        # Verifica se a resposta tem conteúdo válido
-        if resposta_ia and resposta_ia.text and resposta_ia.text.strip():
-            return resposta_ia.text.strip()
+        # DEBUG: Verificar se foi bloqueado por segurança
+        if response.candidates and response.candidates[0].finish_reason == 'SAFETY':
+             logger.warning(f"BLOQUEIO DE SEGURANÇA DETECTADO. Motivo: {response.candidates[0].safety_ratings}")
+             return "Sinto muito que esteja passando por isso. É um peso grande, mas saiba que você não está sozinho. Quer me contar mais?"
 
-        logger.warning("Gemini retornou resposta vazia ou bloqueada.")
-        return "Entendo o que você está sentindo. Quer me contar um pouco mais sobre isso?"
+        # Verifica se a resposta tem conteúdo válido
+        if response.text:
+            return response.text.strip()
 
     except Exception as e:
         logger.error(f"Erro ao gerar resposta com Gemini: {e}")

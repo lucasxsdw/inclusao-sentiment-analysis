@@ -122,19 +122,30 @@ def enviar_desabafo(request):
                 emocao_ptbr = "neutro"
  
             # Gera resposta do Gemini
+            # ... (código anterior igual até a geração da resposta_bot) ...
+
+            # Gera resposta do Gemini
             try:
                 resposta_bot = gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno)
             except Exception as e:
                 logger.error(f"Erro no chat_service: {e}")
                 resposta_bot = "Entendo o que você está sentindo. Quer me contar um pouco mais sobre isso?"
- 
+            
+            # --- AJUSTE AQUI: Salva a resposta da IA no objeto que você criou ---
+            nova_resposta.resposta_ia = resposta_bot
+            nova_resposta.save()
+
             # Atualiza contagem após sucesso
             total_mensagens_atual = Resposta.objects.filter(diario=diario_vinculo).count()
             fim_de_sessao = total_mensagens_atual >= 5
- 
+
             if fim_de_sessao:
-                resposta_bot = "Agradeço muito por compartilhar seus sentimentos comigo hoje. Nossa sessão chegou ao fim. Lembre-se: este chat é um apoio inicial e não substitui o acompanhamento psicológico profissional. Por favor, procure o NAPN ou um profissional de saúde se precisar de mais ajuda. Você é muito importante! 💙"
- 
+                despedida = "Agradeço muito por compartilhar seus sentimentos comigo hoje. Nossa sessão chegou ao fim. Lembre-se: este chat é um apoio inicial. Por favor, procure o NAPNE. 💙"
+                resposta_bot = despedida
+                # Atualiza também no banco a mensagem de encerramento
+                nova_resposta.resposta_ia = despedida
+                nova_resposta.save()
+
             return JsonResponse({
                 'sucesso': True,
                 'mensagem_aluno': texto_aluno,
@@ -142,6 +153,8 @@ def enviar_desabafo(request):
                 'resposta_assistente': resposta_bot,
                 'fim_de_sessao': fim_de_sessao
             }, status=200)
+
+            
  
         except json.JSONDecodeError:
             return JsonResponse({'erro': 'Formato inválido.'}, status=400)
