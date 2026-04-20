@@ -45,7 +45,16 @@ EMOCAO_EMOJI = {
 
 @aluno_required
 def enviar_desabafo(request):
-    # ... (parte do GET continua igual) ...
+    if request.method == "GET":
+        diario_id = request.session.get('diario_atual_id')
+        mensagem_inicial = "Olá! Este é o seu espaço seguro. Como você está se sentindo hoje?"
+        if diario_id:
+            try:
+                diario = Diario.objects.get(id=diario_id)
+                if diario.mensagem_inicial_ia:
+                    mensagem_inicial = diario.mensagem_inicial_ia
+            except Diario.DoesNotExist: pass
+        return render(request, 'analise/chat.html', {'mensagem_inicial': mensagem_inicial})
 
     if request.method == 'POST':
         try:
@@ -61,49 +70,50 @@ def enviar_desabafo(request):
 
             diario_vinculo = Diario.objects.get(id=diario_id)
             
-            # 1. PREPARAÇÃO (Sem salvar no banco ainda)
-            respostas_anteriores = Resposta.objects.filter(diario=diario_vinculo).order_by('id')
+            # 1. Cria o objeto primeiro (necessário para sua função de análise funcionar)
+            pergunta_vinculo = Pergunta.objects.order_by("?").first()
+            if not pergunta_vinculo:
+                pergunta_vinculo = Pergunta.objects.create(texto="Como você está?")
+
+            nova_resposta = Resposta.objects.create(
+                texto_resposta=texto_aluno,
+                diario=diario_vinculo,
+                pergunta=pergunta_vinculo
+            )
+
+            # 2. Usa suas funções originais
+            resultado_ia = analisar_e_salvar(nova_resposta)
+            emocao_ptbr = resultado_ia["label"] if resultado_ia else "neutro"
+
+            respostas_anteriores = Resposta.objects.filter(diario=diario_vinculo).exclude(id=nova_resposta.id).order_by('id')
             historico = []
             for resp in respostas_anteriores:
                 historico.append({"papel": "user", "texto": resp.texto_resposta})
                 historico.append({"papel": "model", "texto": resp.resposta_ia or "Entendo."})
 
-            # 2. ANÁLISE DE SENTIMENTO (Pode ser feita em memória ou função pura)
-            # Use uma função que analise o texto sem precisar do objeto 'Resposta' salvo
-            emocao_ptbr = analisar_texto_puro(texto_aluno) 
-
             perfil_aluno = None
-            if request.user.is_authenticated:
-                try:
-                    aluno = Aluno.objects.get(usuario=request.user)
-                    perfil_aluno = {
-                        'nome': request.user.get_full_name(),
-                        'tipo_deficiencia': aluno.get_tipo_deficiencia_display(),
-                    }
-                except Aluno.DoesNotExist: pass
+            try:
+                aluno = request.user.perfil_aluno
+                perfil_aluno = {
+                    'nome': request.user.get_full_name(),
+                    'tipo_deficiencia': aluno.get_tipo_deficiencia_display(),
+                }
+            except: pass
 
-            # 3. CHAMADA DA IA (O momento crítico)
+            # 3. Chama a IA
             resposta_bot = gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno, historico)
 
-            # 🛡️ VALIDAÇÃO: Se a IA falhou, não salvamos nada e não contamos a rodada
+            # 🛡️ PROTEÇÃO: Se a IA falhou, APAGAMOS a resposta do banco
             if "Desculpe, tive um probleminha" in resposta_bot:
-                return JsonResponse({
-                    'erro': 'A IA travou por segurança. Esta tentativa não foi contada no seu limite. Tente falar de outra forma.',
-                    'sucesso': False
-                }, status=500)
+                nova_resposta.delete() # Remove para não contar no limite de 5
+                return JsonResponse({'erro': 'A IA travou. Tente falar de outra forma.'}, status=500)
 
-            # 4. SUCESSO: Agora sim salvamos no banco
-            pergunta_vinculo = Pergunta.objects.order_by("?").first()
-            nova_resposta = Resposta.objects.create(
-                texto_resposta=texto_aluno,
-                diario=diario_vinculo,
-                pergunta=pergunta_vinculo,
-                resposta_ia=resposta_bot  # Salvamos a resposta curta da IA aqui
-            )
+            # 4. SUCESSO: Salva a resposta da IA e verifica limite
+            nova_resposta.resposta_ia = resposta_bot
+            nova_resposta.save()
 
             total_mensagens = Resposta.objects.filter(diario=diario_vinculo).count()
 
-            # Se for a 5ª mensagem, sobrescrevemos a resposta para encerrar
             if total_mensagens >= 5:
                 resposta_bot = "Agradeço por compartilhar. Nossa sessão chegou ao fim. Por favor, procure o NAPNE. 💙"
                 nova_resposta.resposta_ia = resposta_bot
@@ -119,14 +129,10 @@ def enviar_desabafo(request):
 
         except Exception as e:
             logger.error(f"Erro na View: {e}")
-            return JsonResponse({'erro': 'Erro interno.'}, status=500)
+            return JsonResponse({'erro': 'Erro interno no servidor.'}, status=500)
 
 
 
-
-
-
-            
 
 @educador_required
 def painel_napne(request):
