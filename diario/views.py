@@ -44,16 +44,22 @@ class EmotionsView(TemplateView):
 @aluno_required
 def salvar_emocao(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        emocao = data.get('emocao')
+        try:
+            data = json.loads(request.body)
+            emocao = data.get('emocao')
 
-        if emocao:
-            # 1️ Criar sessão (Como a view é protegida, request.user sempre será um aluno válido)
-            sessao = SessaoEmocional.objects.create(
-            emocao_selecionada=emocao,
-            status_sessao='ativa',
-            aluno=request.user.perfil_aluno 
-        )
+            # Tenta pegar o perfil, se não existir, evita o erro 500
+            try:
+                perfil = request.user.perfil_aluno
+            except Exception:
+                return JsonResponse({'status': 'error', 'message': 'Usuário não possui perfil de aluno cadastrado.'}, status=400)
+
+            if emocao:
+                sessao = SessaoEmocional.objects.create(
+                    emocao_selecionada=emocao,
+                    status_sessao='ativa',
+                    aluno=perfil 
+                )
 
             mensagens_iniciais = {
                 'muito_feliz': "Que incrível ver que você está muito feliz hoje! Quer me contar o que aconteceu?",
