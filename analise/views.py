@@ -154,13 +154,14 @@ def enviar_desabafo(request):
                 'fim_de_sessao': fim_de_sessao
             }, status=200)
 
-            
+
  
         except json.JSONDecodeError:
             return JsonResponse({'erro': 'Formato inválido.'}, status=400)
         except Exception as e:
-            logger.error(f"Erro na View: {e}")
-            return JsonResponse({'erro': 'Erro interno no servidor.'}, status=500)
+            logger.error(f"Erro Gemini: {e}")
+            # MUDE PARA ISSO SÓ PARA TESTAR:
+            return f"ERRO REAL: {str(e)}"
  
     return JsonResponse({'erro': 'Método não permitido.'}, status=405)
  
