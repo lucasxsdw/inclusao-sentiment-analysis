@@ -97,8 +97,22 @@ def enviar_desabafo(request):
                     historico.append({"papel": "user", "texto": r.texto_resposta})
                     historico.append({"papel": "model", "texto": r.resposta_ia})
 
-            # 5. Chama o Gemini
-            resposta_bot = gerar_pergunta_diario(emocao, texto_aluno, None, historico)
+            # --- NOVO BLOCO: CAPTURA DO PERFIL DO ALUNO ---
+            perfil_aluno = None
+            try:
+                # Busca o objeto Aluno vinculado ao usuário logado
+                aluno_obj = request.user.perfil_aluno 
+                perfil_aluno = {
+                    'nome': request.user.first_name or "Aluno",
+                    'tipo_deficiencia': aluno_obj.get_tipo_deficiencia_display(),
+                    'necessidades_especificas': aluno_obj.necessidades_especificas or "Não informadas"
+                }
+            except Exception as e:
+                logger.warning(f"Erro ao capturar perfil para a IA: {e}")
+                perfil_aluno = None
+
+            # 5. Chama o Gemini (Agora passando o perfil_aluno preenchido!)
+            resposta_bot = gerar_pergunta_diario(emocao, texto_aluno, perfil_aluno, historico)
 
             # 6. Salva e responde
             nova_resposta.resposta_ia = resposta_bot
@@ -117,7 +131,7 @@ def enviar_desabafo(request):
 
 
 
-            
+
 
 @educador_required
 def painel_napne(request):

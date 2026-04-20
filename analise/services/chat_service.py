@@ -8,61 +8,50 @@ logger = logging.getLogger(__name__)
 # cliente Gemini
 logger = logging.getLogger(__name__)
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
-
 def gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno=None, historico_mensagens=None):
     try:
-        # 1. Garante que o texto do aluno não seja nulo
-        texto_aluno = texto_aluno if texto_aluno else "Estou aqui para conversar."
-        
-        system_instruction = """Você é o assistente do 'Diário de Inclusão'. 
-        REGRAS:
-        1. Máximo 200 caracteres. Seja breve.
-        2. Não dê conselhos longos. Valide o sentimento.
-        3. Nunca termine com perguntas abertas."""
+        # Monta o contexto do aluno (Deficiência/Necessidades)
+        contexto_perfil = ""
+        if perfil_aluno:
+            contexto_perfil = f"O aluno se chama {perfil_aluno.get('nome')}, possui {perfil_aluno.get('tipo_deficiencia')} e tem as seguintes necessidades: {perfil_aluno.get('necessidades_especificas')}."
 
-        # 2. Montagem SEGURA do histórico
+        system_instruction = f"""Você é o assistente empático do 'Diário de Inclusão'.
+        CONTEXTO DO ALUNO: {contexto_perfil}
+        
+        REGRAS DE OURO:
+        1. Responda de forma curta (máximo 3 frases), mas EMPÁTICA.
+        2. Use o contexto da deficiência do aluno para oferecer um suporte personalizado.
+        3. SEMPRE termine com uma pergunta acolhedora e aberta para manter a conversa.
+        4. Se o aluno falar de bullying ou fracasso, valide o sentimento antes de perguntar algo."""
+
         conteudos_historico = []
         if historico_mensagens:
             for msg in historico_mensagens:
-                # Garante que 'texto' nunca seja vazio ou None
-                txt = msg.get('texto', '').strip()
-                if not txt:
-                    txt = "..." # Valor padrão para não quebrar a API
-                
                 role = "user" if msg['papel'] == "user" else "model"
-                conteudos_historico.append(
-                    types.Content(role=role, parts=[types.Part.from_text(text=txt)])
-                )
+                conteudos_historico.append(types.Content(role=role, parts=[types.Part.from_text(text=msg.get('texto', '...'))]))
 
-        # 3. Adiciona a mensagem ATUAL do aluno
-        prompt_final = f"[Contexto Emocional: {emocao_ptbr}] {texto_aluno}"
-        conteudos_historico.append(
-            types.Content(role="user", parts=[types.Part.from_text(text=prompt_final)])
-        )
+        prompt_final = f"[Emoção: {emocao_ptbr}] {texto_aluno}"
+        conteudos_historico.append(types.Content(role="user", parts=[types.Part.from_text(text=prompt_final)]))
 
-        # 4. Chamada da API com o modelo correto e sem filtros
         resposta_ia = client.models.generate_content(
             model='gemini-2.0-flash',
             contents=conteudos_historico,
             config=types.GenerateContentConfig(
                 system_instruction=system_instruction,
-                temperature=0.3,
+                temperature=0.7, # Aumentamos para ela ser menos "travada"
                 safety_settings=[
-                    types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
                     types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
+                    types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
                     types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
-                    types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_NONE"),
                 ]
             )
         )
         
-        # 5. Verifica se a resposta veio de fato
-        if resposta_ia and hasattr(resposta_ia, 'text') and resposta_ia.text:
+        if resposta_ia and resposta_ia.text:
             return resposta_ia.text.strip()
         
-        return "Entendo perfeitamente o que você está sentindo. Me conte mais."
+        return "Sinto muito por isso. Como você está lidando com esse sentimento agora?"
 
     except Exception as e:
-        logger.error(f"ERRO CRÍTICO NO GEMINI: {e}", exc_info=True)
-        # Se tudo der errado, retorne uma frase neutra em vez da frase de erro técnica
-        return "Entendo. Sinto muito que as coisas estejam difíceis na faculdade hoje."
+        logger.error(f"Erro Gemini: {e}")
+        return "Entendo que as coisas estão difíceis. Quer me contar mais sobre o que aconteceu?"
