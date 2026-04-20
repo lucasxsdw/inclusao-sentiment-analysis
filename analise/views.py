@@ -9,7 +9,8 @@ from django.utils import timezone
 from datetime import timedelta
 from diario.models import Diario, Pergunta, Resposta, SessaoEmocional
 from accounts.models import Aluno
-from analise.models import SessaoEmocional, AnaliseResposta
+from diario.models import Diario, Pergunta, Resposta, SessaoEmocional as SessaoDiario
+from analise.models import AnaliseResposta
 from django.db.models import Avg, Count
 from .services.sentimento_service import analisar_e_salvar
 from .services.chat_service import gerar_pergunta_diario
@@ -42,97 +43,81 @@ EMOCAO_EMOJI = {
     'surpresa': '😲', 'nojo': '🤢',
 }
 
-
 @aluno_required
 def enviar_desabafo(request):
     if request.method == "GET":
         diario_id = request.session.get('diario_atual_id')
-        mensagem_inicial = "Olá! Este é o seu espaço seguro. Como você está se sentindo hoje?"
+        msg = "Olá! Como você está se sentindo hoje?"
         if diario_id:
-            try:
-                diario = Diario.objects.get(id=diario_id)
-                if diario.mensagem_inicial_ia:
-                    mensagem_inicial = diario.mensagem_inicial_ia
-            except Diario.DoesNotExist: pass
-        return render(request, 'analise/chat.html', {'mensagem_inicial': mensagem_inicial})
+            d = Diario.objects.filter(id=diario_id).first()
+            if d and d.mensagem_inicial_ia: msg = d.mensagem_inicial_ia
+        return render(request, 'analise/chat.html', {'mensagem_inicial': msg})
 
     if request.method == 'POST':
+        nova_resposta = None 
         try:
             dados = json.loads(request.body)
             texto_aluno = dados.get('texto_resposta', '').strip()
-
-            if not texto_aluno:
-                return JsonResponse({'erro': 'O texto não pode estar vazio.'}, status=400)
-
             diario_id = request.session.get('diario_atual_id')
-            if not diario_id:
-                return JsonResponse({'erro': 'Sessão expirada.'}, status=400)
+            
+            if not texto_aluno or not diario_id:
+                return JsonResponse({'erro': 'Dados inválidos'}, status=400)
 
             diario_vinculo = Diario.objects.get(id=diario_id)
             
-            # 1. Cria o objeto primeiro (necessário para sua função de análise funcionar)
-            pergunta_vinculo = Pergunta.objects.order_by("?").first()
-            if not pergunta_vinculo:
-                pergunta_vinculo = Pergunta.objects.create(texto="Como você está?")
+            # 1. Checa limite
+            if Resposta.objects.filter(diario=diario_vinculo).count() >= 5:
+                 return JsonResponse({'sucesso': True, 'resposta_assistente': "Sua sessão encerrou. Procure o NAPNE.", 'fim_de_sessao': True})
 
+            # 2. Cria a resposta (Obrigatório para a análise funcionar)
+            pergunta_v = Pergunta.objects.first()
             nova_resposta = Resposta.objects.create(
                 texto_resposta=texto_aluno,
                 diario=diario_vinculo,
-                pergunta=pergunta_vinculo
+                pergunta=pergunta_v
             )
 
-            # 2. Usa suas funções originais
-            resultado_ia = analisar_e_salvar(nova_resposta)
-            emocao_ptbr = resultado_ia["label"] if resultado_ia else "neutro"
-
-            respostas_anteriores = Resposta.objects.filter(diario=diario_vinculo).exclude(id=nova_resposta.id).order_by('id')
-            historico = []
-            for resp in respostas_anteriores:
-                historico.append({"papel": "user", "texto": resp.texto_resposta})
-                historico.append({"papel": "model", "texto": resp.resposta_ia or "Entendo."})
-
-            perfil_aluno = None
+            # 3. Análise de Sentimento (Protegida)
+            emocao = "neutro"
             try:
-                aluno = request.user.perfil_aluno
-                perfil_aluno = {
-                    'nome': request.user.get_full_name(),
-                    'tipo_deficiencia': aluno.get_tipo_deficiencia_display(),
-                }
-            except: pass
+                # Se a Hugging Face demorar ou falhar, o chat NÃO para
+                res = analisar_e_salvar(nova_resposta)
+                if res:
+                    # Mapeamento interno caso o service retorne inglês
+                    mapa = {"joy": "alegria", "sadness": "tristeza", "anger": "raiva", "fear": "medo"}
+                    emocao = mapa.get(res["label"], res["label"])
+            except Exception as e:
+                logger.warning(f"Falha na análise HuggingFace: {e}")
 
-            # 3. Chama a IA
-            resposta_bot = gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno, historico)
+            # 4. Histórico para o Gemini
+            historico = []
+            anteriores = Resposta.objects.filter(diario=diario_vinculo).exclude(id=nova_resposta.id).order_by('id')
+            for r in anteriores:
+                if r.texto_resposta and r.resposta_ia:
+                    historico.append({"papel": "user", "texto": r.texto_resposta})
+                    historico.append({"papel": "model", "texto": r.resposta_ia})
 
-            # 🛡️ PROTEÇÃO: Se a IA falhou, APAGAMOS a resposta do banco
-            if "Desculpe, tive um probleminha" in resposta_bot:
-                nova_resposta.delete() # Remove para não contar no limite de 5
-                return JsonResponse({'erro': 'A IA travou. Tente falar de outra forma.'}, status=500)
+            # 5. Chama o Gemini
+            resposta_bot = gerar_pergunta_diario(emocao, texto_aluno, None, historico)
 
-            # 4. SUCESSO: Salva a resposta da IA e verifica limite
+            # 6. Salva e responde
             nova_resposta.resposta_ia = resposta_bot
             nova_resposta.save()
 
-            total_mensagens = Resposta.objects.filter(diario=diario_vinculo).count()
-
-            if total_mensagens >= 5:
-                resposta_bot = "Agradeço por compartilhar. Nossa sessão chegou ao fim. Por favor, procure o NAPNE. 💙"
-                nova_resposta.resposta_ia = resposta_bot
-                nova_resposta.save()
-
             return JsonResponse({
                 'sucesso': True,
-                'mensagem_aluno': texto_aluno,
-                'emocao_detectada': emocao_ptbr,
                 'resposta_assistente': resposta_bot,
-                'fim_de_sessao': total_mensagens >= 5
-            }, status=200)
+                'fim_de_sessao': False
+            })
 
         except Exception as e:
-            logger.error(f"Erro na View: {e}")
-            return JsonResponse({'erro': 'Erro interno no servidor.'}, status=500)
+            logger.error(f"ERRO CRÍTICO NA VIEW: {e}")
+            if nova_resposta: nova_resposta.delete() 
+            return JsonResponse({'erro': 'Tente novamente em instantes.'}, status=500)
 
 
 
+            
 
 @educador_required
 def painel_napne(request):
