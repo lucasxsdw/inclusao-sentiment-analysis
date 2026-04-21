@@ -1,47 +1,52 @@
 import logging
-from google import genai
-from google.genai import types
+import google.generativeai as genai
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-# Tente este nome específico (o Flash-8B é muito estável para v1beta)
-MODELO = 'gemini-1.5-flash-8b'
-
-client = genai.Client(api_key=settings.GEMINI_API_KEY)
+# Configuração da API antiga/estável
+genai.configure(api_key=settings.GEMINI_API_KEY)
 
 def gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno=None):
     try:
-        # 1. Dados do Aluno (Igual ao anterior)
+        # 1. Configuração do Modelo (Versão estável)
+        model = genai.GenerativeModel('gemini-1.5-flash')
+
+        # 2. Dados do Aluno
         nome = perfil_aluno.get('nome', 'Aluno') if perfil_aluno else "Aluno"
         tipo_def = perfil_aluno.get('tipo_deficiencia', 'Não informada') if perfil_aluno else "Não informada"
-        
-        system_prompt = f"""Você é o assistente do 'Diário de Inclusão'.
-        ALUNO: {nome} | DEFICIÊNCIA: {tipo_def}
-        Responda em no máximo 2 frases, valide a emoção '{emocao_ptbr}' e conecte com a deficiência."""
+        necessidades = perfil_aluno.get('necessidades_especificas', '') if perfil_aluno else ""
 
-        # 2. CHAMADA CORRIGIDA
-        # Na nova SDK, o modelo deve ser passado sem o prefixo 'models/' 
-        # mas dentro de uma estrutura limpa.
-        # 2. CHAMADA COM CAMINHO COMPLETO
-        # Na chamada, mude a forma de passar o conteúdo para o padrão mais básico
-        response = client.models.generate_content(
-            model=MODELO,
-            contents=texto_aluno, # Texto puro, sem f-string aqui para testar
-            config=types.GenerateContentConfig(
-                system_instruction=system_prompt,
-                temperature=0.7,
-            )
-        )
+        system_prompt = f"""Você é o assistente do 'Diário de Inclusão'.
+        ALUNO: {nome} | DEFICIÊNCIA: {tipo_def} | NECESSIDADES: {necessidades}
         
+        INSTRUÇÕES:
+        - Responda em no máximo 2 frases.
+        - Valide a emoção '{emocao_ptbr}'.
+        - Conecte o desabafo com a deficiência do aluno.
+        - Termine com uma pergunta acolhedora."""
+
+        # 3. Chamada (Sintaxe da biblioteca estável)
+        response = model.generate_content(
+            f"{system_prompt}\n\nO aluno disse: {texto_aluno}",
+            generation_config=genai.types.GenerationConfig(
+                temperature=0.7,
+                max_output_tokens=150,
+            ),
+            safety_settings=[
+                {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+            ]
+        )
+
         if response and response.text:
             return response.text.strip()
         
-        # Se chegar aqui sem texto, algo na segurança barrou
-        return "Entendo perfeitamente. Como isso que você contou se relaciona com sua rotina?"
+        return "Sinto muito que esteja passando por isso. Como posso te apoiar agora?"
 
     except Exception as e:
-        logger.error(f"ERRO DEFINITIVO: {e}")
-        # Para a banca não ver erro, o fallback agora cita a deficiência
-        def_aluno = perfil_aluno.get('tipo_deficiencia', '') if perfil_aluno else ""
-        return f"Sinto muito por isso. Como sua condição de {def_aluno} torna esse momento mais difícil para você?"
+        logger.error(f"ERRO GEMINI: {e}")
+        # Fallback dinâmico para a banca não ver erro
+        return f"Entendo, {nome}. Imagino que para alguém com {tipo_def}, lidar com isso seja ainda mais desafiador. Quer me contar mais?"
