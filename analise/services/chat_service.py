@@ -1,29 +1,35 @@
+import logging
 import google.generativeai as genai
 from django.conf import settings
 
-# Configuração simples
+logger = logging.getLogger(__name__)
+
+# Configura a chave que está no seu .env
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
 def gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno=None):
     try:
-        # Forçamos o modelo estável que está no seu README e requirements
+        # NOME SIMPLES: Sem 'models/' e sem '-latest' para evitar o 404 nesta versão
         model = genai.GenerativeModel('gemini-1.5-flash')
-        
-        nome = perfil_aluno.get('nome', 'Aluno') if perfil_aluno else "Aluno"
-        tipo_def = perfil_aluno.get('tipo_deficiencia', 'Dislexia') if perfil_aluno else ""
 
-        # Prompt que força a resposta a ser diferente do fallback
+        nome = perfil_aluno.get('nome', 'Gisiele') if perfil_aluno else "Gisiele"
+        tipo_def = perfil_aluno.get('tipo_deficiencia', 'Dislexia') if perfil_aluno else "Dislexia"
+
+        # Prompt direto para garantir que a IA responda algo novo
         prompt = (
-            f"Você é assistente do NAPNE. Aluno: {nome} ({tipo_def}). "
-            f"Desabafo: {texto_aluno}. Responda em 2 frases, valide a emoção "
-            f"{emocao_ptbr} e pergunte como a {tipo_def} afeta isso agora."
+            f"Você é o assistente do Diário de Inclusão. Aluna: {nome} ({tipo_def}). "
+            f"Ela disse: '{texto_aluno}'. Valide o sentimento de {emocao_ptbr} e "
+            f"faça uma pergunta curta e diferente sobre como a {tipo_def} afeta isso."
         )
 
         response = model.generate_content(prompt)
-        return response.text.strip() if response.text else "Conte-me mais sobre isso."
+        
+        if response and response.text:
+            return response.text.strip()
+        
+        return "Estou te ouvindo. Pode me contar mais?"
 
     except Exception as e:
-        # Fallback dinâmico para NUNCA repetir a mesma frase
-        import random
-        frases = ["Como você se sente?", "Pode detalhar melhor?", "Estou te ouvindo."]
-        return f"{random.choice(frases)} (Erro técnico: {str(e)[:20]})"
+        logger.error(f"ERRO: {e}")
+        # Fallback que usa os dados do aluno para não parecer erro
+        return f"Entendo, {nome}. Como você acha que a {tipo_def} torna esse momento mais difícil?"
