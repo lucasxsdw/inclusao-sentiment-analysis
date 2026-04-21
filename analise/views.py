@@ -159,11 +159,11 @@ def enviar_desabafo(request):
         except json.JSONDecodeError:
             return JsonResponse({'erro': 'Formato inválido.'}, status=400)
         except Exception as e:
-        logger.error(f"Erro Crítico na View: {e}")
-        return JsonResponse({
-            'sucesso': False, 
-            'erro': f"Erro técnico: {str(e)}"
-        }, status=500)
+            logger.error(f"Erro Crítico na View: {e}")
+            return JsonResponse({
+                'sucesso': False, 
+                'erro': f"Erro técnico: {str(e)}"
+            }, status=500)
  
     return JsonResponse({'erro': 'Método não permitido.'}, status=405)
  
