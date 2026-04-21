@@ -8,6 +8,8 @@ logger = logging.getLogger(__name__)
 # Mudamos para o 1.5-flash: mais cota e mais estabilidade para TCC
 MODELO = 'gemini-1.5-flash'
 
+
+
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 def gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno=None):
@@ -31,18 +33,13 @@ def gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno=None):
         - Termine com uma pergunta sobre como a deficiência afetou o que ele sentiu."""
 
         # 3. Chamada da API seguindo o protocolo oficial
+        # Chamada da API
         response = client.models.generate_content(
-            model=MODELO,
+            model='gemini-1.5-flash',  # Tente passar a string direta aqui
             contents=f"O aluno desabafou: {texto_aluno}",
             config=types.GenerateContentConfig(
                 system_instruction=system_prompt,
-                safety_settings=[
-                    types.SafetySetting(category='HARM_CATEGORY_HARASSMENT', threshold='BLOCK_NONE'),
-                    types.SafetySetting(category='HARM_CATEGORY_HATE_SPEECH', threshold='BLOCK_NONE'),
-                    types.SafetySetting(category='HARM_CATEGORY_DANGEROUS_CONTENT', threshold='BLOCK_NONE'),
-                ],
-                temperature=0.7,
-                max_output_tokens=150,
+                # ... resto das configurações
             )
         )
 
