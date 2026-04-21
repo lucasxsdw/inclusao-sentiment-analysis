@@ -4,34 +4,35 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-# Configura a API com a sua nova chave
-genai.configure(api_key=settings.GEMINI_API_KEY)
-
 def gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno=None):
     try:
-        # Usando o modelo que você já confirmou que funciona!v
-        model = genai.GenerativeModel('models/gemini-1.5-flash')
+        genai.configure(api_key=settings.GEMINI_API_KEY)
+        model = genai.GenerativeModel('gemini-1.5-flash')
 
+        # ESSA É A CHAVE PARA DESBLOQUEAR:
+        # Configuramos para não bloquear quase nada (BLOCK_NONE)
+        safety_settings = [
+            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+        ]
 
-        nome = perfil_aluno.get('nome', 'Felipe') if perfil_aluno else "Felipe"
-        tipo_def = perfil_aluno.get('tipo_deficiencia', 'Deficiência Física') if perfil_aluno else ""
-
-        # Um prompt mais livre para a IA não ficar presa
         prompt = (
-            f"Você é um assistente escolar empático. Aluno(a): {nome}. "
-            f"Contexto: {tipo_def}. O aluno desabafou: '{texto_aluno}'. "
-            f"Valide o sentimento de {emocao_ptbr} e faça uma pergunta "
-            f"curta e profunda sobre o que ele acabou de dizer."
+            f"Você é um tutor de apoio escolar. O aluno desabafou: '{texto_aluno}'. "
+            f"Ele está sentindo {emocao_ptbr}. Valide o sentimento dele com empatia "
+            f"e faça uma pergunta curta para ele continuar o desabafo."
         )
 
-        response = model.generate_content(prompt)
+        # Passamos as configurações de segurança aqui
+        response = model.generate_content(prompt, safety_settings=safety_settings)
         
-        if response and response.text:
+        # Verificamos se a IA gerou texto ou se foi bloqueada
+        if response and response.candidates and response.candidates[0].content.parts:
             return response.text.strip()
         
-        return "Estou te ouvindo com atenção. O que mais você gostaria de compartilhar?"
+        return "Sinto muito que esteja passando por isso. Pode me contar mais detalhes?"
 
     except Exception as e:
-        logger.error(f"ERRO: {e}")
-        # Fallback genérico para não viciar a conversa
-        return "Entendo perfeitamente. Como você está lidando com tudo isso hoje?"
+        logger.error(f"Erro no Gemini: {e}")
+        return "Estou aqui para te ouvir. Como isso tem afetado seu dia?"
