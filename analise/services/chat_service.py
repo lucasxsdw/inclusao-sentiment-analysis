@@ -9,8 +9,9 @@ genai.configure(api_key=settings.GEMINI_API_KEY)
 
 def gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno=None):
     try:
-        # Usando o modelo que você já confirmou que funciona!
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        # Usando o modelo que você já confirmou que funciona!v
+        model = genai.GenerativeModel('models/gemini-1.5-flash')
+
 
         nome = perfil_aluno.get('nome', 'Felipe') if perfil_aluno else "Felipe"
         tipo_def = perfil_aluno.get('tipo_deficiencia', 'Deficiência Física') if perfil_aluno else ""
