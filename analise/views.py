@@ -159,12 +159,11 @@ def enviar_desabafo(request):
         except json.JSONDecodeError:
             return JsonResponse({'erro': 'Formato inválido.'}, status=400)
         except Exception as e:
+            # Estas duas linhas DEVEM ter um recuo de 4 espaços (ou 1 TAB)
             logger.error(f"Erro Crítico na View: {e}")
-            return JsonResponse({
-                'sucesso': False, 
-                'erro': f"Erro técnico: {str(e)}"
-            }, status=500)
- 
+            return JsonResponse({'sucesso': False, 'erro': str(e)}, status=500)
+
+    # Garanta que não tenha nada sobrando aqui fora do alinhamento
     return JsonResponse({'erro': 'Método não permitido.'}, status=405)
  
  
