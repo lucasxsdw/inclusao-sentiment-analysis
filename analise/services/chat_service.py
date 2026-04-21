@@ -5,8 +5,8 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-# Alteração Crítica: Usando o ID técnico completo para evitar o 404
-MODELO = 'gemini-1.5-flash' 
+
+MODELO = 'models/gemini-1.5-flash'
 
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
@@ -23,16 +23,13 @@ def gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno=None):
         # 2. CHAMADA CORRIGIDA
         # Na nova SDK, o modelo deve ser passado sem o prefixo 'models/' 
         # mas dentro de uma estrutura limpa.
+        # 2. CHAMADA COM CAMINHO COMPLETO
         response = client.models.generate_content(
             model=MODELO, 
-            contents=texto_aluno, # Simplificando o envio do conteúdo
+            contents=texto_aluno, # Mantenha simples para testar a conexão
             config=types.GenerateContentConfig(
                 system_instruction=system_prompt,
                 temperature=0.7,
-                safety_settings=[
-                    types.SafetySetting(category='HARM_CATEGORY_HARASSMENT', threshold='BLOCK_NONE'),
-                    types.SafetySetting(category='HARM_CATEGORY_HATE_SPEECH', threshold='BLOCK_NONE'),
-                ]
             )
         )
 
