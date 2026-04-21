@@ -10,19 +10,23 @@ class StatusSessao(models.TextChoices):
 
 
 class SessaoEmocional(models.Model):
-    aluno = models.ForeignKey(
-        Aluno,
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True, db_index=True
-    )
-    emocao_selecionada = models.CharField(max_length=50, db_index=True)
-    data_inicio = models.DateTimeField(auto_now_add=True, db_index=True)
-    data_fim = models.DateTimeField(null=True, blank=True)
-    status_sessao = models.CharField(max_length=20, choices=StatusSessao.choices, default=StatusSessao.ATIVA)
+    # Crie esta lista de opções
+    EMOCOES_CHOICES = [
+        ('feliz', 'Feliz'),
+        ('triste', 'Triste'),
+        ('muito_triste', 'Muito Triste'),
+        ('raiva', 'Raiva'),
+        ('neutro', 'Neutro'),
+    ]
 
-    def __str__(self):
-        return self.emocao_selecionada
+    aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE, null=True, blank=True)
+    # Adicione o choices aqui:
+    emocao_selecionada = models.CharField(
+        max_length=50, 
+        choices=EMOCOES_CHOICES, # <--- Isso aqui!
+        db_index=True
+    )
+
 
 
 class Diario(models.Model):
