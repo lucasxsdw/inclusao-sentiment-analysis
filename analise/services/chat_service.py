@@ -5,8 +5,8 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-
-MODELO = 'models/gemini-1.5-flash'
+# Tente este nome específico (o Flash-8B é muito estável para v1beta)
+MODELO = 'gemini-1.5-flash-8b'
 
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
@@ -24,15 +24,16 @@ def gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno=None):
         # Na nova SDK, o modelo deve ser passado sem o prefixo 'models/' 
         # mas dentro de uma estrutura limpa.
         # 2. CHAMADA COM CAMINHO COMPLETO
+        # Na chamada, mude a forma de passar o conteúdo para o padrão mais básico
         response = client.models.generate_content(
-            model=MODELO, 
-            contents=texto_aluno, # Mantenha simples para testar a conexão
+            model=MODELO,
+            contents=texto_aluno, # Texto puro, sem f-string aqui para testar
             config=types.GenerateContentConfig(
                 system_instruction=system_prompt,
                 temperature=0.7,
             )
         )
-
+        
         if response and response.text:
             return response.text.strip()
         
