@@ -4,23 +4,23 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-# Configuração da API
+# Configura a API com a sua nova chave
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
 def gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno=None):
     try:
-        # NOME TÉCNICO COMPLETO: Resolve o erro 404 definitivamente
-        model = genai.GenerativeModel('models/gemini-1.5-flash')
+        # Usando o modelo que você já confirmou que funciona!
+        model = genai.GenerativeModel('gemini-1.5-flash')
 
         nome = perfil_aluno.get('nome', 'Felipe') if perfil_aluno else "Felipe"
-        tipo_def = perfil_aluno.get('tipo_deficiencia', 'Deficiência Física') if perfil_aluno else "Deficiência Física"
+        tipo_def = perfil_aluno.get('tipo_deficiencia', 'Deficiência Física') if perfil_aluno else ""
 
-        # Prompt que força a IA a sair do padrão
+        # Um prompt mais livre para a IA não ficar presa
         prompt = (
-            f"Aja como um assistente empático. Aluno: {nome} ({tipo_def}). "
-            f"O aluno perdeu o cão-guia e disse: '{texto_aluno}'. "
-            f"Valide o luto e a emoção {emocao_ptbr}. "
-            f"Faça uma pergunta sobre como a perda do guia impacta a autonomia dele hoje."
+            f"Você é um assistente escolar empático. Aluno(a): {nome}. "
+            f"Contexto: {tipo_def}. O aluno desabafou: '{texto_aluno}'. "
+            f"Valide o sentimento de {emocao_ptbr} e faça uma pergunta "
+            f"curta e profunda sobre o que ele acabou de dizer."
         )
 
         response = model.generate_content(prompt)
@@ -28,15 +28,9 @@ def gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno=None):
         if response and response.text:
             return response.text.strip()
         
-        return "Sinto muito por essa perda tão grande. Como você está lidando com a falta de auxílio dele agora?"
+        return "Estou te ouvindo com atenção. O que mais você gostaria de compartilhar?"
 
     except Exception as e:
-        logger.error(f"ERRO DE CONEXÃO: {e}")
-        # Fallback dinâmico para não repetir a mesma frase enquanto você testa
-        import random
-        frases = [
-            f"Sinto muito, {nome}. Imagino que a falta do seu guia torne tudo mais difícil. Como você está se organizando?",
-            f"Sinto muito pela sua perda. Como isso afeta sua mobilidade hoje?",
-            f"Estou aqui com você. Quer me contar mais sobre como ele te ajudava no dia a dia?"
-        ]
-        return random.choice(frases)
+        logger.error(f"ERRO: {e}")
+        # Fallback genérico para não viciar a conversa
+        return "Entendo perfeitamente. Como você está lidando com tudo isso hoje?"
