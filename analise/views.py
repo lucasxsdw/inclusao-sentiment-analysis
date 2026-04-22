@@ -104,7 +104,7 @@ def enviar_desabafo(request):
             nova_resposta = Resposta.objects.create(
                 texto_resposta=texto_aluno,
                 diario=diario_vinculo,
-                pergunta=pergunta_vinculo
+                
             )
 
             # Processamento de IA (Sentimento)
@@ -146,6 +146,7 @@ def enviar_desabafo(request):
     
 @login_required
 def painel_napne(request):
+    aluno = request.user.perfil_aluno
     hoje = timezone.now().date()
  
     total_alunos = Aluno.objects.count()

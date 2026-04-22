@@ -57,7 +57,10 @@ def salvar_emocao(request):
             # Criamos a sessão apenas com o que é garantido existir no banco
             sessao = SessaoEmocional.objects.create(
                 emocao_selecionada=emocao,
-                aluno=perfil 
+                aluno=perfil,
+                data_criacao=timezone.now()
+                
+                
             )
 
             mensagens_iniciais = {
@@ -98,37 +101,47 @@ def salvar_emocao(request):
 
 
 
-
 @aluno_required
 def painel_aluno(request):
-    aluno = request.user.perfil_aluno 
+    # 1. Busca o perfil do aluno logado
+    try:
+        aluno = request.user.perfil_aluno 
+    except Exception:
+        # Fallback caso o usuário não tenha perfil de aluno vinculado
+        return render(request, 'diario/painel_aluno.html', {
+            'ofensiva': 0,
+            'heatmap_dias': [],
+            'dias_pendentes': [],
+            'erro': 'Perfil de aluno não encontrado.'
+        })
 
     hoje = timezone.now().date()
     trinta_dias_atras = hoje - timedelta(days=29)
 
-    # REMOVEMOS o filtro por data_inicio que está quebrando
-    # Buscamos todas as sessões do aluno e filtramos na memória para não dar erro de SQL
-    todas_sessoes = SessaoEmocional.objects.filter(aluno=aluno)
+    # 2. Busca as datas das sessões usando o novo campo 'data_criacao'
+    # Usamos o values_list para pegar apenas as datas únicas e evitar lentidão
+    sessoes_datas = SessaoEmocional.objects.filter(
+        aluno=aluno, 
+        data_criacao__date__gte=trinta_dias_atras
+    ).values_list('data_criacao__date', flat=True)
     
-    # Pegamos as datas (usando o id para ordenar se necessário)
-    # Se o campo data_inicio não existe no banco, esse set ficará vazio, 
-    # mas o SITE NÃO VAI DAR ERRO 500.
-    datas_com_sessao = set()
-    try:
-        datas_com_sessao = set(sessoes.values_list('data_inicio__date', flat=True))
-    except:
-        datas_com_sessao = set()
+    # Transformamos em um 'set' para buscas rápidas (performance)
+    datas_com_sessao = set(sessoes_datas)
 
+    # 3. Lógica da Ofensiva (Streak)
     ofensiva = 0
     dia_cheque = hoje
     
+    # Se o aluno não preencheu hoje, começamos a checar a partir de ontem
     if dia_cheque not in datas_com_sessao:
         dia_cheque -= timedelta(days=1)
 
+    # Enquanto houver sessões nos dias anteriores, somamos a ofensiva
     while dia_cheque in datas_com_sessao:
         ofensiva += 1
         dia_cheque -= timedelta(days=1)
 
+    # 4. Gera os dados para o Heatmap (últimos 30 dias)
     heatmap_dias = []
     for i in range(29, -1, -1):
         dia_atual = hoje - timedelta(days=i)
@@ -137,20 +150,24 @@ def painel_aluno(request):
             'preenchido': dia_atual in datas_com_sessao
         })
 
+    # 5. Identifica dias pendentes (últimos 7 dias)
     dias_pendentes = []
     data_criacao_conta = request.user.date_joined.date() 
 
     for i in range(1, 8):
         dia_atual = hoje - timedelta(days=i)
+        # Só conta como pendente se for após a criação da conta e não tiver sessão
         if dia_atual >= data_criacao_conta and dia_atual not in datas_com_sessao:
             dias_pendentes.append(dia_atual)
 
+    # 6. Retorna para o template
     return render(request, 'diario/painel_aluno.html', {
         'ofensiva': ofensiva,
         'heatmap_dias': heatmap_dias,
         'dias_pendentes': dias_pendentes,
     })
-
+    
+    
 
 @aluno_required
 def configuracoes_perfil(request):

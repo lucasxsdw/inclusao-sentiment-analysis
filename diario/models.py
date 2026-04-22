@@ -18,7 +18,7 @@ class SessaoEmocional(models.Model):
         ('raiva', 'Raiva'),
         ('neutro', 'Neutro'),
     ]
-
+    data_criacao = models.DateTimeField(auto_now_add=True, null=True)
     aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE, null=True, blank=True)
     # Adicione o choices aqui:
     emocao_selecionada = models.CharField(
