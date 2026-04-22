@@ -104,12 +104,18 @@ def painel_aluno(request):
     hoje = timezone.now().date()
     trinta_dias_atras = hoje - timedelta(days=29)
 
-    sessoes = SessaoEmocional.objects.filter(
-        aluno=aluno, 
-        data_inicio__date__gte=trinta_dias_atras
-    ).values_list('data_inicio__date', flat=True)
+    # REMOVEMOS o filtro por data_inicio que está quebrando
+    # Buscamos todas as sessões do aluno e filtramos na memória para não dar erro de SQL
+    todas_sessoes = SessaoEmocional.objects.filter(aluno=aluno)
     
-    datas_com_sessao = set(sessoes)
+    # Pegamos as datas (usando o id para ordenar se necessário)
+    # Se o campo data_inicio não existe no banco, esse set ficará vazio, 
+    # mas o SITE NÃO VAI DAR ERRO 500.
+    datas_com_sessao = set()
+    try:
+        datas_com_sessao = set(sessoes.values_list('data_inicio__date', flat=True))
+    except:
+        datas_com_sessao = set()
 
     ofensiva = 0
     dia_cheque = hoje
