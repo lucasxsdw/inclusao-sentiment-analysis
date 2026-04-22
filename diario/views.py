@@ -57,7 +57,6 @@ def salvar_emocao(request):
             # Criamos a sessão apenas com o que é garantido existir no banco
             sessao = SessaoEmocional.objects.create(
                 emocao_selecionada=emocao,
-                status_sessao='ativa',
                 aluno=perfil 
             )
 
