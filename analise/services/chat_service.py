@@ -1,62 +1,43 @@
 import logging
-import google.generativeai as genai
+from groq import Groq
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-# Configuração definitiva para evitar o 404 e usar a cota estável
-genai.configure(api_key=settings.GEMINI_API_KEY, transport='rest') 
-
-# Usar 'gemini-1.5-flash-latest' é a forma mais segura para a versão 0.8.3
-MODELO = 'gemini-1.5-flash-latest' 
+# Inicializa o cliente Groq
+# Certifique-se de ter GROQ_API_KEY no seu settings.py apontando para o .env/Render
+client = Groq(api_key=settings.GROQ_API_KEY)
 
 def gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno=None):
     try:
         contexto_perfil = ""
         if perfil_aluno and isinstance(perfil_aluno, dict):
-            nome = perfil_aluno.get('nome') or 'Não informado'
-            tipo_def = perfil_aluno.get('tipo_deficiencia') or 'Não informado'
-            necessidades = perfil_aluno.get('necessidades_especificas') or 'Não informado'
-            contexto_perfil = f"""
-PERFIL DO ALUNO:
-- Nome: {nome}
-- Deficiência: {tipo_def}
-- Necessidades: {necessidades}
+            nome = perfil_aluno.get('nome', 'Aluno')
+            tipo_def = perfil_aluno.get('tipo_deficiencia', 'Não informado')
+            necessidades = perfil_aluno.get('necessidades_especificas', 'Não informado')
+            contexto_perfil = f"\nALUNO: {nome}\nDEFICIÊNCIA: {tipo_def}\nNECESSIDADES: {necessidades}"
 
-INSTRUÇÃO: Conecte o desabafo à deficiência se fizer sentido, de forma acolhedora.
-"""
-
-        system_prompt = f"""Você é o assistente do 'Diário de Inclusão'. 
-Tom informal, empático e amigável. Máximo 2 frases.
-Regras: Sem diagnósticos, sem positividade tóxica, termine com uma pergunta aberta.
+        system_prompt = f"""Você é o assistente empático do 'Diário de Inclusão'.
+Responda de forma curta (máximo 2 frases), informal e muito acolhedora.
+NÃO dê diagnósticos ou conselhos médicos. Termine sempre com uma pergunta aberta.
 {contexto_perfil}
-DADOS ATUAIS:
-Emoção: {emocao_ptbr}
-Desabafo: "{texto_aluno}"
-"""
+DADOS DO DESABAFO:
+Emoção detectada: {emocao_ptbr}
+Texto do aluno: "{texto_aluno}" """
 
-        # Configuração de segurança para não bloquear desabafos sensíveis
-        safety_settings = [
-            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
-            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
-            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
-        ]
-
-        model = genai.GenerativeModel(
-            model_name=MODELO,
-            safety_settings=safety_settings
+        # Chamada ao modelo Llama 3 (extremamente rápido e gratuito no Groq)
+        completion = client.chat.completions.create(
+            model="llama3-8b-8192",
+            messages=[
+                {"role": "system", "content": "Você é um assistente de apoio emocional escolar."},
+                {"role": "user", "content": system_prompt}
+            ],
+            temperature=0.7,
+            max_tokens=150,
         )
 
-        resposta_ia = model.generate_content(system_prompt)
-
-        # Verificação robusta da resposta
-        if resposta_ia and hasattr(resposta_ia, 'text') and resposta_ia.text.strip():
-            return resposta_ia.text.strip()
-
-        return "Entendo o que você está sentindo. Quer me contar um pouco mais sobre isso?"
+        return completion.choices[0].message.content.strip()
 
     except Exception as e:
-        logger.error(f"Erro Crítico Gemini: {e}")
-        # Fallback amigável se a API falhar (cota ou conexão)
-        return "Poxa, eu te entendo perfeitamente. O que mais está passando pela sua cabeça agora?"
+        logger.error(f"Erro no serviço Groq: {e}")
+        return "Sinto muito que você esteja passando por isso. Quer me contar um pouco mais sobre o que aconteceu?"
