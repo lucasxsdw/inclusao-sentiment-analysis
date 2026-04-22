@@ -74,12 +74,13 @@ def enviar_desabafo(request):
             diario_vinculo = Diario.objects.get(id=diario_id)
             total_mensagens = Resposta.objects.filter(diario=diario_vinculo).count()
 
+            # Se já atingiu o limite antes de processar
             if total_mensagens >= 5:
                 return JsonResponse({
                     'sucesso': True,
                     'mensagem_aluno': texto_aluno,
                     'emocao_detectada': 'neutro',
-                    'resposta_assistente': "Agradeço muito por compartilhar seus sentimentos comigo hoje. Nossa sessão chegou ao fim. Lembre-se: este chat é um apoio inicial. Por favor, procure o NAPN. 💙",
+                    'resposta_assistente': "Agradeço muito por compartilhar seus sentimentos comigo hoje. Nossa sessão chegou ao fim. Lembre-se: este chat é um apoio inicial. Por favor, procure o NAPNE. 💙",
                     'fim_de_sessao': True
                 }, status=200)
 
@@ -87,49 +88,45 @@ def enviar_desabafo(request):
             if not pergunta_vinculo:
                 return JsonResponse({'erro': 'Nenhuma pergunta cadastrada.'}, status=500)
 
+            # Preparar perfil do aluno para a IA
             perfil_aluno = None
-            if request.user.is_authenticated:
-                try:
-                    aluno = Aluno.objects.get(usuario=request.user)
-                    perfil_aluno = {
-                        'nome': request.user.get_full_name() or request.user.email,
-                        'tipo_deficiencia': aluno.get_tipo_deficiencia_display(),
-                        'necessidades_especificas': aluno.necessidades_especificas or 'Não informado'
-                    }
-                except Aluno.DoesNotExist:
-                    logger.warning(f"Usuário {request.user.email} sem perfil Aluno.")
+            try:
+                aluno = request.user.perfil_aluno
+                perfil_aluno = {
+                    'nome': request.user.get_full_name() or request.user.username,
+                    'tipo_deficiencia': aluno.get_tipo_deficiencia_display(),
+                    'necessidades_especificas': aluno.necessidades_especificas or 'Não informado'
+                }
+            except Exception:
+                pass
 
-            emocao_ptbr = 'neutro'
+            # Cria a resposta no banco de dados
             nova_resposta = Resposta.objects.create(
                 texto_resposta=texto_aluno,
                 diario=diario_vinculo,
                 pergunta=pergunta_vinculo
             )
 
+            # Processamento de IA (Sentimento)
+            emocao_ptbr = 'neutro'
             try:
                 resultado_ia = analisar_e_salvar(nova_resposta)
                 emocao_ptbr = resultado_ia["label"] if resultado_ia else "neutro"
-            except Exception as e:
-                logger.error(f"Erro sentimento_service: {e}")
+            except Exception:
                 emocao_ptbr = "neutro"
 
+            # Geração de resposta da IA (Gemini)
             try:
                 resposta_bot = gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno)
-            except Exception as e:
-                logger.error(f"Erro chat_service: {e}")
+            except Exception:
                 resposta_bot = "Entendo o que você está sentindo. Quer me contar um pouco mais?"
             
-            nova_resposta.resposta_ia = resposta_bot
-            nova_resposta.save()
-
+            # Verificação de fim de sessão
             total_mensagens_atual = Resposta.objects.filter(diario=diario_vinculo).count()
             fim_de_sessao = total_mensagens_atual >= 5
 
             if fim_de_sessao:
-                despedida = "Agradeço muito por compartilhar seus sentimentos comigo hoje. Nossa sessão chegou ao fim. Lembre-se: este chat é um apoio inicial. Por favor, procure o NAPNE. 💙"
-                resposta_bot = despedida
-                nova_resposta.resposta_ia = despedida
-                nova_resposta.save()
+                resposta_bot = "Agradeço muito por compartilhar seus sentimentos comigo hoje. Nossa sessão chegou ao fim. Lembre-se: este chat é um apoio inicial. Por favor, procure o NAPNE. 💙"
 
             return JsonResponse({
                 'sucesso': True,
@@ -142,12 +139,9 @@ def enviar_desabafo(request):
         except json.JSONDecodeError:
             return JsonResponse({'erro': 'Formato inválido.'}, status=400)
         except Exception as e:
-            logger.error(f"Erro Crítico na View: {e}")
             return JsonResponse({'sucesso': False, 'erro': str(e)}, status=500)
 
     return JsonResponse({'erro': 'Método não permitido.'}, status=405)
-
-
 
     
 @login_required
