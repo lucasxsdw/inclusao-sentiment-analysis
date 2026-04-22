@@ -4,7 +4,7 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-MODELO = 'gemini-2.0-flash'
+MODELO = 'gemini-1.5-flash'  
 
 # Configura o cliente uma única vez
 genai.configure(api_key=settings.GEMINI_API_KEY)
