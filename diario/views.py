@@ -3,24 +3,26 @@ from datetime import timedelta
 from django.http import JsonResponse
 from django.views.generic import TemplateView
 from django.utils import timezone
-from diario.models import SessaoEmocional, Diario, Resposta
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.utils.decorators import method_decorator # <-- NOVO: Para proteger classes
+from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 
+# Importação dos models do próprio app
+from diario.models import SessaoEmocional, Diario, Resposta
+
 # ====================================================================
-# 🛡️ REGRAS DE SEGURANÇA (O "CRÁCHA" DO ALUNO)
+# 🛡️ REGRAS DE SEGURANÇA
 # ====================================================================
 def is_aluno(user):
     return user.is_authenticated and user.tipo_usuario == 'aluno'
 
 aluno_required = user_passes_test(is_aluno, login_url='/login/', redirect_field_name=None)
-# ====================================================================
 
+# ====================================================================
 # ---------------------------------------------------------
-# PÁGINAS PÚBLICAS (Qualquer um pode ver)
+# PÁGINAS PÚBLICAS
 # ---------------------------------------------------------
 class homePageViews(TemplateView):
     template_name = 'diario/homePage.html'
@@ -32,7 +34,6 @@ class sobre(TemplateView):
 # PÁGINAS DO ALUNO (Protegidas)
 # ---------------------------------------------------------
 
-# Para proteger uma Class-Based View, usamos o @method_decorator
 @method_decorator(aluno_required, name='dispatch')
 class HomeView(TemplateView):
     template_name = 'diario/home.html'  
@@ -47,20 +48,15 @@ def salvar_emocao(request):
         try:
             data = json.loads(request.body)
             emocao = data.get('emocao')
-
-            # Tenta buscar o aluno, se não existir, usa None para não travar o POST
             perfil = getattr(request.user, 'perfil_aluno', None)
 
             if not emocao:
                 return JsonResponse({'status': 'error', 'message': 'Emoção não informada.'}, status=400)
 
-            # Criamos a sessão apenas com o que é garantido existir no banco
+            # Criamos a sessão (data_criacao é automático via auto_now_add no model)
             sessao = SessaoEmocional.objects.create(
                 emocao_selecionada=emocao,
-                aluno=perfil,
-                data_criacao=timezone.now()
-                
-                
+                aluno=perfil
             )
 
             mensagens_iniciais = {
@@ -76,16 +72,14 @@ def salvar_emocao(request):
             
             mensagem_personalizada = mensagens_iniciais.get(emocao, "Olá, estou aqui para te ouvir. Como você está?")
 
-            # Cria o diário vinculado à sessão
             diario = Diario.objects.create(
                 sessao_emocional=sessao,
                 mensagem_inicial_ia=mensagem_personalizada
             )
 
-            # Salva na sessão do navegador para o chat usar depois
             request.session['diario_atual_id'] = diario.id
             request.session['emocao_inicial'] = emocao
-            request.session.modified = True 
+            request.session.modified = True
 
             return JsonResponse({
                 'status': 'success',
@@ -94,20 +88,15 @@ def salvar_emocao(request):
             })
 
         except Exception as e:
-            # Retorna o erro exato para você ler na tela do navegador
             return JsonResponse({'status': 'error', 'message': f"Erro capturado: {str(e)}"}, status=500)
 
     return JsonResponse({'status': 'error', 'message': 'Método não permitido'}, status=405)
 
-
-
 @aluno_required
 def painel_aluno(request):
-    # 1. Busca o perfil do aluno logado
     try:
-        aluno = request.user.perfil_aluno 
+        aluno = request.user.perfil_aluno
     except Exception:
-        # Fallback caso o usuário não tenha perfil de aluno vinculado
         return render(request, 'diario/painel_aluno.html', {
             'ofensiva': 0,
             'heatmap_dias': [],
@@ -118,30 +107,25 @@ def painel_aluno(request):
     hoje = timezone.now().date()
     trinta_dias_atras = hoje - timedelta(days=29)
 
-    # 2. Busca as datas das sessões usando o novo campo 'data_criacao'
-    # Usamos o values_list para pegar apenas as datas únicas e evitar lentidão
+    # Busca as datas das sessões usando o novo campo 'data_criacao'
     sessoes_datas = SessaoEmocional.objects.filter(
-        aluno=aluno, 
+        aluno=aluno,
         data_criacao__date__gte=trinta_dias_atras
     ).values_list('data_criacao__date', flat=True)
     
-    # Transformamos em um 'set' para buscas rápidas (performance)
     datas_com_sessao = set(sessoes_datas)
 
-    # 3. Lógica da Ofensiva (Streak)
+    # Lógica da Ofensiva (Streak)
     ofensiva = 0
     dia_cheque = hoje
-    
-    # Se o aluno não preencheu hoje, começamos a checar a partir de ontem
     if dia_cheque not in datas_com_sessao:
         dia_cheque -= timedelta(days=1)
 
-    # Enquanto houver sessões nos dias anteriores, somamos a ofensiva
     while dia_cheque in datas_com_sessao:
         ofensiva += 1
         dia_cheque -= timedelta(days=1)
 
-    # 4. Gera os dados para o Heatmap (últimos 30 dias)
+    # Dados para o Heatmap
     heatmap_dias = []
     for i in range(29, -1, -1):
         dia_atual = hoje - timedelta(days=i)
@@ -150,24 +134,19 @@ def painel_aluno(request):
             'preenchido': dia_atual in datas_com_sessao
         })
 
-    # 5. Identifica dias pendentes (últimos 7 dias)
+    # Dias pendentes
     dias_pendentes = []
-    data_criacao_conta = request.user.date_joined.date() 
-
+    data_criacao_conta = request.user.date_joined.date()
     for i in range(1, 8):
         dia_atual = hoje - timedelta(days=i)
-        # Só conta como pendente se for após a criação da conta e não tiver sessão
         if dia_atual >= data_criacao_conta and dia_atual not in datas_com_sessao:
             dias_pendentes.append(dia_atual)
 
-    # 6. Retorna para o template
     return render(request, 'diario/painel_aluno.html', {
         'ofensiva': ofensiva,
         'heatmap_dias': heatmap_dias,
         'dias_pendentes': dias_pendentes,
     })
-    
-    
 
 @aluno_required
 def configuracoes_perfil(request):
