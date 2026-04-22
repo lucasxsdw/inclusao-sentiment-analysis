@@ -4,53 +4,38 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
+# Configuração definitiva para evitar o 404 e usar a cota estável
 genai.configure(api_key=settings.GEMINI_API_KEY, transport='rest') 
 
-# No nome do modelo, adicione o prefixo 'models/'
-MODELO = 'models/gemini-1.5-flash'  # Exemplo: 'models/gemini-1.5-flash' ou 'models/gemini-2.0-pro' 
-
+# Usar 'gemini-1.5-flash-latest' é a forma mais segura para a versão 0.8.3
+MODELO = 'gemini-1.5-flash-latest' 
 
 def gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno=None):
-    """
-    Gera resposta empática usando Gemini.
-    Usa google-generativeai (já está no requirements.txt como google-generativeai==0.8.3)
-    """
     try:
-        # Monta contexto do perfil se existir
         contexto_perfil = ""
         if perfil_aluno and isinstance(perfil_aluno, dict):
             nome = perfil_aluno.get('nome') or 'Não informado'
             tipo_def = perfil_aluno.get('tipo_deficiencia') or 'Não informado'
             necessidades = perfil_aluno.get('necessidades_especificas') or 'Não informado'
             contexto_perfil = f"""
-PERFIL DO ALUNO (USE PARA PERSONALIZAR SUA RESPOSTA):
+PERFIL DO ALUNO:
 - Nome: {nome}
-- Tipo de deficiência: {tipo_def}
-- Necessidades específicas: {necessidades}
+- Deficiência: {tipo_def}
+- Necessidades: {necessidades}
 
-INSTRUÇÃO ESPECIAL: Se o desabafo puder estar relacionado à deficiência do aluno,
-conecte os dois de forma natural e acolhedora na sua pergunta.
-Por exemplo: se tem baixa visão e foi mal na prova, pergunte se a deficiência dificultou.
-Se tem TEA e está ansioso com interações sociais, conecte isso ao desabafo.
+INSTRUÇÃO: Conecte o desabafo à deficiência se fizer sentido, de forma acolhedora.
 """
 
-        system_prompt = f"""Você é o assistente virtual do 'Diário de Inclusão', um ambiente seguro e acolhedor para alunos desabafarem.
-Seu tom é informal, empático e amigável, como um conselheiro escolar jovem.
-
-REGRAS ESTRITAS:
-1. NUNCA dê diagnósticos médicos, psicológicos ou conselhos diretivos.
-2. NUNCA minimize o problema com positividade tóxica (evite 'tudo vai dar certo').
-3. Respostas MUITO curtas — máximo 2 frases estilo chat.
-4. Valide a emoção do aluno e termine com UMA pergunta aberta e suave.
-5. Adapte sua linguagem às necessidades específicas do aluno.
+        system_prompt = f"""Você é o assistente do 'Diário de Inclusão'. 
+Tom informal, empático e amigável. Máximo 2 frases.
+Regras: Sem diagnósticos, sem positividade tóxica, termine com uma pergunta aberta.
 {contexto_perfil}
-DADOS DO ALUNO:
-Emoção detectada: {emocao_ptbr}
-Desabafo do aluno: "{texto_aluno}"
+DADOS ATUAIS:
+Emoção: {emocao_ptbr}
+Desabafo: "{texto_aluno}"
+"""
 
-Escreva sua resposta agora:"""
-
-        # Configuração de segurança permissiva para contexto emocional
+        # Configuração de segurança para não bloquear desabafos sensíveis
         safety_settings = [
             {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
             {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
@@ -65,12 +50,13 @@ Escreva sua resposta agora:"""
 
         resposta_ia = model.generate_content(system_prompt)
 
-        if resposta_ia and resposta_ia.text and resposta_ia.text.strip():
+        # Verificação robusta da resposta
+        if resposta_ia and hasattr(resposta_ia, 'text') and resposta_ia.text.strip():
             return resposta_ia.text.strip()
 
-        logger.warning("Gemini retornou resposta vazia ou bloqueada.")
         return "Entendo o que você está sentindo. Quer me contar um pouco mais sobre isso?"
 
     except Exception as e:
-        logger.error(f"Erro ao gerar resposta com Gemini: {e}")
-        return "Poxa, entendo como você está se sentindo. Quer me contar um pouco mais sobre isso?"
+        logger.error(f"Erro Crítico Gemini: {e}")
+        # Fallback amigável se a API falhar (cota ou conexão)
+        return "Poxa, eu te entendo perfeitamente. O que mais está passando pela sua cabeça agora?"
