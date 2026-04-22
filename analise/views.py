@@ -1,202 +1,861 @@
 import json
-import logging
-from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth import update_session_auth_hash
-from django.utils import timezone
-from datetime import timedelta
-from django.contrib import messages
-from django.db.models import Avg, Count
 
-# Imports dos Models (Certifique-se que os caminhos estão corretos)
+import logging
+
+from pyexpat.errors import messages
+
+from django.http import JsonResponse
+
+from django.shortcuts import render, get_object_or_404, redirect
+
+from django.contrib.auth.decorators import login_required
+
+from django.contrib.auth import update_session_auth_hash
+
+from django.utils import timezone
+
+from datetime import timedelta
+
 from diario.models import Diario, Pergunta, Resposta, SessaoEmocional
+
 from accounts.models import Aluno
+
+from diario.models import Diario, Pergunta, Resposta, SessaoEmocional as SessaoDiario
+
 from analise.models import AnaliseResposta
 
-# Services
+from django.db.models import Avg, Count
+
 from .services.sentimento_service import analisar_e_salvar
+
 from .services.chat_service import gerar_pergunta_diario
+
+
 
 logger = logging.getLogger(__name__)
 
-# --- 1. Regras de Acesso ---
+from django.contrib.auth.decorators import user_passes_test
+
+from django.core.exceptions import PermissionDenied
+
+
+
+# --- 1. Regras de quem é quem ---
+
 def is_aluno(user):
+
     return user.is_authenticated and user.tipo_usuario == 'aluno'
 
+
+
 def is_educador(user):
+
     return user.is_authenticated and user.tipo_usuario == 'educador'
 
+
+
+# --- 2. Os Decorators (Os "Seguranças") ---
+
+# Se não for aluno, bloqueia.
+
 aluno_required = user_passes_test(is_aluno, login_url='/login/', redirect_field_name=None)
+
+
+
+# Se não for educador, bloqueia.
+
 educador_required = user_passes_test(is_educador, login_url='/login/', redirect_field_name=None)
 
-# Mapeamentos
+
+
 EMOCOES_ATENCAO = ['triste', 'muito_triste', 'ansioso', 'irritado', 'tristeza', 'medo', 'raiva']
+
+
+
 EMOCAO_EMOJI = {
+
     'muito_feliz': '😄', 'feliz': '😊', 'neutro': '😐',
+
     'triste': '😢', 'muito_triste': '😭', 'ansioso': '😰',
+
     'irritado': '😠', 'cansado': '😴', 'alegria': '😊',
+
     'tristeza': '😢', 'medo': '😨', 'raiva': '😠',
+
     'surpresa': '😲', 'nojo': '🤢',
+
 }
 
-# --- 2. Chat e Desabafo (Aluno) ---
+
+
 @aluno_required
+
 def enviar_desabafo(request):
+
     if request.method == "GET":
+
         diario_id = request.session.get('diario_atual_id')
+
         mensagem_inicial = "Olá! Este é o seu espaço seguro. Como você está se sentindo hoje?"
 
+
+
         if diario_id:
+
             try:
+
                 diario = Diario.objects.get(id=diario_id)
+
                 if diario.mensagem_inicial_ia:
+
                     mensagem_inicial = diario.mensagem_inicial_ia
+
             except Diario.DoesNotExist:
+
                 pass
+
+
+
         return render(request, 'analise/chat.html', {'mensagem_inicial': mensagem_inicial})
 
-    if request.method == 'POST':
-        try:
-            dados = json.loads(request.body)
-            texto_aluno = dados.get('texto_resposta', '').strip()
-            diario_id = request.session.get('diario_atual_id')
-            
-            if not diario_id:
-                return JsonResponse({'erro': 'Sessão expirada.'}, status=400)
 
-            diario_vinculo = get_object_or_404(Diario, id=diario_id)
+
+    if request.method == 'POST':
+
+        try:
+
+            dados = json.loads(request.body)
+
+            texto_aluno = dados.get('texto_resposta', '').strip()
+
+
+
+            if not texto_aluno:
+
+                return JsonResponse({'erro': 'O texto não pode estar vazio.'}, status=400)
+
+
+
+            diario_id = request.session.get('diario_atual_id')
+
+            if not diario_id:
+
+                return JsonResponse({'erro': 'Sessão expirada. Volte à página inicial.'}, status=400)
+
+
+
+            diario_vinculo = Diario.objects.get(id=diario_id)
+
             total_mensagens = Resposta.objects.filter(diario=diario_vinculo).count()
 
+
+
+            # Se já atingiu o limite antes de processar
+
             if total_mensagens >= 5:
+
                 return JsonResponse({
+
                     'sucesso': True,
-                    'resposta_assistente': "Nossa sessão chegou ao fim. Procure o NAPNE se precisar. 💙",
+
+                    'mensagem_aluno': texto_aluno,
+
+                    'emocao_detectada': 'neutro',
+
+                    'resposta_assistente': "Agradeço muito por compartilhar seus sentimentos comigo hoje. Nossa sessão chegou ao fim. Lembre-se: este chat é um apoio inicial. Por favor, procure o NAPNE. 💙",
+
                     'fim_de_sessao': True
+
                 }, status=200)
 
-            # Salva Resposta
+
+
+            pergunta_vinculo = Pergunta.objects.order_by("?").first()
+
+            if not pergunta_vinculo:
+
+                return JsonResponse({'erro': 'Nenhuma pergunta cadastrada.'}, status=500)
+
+
+
+            # Preparar perfil do aluno para a IA
+
+            perfil_aluno = None
+
+            try:
+
+                aluno = request.user.perfil_aluno
+
+                perfil_aluno = {
+
+                    'nome': request.user.get_full_name() or request.user.username,
+
+                    'tipo_deficiencia': aluno.get_tipo_deficiencia_display(),
+
+                    'necessidades_especificas': aluno.necessidades_especificas or 'Não informado'
+
+                }
+
+            except Exception:
+
+                pass
+
+
+
+            # Cria a resposta no banco de dados
+
             nova_resposta = Resposta.objects.create(
+
                 texto_resposta=texto_aluno,
+
                 diario=diario_vinculo,
-                pergunta=Pergunta.objects.order_by("?").first()
+
+               
+
             )
 
-            # IA Sentimento
+
+
+            # Processamento de IA (Sentimento)
+
             emocao_ptbr = 'neutro'
+
             try:
+
                 resultado_ia = analisar_e_salvar(nova_resposta)
+
                 emocao_ptbr = resultado_ia["label"] if resultado_ia else "neutro"
-            except Exception: pass
 
-            # IA Resposta (Groq/Llama)
-            try:
-                perfil = None
-                al = getattr(request.user, 'perfil_aluno', None)
-                if al:
-                    perfil = {'nome': request.user.username, 'tipo_deficiencia': al.get_tipo_deficiencia_display()}
-                resposta_bot = gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil)
             except Exception:
-                resposta_bot = "Entendo. Me conte mais sobre isso."
 
-            # Verifica fim de sessão após responder
-            novo_total = Resposta.objects.filter(diario=diario_vinculo).count()
-            fim = novo_total >= 5
-            if fim:
-                resposta_bot = "Agradeço por compartilhar. Sessão encerrada. Lembre-se de procurar o NAPNE. 💙"
+                emocao_ptbr = "neutro"
+
+
+
+            # Geração de resposta da IA (Gemini)
+
+            try:
+
+                resposta_bot = gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno)
+
+            except Exception:
+
+                resposta_bot = "Entendo o que você está sentindo. Quer me contar um pouco mais?"
+
+           
+
+            # Verificação de fim de sessão
+
+            total_mensagens_atual = Resposta.objects.filter(diario=diario_vinculo).count()
+
+            fim_de_sessao = total_mensagens_atual >= 5
+
+
+
+            if fim_de_sessao:
+
+                resposta_bot = "Agradeço muito por compartilhar seus sentimentos comigo hoje. Nossa sessão chegou ao fim. Lembre-se: este chat é um apoio inicial. Por favor, procure o NAPNE. 💙"
+
+
 
             return JsonResponse({
+
                 'sucesso': True,
+
                 'mensagem_aluno': texto_aluno,
+
                 'emocao_detectada': emocao_ptbr,
+
                 'resposta_assistente': resposta_bot,
-                'fim_de_sessao': fim
-            })
+
+                'fim_de_sessao': fim_de_sessao
+
+            }, status=200)
+
+
+
+        except json.JSONDecodeError:
+
+            return JsonResponse({'erro': 'Formato inválido.'}, status=400)
+
         except Exception as e:
+
             return JsonResponse({'sucesso': False, 'erro': str(e)}, status=500)
 
-# --- 3. Painel e Histórico do Aluno ---
-@aluno_required
-def historico_emocional(request):
-    aluno = getattr(request.user, 'perfil_aluno', None)
-    sessoes = []
-    if aluno:
-        # Trocado data_inicio por data_criacao
-        sessoes_qs = SessaoEmocional.objects.filter(aluno=aluno).order_by('-data_criacao')
-        for sessao in sessoes_qs:
-            emoji = EMOCAO_EMOJI.get(sessao.emocao_selecionada, '😐')
-            sessoes.append({
-                'sessao': sessao,
-                'emoji': emoji,
-                'precisa_atencao': sessao.emocao_selecionada in EMOCOES_ATENCAO,
-            })
-    return render(request, 'analise/perfil_aluno_napne.html', {'sessoes': sessoes})
 
-# --- 4. Painel Educador (NAPNE) ---
-@educador_required
+
+    return JsonResponse({'erro': 'Método não permitido.'}, status=405)
+
+
+
+   
+
+@login_required
+
 def painel_napne(request):
+
+    aluno = request.user.perfil_aluno
+
     hoje = timezone.now().date()
-    # Trocado data_inicio por data_criacao
-    ativos_hoje = SessaoEmocional.objects.filter(data_criacao__date=hoje).values('aluno').distinct().count()
-    
+
+ 
+
+    total_alunos = Aluno.objects.count()
+
+ 
+
+    registros_recentes = SessaoEmocional.objects.filter(
+
+        data_inicio__gte=timezone.now() - timedelta(hours=48)
+
+    ).count()
+
+ 
+
+    ativos_hoje = SessaoEmocional.objects.filter(
+
+        data_inicio__date=hoje
+
+    ).values('aluno').distinct().count()
+
+ 
+
+    alunos_atencao = []
+
+    for aluno in Aluno.objects.select_related('usuario').all():
+
+        ultima_sessao = SessaoEmocional.objects.filter(
+
+            aluno=aluno
+
+        ).order_by('-data_inicio').first()
+
+ 
+
+        if ultima_sessao and ultima_sessao.emocao_selecionada in EMOCOES_ATENCAO:
+
+            alunos_atencao.append({
+
+                'aluno': aluno,
+
+                'ultima_sessao': ultima_sessao,
+
+                'emoji': EMOCAO_EMOJI.get(ultima_sessao.emocao_selecionada, '😐'),
+
+            })
+
+ 
+
     atividade_recente = []
-    for sessao in SessaoEmocional.objects.select_related('aluno__usuario').order_by('-data_criacao')[:20]:
+
+    for sessao in SessaoEmocional.objects.select_related('aluno__usuario').order_by('-data_inicio')[:20]:
+
         atividade_recente.append({
+
             'sessao': sessao,
+
             'emoji': EMOCAO_EMOJI.get(sessao.emocao_selecionada, '😐'),
+
             'precisa_atencao': sessao.emocao_selecionada in EMOCOES_ATENCAO,
+
             'nome': sessao.aluno.usuario.get_full_name() if sessao.aluno else 'Aluno desconhecido',
+
         })
+
+ 
 
     return render(request, 'analise/painel_napne.html', {
-        'total_alunos': Aluno.objects.count(),
+
+        'total_alunos': total_alunos,
+
+        'registros_recentes': registros_recentes,
+
         'ativos_hoje': ativos_hoje,
+
+        'total_atencao': len(alunos_atencao),
+
+        'alunos_atencao': alunos_atencao,
+
         'atividade_recente': atividade_recente,
+
     })
 
-@educador_required
-def estatisticas_gerais(request):
-    hoje = timezone.now()
-    trinta_dias = hoje - timedelta(days=30)
-    # Trocado data_inicio por data_criacao
-    sessoes = SessaoEmocional.objects.filter(data_criacao__gte=trinta_dias)
-    
-    distribuicao = sessoes.values('emocao_selecionada').annotate(total=Count('id')).order_by('-total')
-    labels = [item['emocao_selecionada'].capitalize() for item in distribuicao]
-    valores = [item['total'] for item in distribuicao]
+ 
 
-    return render(request, 'analise/estatisticas_gerais.html', {
-        'total_registros': sessoes.count(),
-        'labels_dist': labels,
-        'valores_dist': valores,
+
+
+
+
+
+
+@login_required
+
+def perfil_aluno_napne(request, aluno_id):
+
+    aluno = get_object_or_404(Aluno, id=aluno_id)
+
+ 
+
+    historico = []
+
+    for sessao in SessaoEmocional.objects.filter(aluno=aluno).order_by('-data_inicio'):
+
+        try:
+
+            diario = sessao.diario
+
+        except Exception:
+
+            continue
+
+ 
+
+        analises = []
+
+        for resposta in Resposta.objects.filter(diario=diario):
+
+            try:
+
+                analise = resposta.analiseresposta
+
+                analises.append({
+
+                    'sentimento': analise.sentimento_detectado or 'neutro',
+
+                    'score': round((analise.score_sentimento or 0) * 100),
+
+                    'texto': resposta.texto_resposta,
+
+                })
+
+            except Exception:
+
+                pass
+
+ 
+
+        historico.append({
+
+            'sessao': sessao,
+
+            'analises': analises,
+
+            'emoji': EMOCAO_EMOJI.get(sessao.emocao_selecionada, '😐'),
+
+            'precisa_atencao': sessao.emocao_selecionada in EMOCOES_ATENCAO,
+
+        })
+
+ 
+
+    return render(request, 'analise/perfil_aluno_napne.html', {
+
+        'aluno': aluno,
+
+        'historico': historico,
+
+        'total_sessoes': len(historico),
+
     })
 
-@educador_required
-def configuracoes_servidor(request):
-    if request.method == 'POST':
-        nova = request.POST.get('nova_senha')
-        if nova and len(nova) >= 8:
-            request.user.set_password(nova)
-            request.user.save()
-            update_session_auth_hash(request, request.user)
-            messages.success(request, 'Senha atualizada!')
-            return redirect('configuracoes_servidor')
-    return render(request, 'analise/configuracoes_servidor.html')
+ 
+
+
 
 @educador_required
+
 def listar_alunos(request):
-    buscar = request.GET.get('buscar', '')
-    alunos = Aluno.objects.select_related('usuario').all().order_by('usuario__first_name')
-    if buscar:
-        alunos = alunos.filter(usuario__first_name__icontains=buscar)
+
+
+
+    # 1. Filtro de busca (CORREÇÃO DO 'NONE' AQUI 👇)
+
+    buscar_aluno = request.GET.get('buscar', '')
+
+    tipo_deficiencia = request.GET.get('deficiencia', '')
+
+
+
+    # 2. Pega todos os alunos do banco
+
+    todos_alunos = Aluno.objects.select_related('usuario').all().order_by('usuario__first_name')
+
+
+
+    # O "if" continua funcionando perfeitamente, pois texto vazio ('') é considerado Falso no Python
+
+    if tipo_deficiencia:
+
+       todos_alunos =  todos_alunos.filter(tipo_deficiencia=tipo_deficiencia)
+
+
+
+    if buscar_aluno:
+
+        todos_alunos = todos_alunos.filter(usuario__first_name__icontains=buscar_aluno)
+
+
+
+   
+
+    # 3. Cria uma lista vazia que vai guardar os "pacotes" de dados de cada aluno
 
     alunos_lista = []
-    for a in alunos:
-        # Trocado data_inicio por data_criacao
-        ultima = SessaoEmocional.objects.filter(aluno=a).order_by('-data_criacao').first()
+
+   
+
+    # 4. Passa por cada aluno para calcular as estatísticas dele
+
+    for aluno in todos_alunos:
+
+        # Busca todas as sessões desse aluno específico, da mais recente para a mais antiga
+
+        sessoes = SessaoEmocional.objects.filter(aluno=aluno).order_by('-data_inicio')
+
+       
+
+        total_registros = sessoes.count()
+
+        ultima_sessao = sessoes.first() # Pega só a primeira da lista (a mais recente)
+
+       
+
+        # Variáveis padrão caso o aluno nunca tenha feito um registro
+
+        precisa_atencao = False
+
+        data_ultimo_registro = None
+
+        emoji_ultimo = ''
+
+       
+
+        # Se o aluno tiver pelo menos um registro, atualizamos as variáveis
+
+        if ultima_sessao:
+
+            data_ultimo_registro = ultima_sessao.data_inicio
+
+            emoji_ultimo = EMOCAO_EMOJI.get(ultima_sessao.emocao_selecionada, '😐')
+
+           
+
+            # Verifica se a última emoção acende o alerta amarelo
+
+            if ultima_sessao.emocao_selecionada in EMOCOES_ATENCAO:
+
+                precisa_atencao = True
+
+               
+
+        # 5. Guarda tudo no dicionário que o nosso HTML está esperando
+
         alunos_lista.append({
-            'aluno': a,
-            'emoji_ultimo': EMOCAO_EMOJI.get(ultima.emocao_selecionada, '😐') if ultima else '',
-            'precisa_atencao': ultima.emocao_selecionada in EMOCOES_ATENCAO if ultima else False
+
+            'aluno': aluno,
+
+            'total_registros': total_registros,
+
+            'data_ultimo_registro': data_ultimo_registro,
+
+            'emoji_ultimo': emoji_ultimo,
+
+            'precisa_atencao': precisa_atencao
+
         })
-    return render(request, 'analise/listar_alunos.html', {'alunos_lista': alunos_lista})
+
+
+
+    # 6. Envia os dados processados para a tela
+
+    return render(request, 'analise/listar_alunos.html', {
+
+        'alunos_lista': alunos_lista,
+
+        'total_alunos': todos_alunos.count(),
+
+        'buscar_aluno': buscar_aluno,
+
+        'tipo_deficiencia': tipo_deficiencia
+
+    })
+
+
+
+
+
+@aluno_required
+
+def historico_emocional(request):
+
+    try:
+
+        aluno = request.user.perfil_aluno
+
+    except Exception:
+
+        aluno = None
+
+
+
+    sessoes = []
+
+
+
+    if aluno:
+
+        sessoes_qs = SessaoEmocional.objects.filter(
+
+            aluno=aluno
+
+        ).order_by('-data_inicio')
+
+
+
+        for sessao in sessoes_qs:
+
+            # Busca o diário vinculado
+
+            try:
+
+                diario = sessao.diario
+
+            except Exception:
+
+                continue
+
+
+
+            # Busca todas as respostas do diário com suas análises
+
+            respostas = Resposta.objects.filter(
+
+                diario=diario
+
+            ).prefetch_related('analiseresposta')
+
+
+
+            analises = []
+
+            for resposta in respostas:
+
+                try:
+
+                    analise = resposta.analiseresposta
+
+                    analises.append({
+
+                        'sentimento': analise.sentimento_detectado or 'neutro',
+
+                        'score': round((analise.score_sentimento or 0) * 100),
+
+                        'texto': resposta.texto_resposta,
+
+                    })
+
+                except Exception:
+
+                    pass
+
+
+
+            # Emoção predominante da sessão (maior score)
+
+            emocao_predominante = sessao.emocao_selecionada
+
+            score_predominante = 0
+
+            if analises:
+
+                melhor = max(analises, key=lambda x: x['score'])
+
+                emocao_predominante = melhor['sentimento']
+
+                score_predominante = melhor['score']
+
+
+
+            emoji = EMOCAO_EMOJI.get(sessao.emocao_selecionada, '😐')
+
+            precisa_atencao = sessao.emocao_selecionada in EMOCOES_ATENCAO
+
+
+
+            sessoes.append({
+
+                'sessao': sessao,
+
+                'diario': diario,
+
+                'analises': analises,
+
+                'emocao_predominante': emocao_predominante,
+
+                'score_predominante': score_predominante,
+
+                'emoji': emoji,
+
+                'precisa_atencao': precisa_atencao,
+
+            })
+
+
+
+    return render(request, 'analise/perfil_aluno_napne.html', {
+
+        'sessoes': sessoes,
+
+        'total_sessoes': len(sessoes),
+
+    })
+
+
+
+
+
+@educador_required
+
+def estatisticas_gerais(request):
+
+    hoje = timezone.now()
+
+    trinta_dias_atras = hoje - timedelta(days=30)
+
+
+
+    # 1. Busca sessoes dos últimos 30 dias
+
+    sessoes_periodo = SessaoEmocional.objects.filter(data_inicio__gte=trinta_dias_atras)
+
+
+
+    total_registros = sessoes_periodo.count()
+
+    alunos_ativos = sessoes_periodo.values('aluno').distinct().count()
+
+    alertas_atencao = sessoes_periodo.filter(emocao_selecionada__in=['triste', 'ansioso', 'medo', 'irritado']).count()
+
+
+
+    # 2. Bem-estar médio (Baseado na IA)
+
+    analises = AnaliseResposta.objects.filter(resposta__diario__sessao_emocional__in=sessoes_periodo)
+
+    media_score = analises.aggregate(Avg('score_sentimento'))['score_sentimento__avg']
+
+    bem_estar_medio = round(media_score * 100) if media_score else 0
+
+
+
+    # 3. Dados para o Gráfico de Distribuição (Conta quantas vezes cada emoção apareceu)
+
+    distribuicao = sessoes_periodo.values('emocao_selecionada').annotate(total=Count('id')).order_by('-total')
+
+    labels_dist = [item['emocao_selecionada'].capitalize() for item in distribuicao]
+
+    valores_dist = [item['total'] for item in distribuicao]
+
+
+
+    # 4. Dados reais para as Barras de Níveis Médios
+
+    if total_registros > 0:
+
+        tristes = sessoes_periodo.filter(emocao_selecionada__in=['triste', 'irritado']).count()
+
+        ansiosos = sessoes_periodo.filter(emocao_selecionada__in=['ansioso', 'medo']).count()
+
+        nivel_tristeza = round((tristes / total_registros) * 100)
+
+        nivel_ansiedade = round((ansiosos / total_registros) * 100)
+
+    else:
+
+        nivel_tristeza = 0
+
+        nivel_ansiedade = 0
+
+
+
+    return render(request, 'analise/estatisticas_gerais.html', {
+
+        'total_registros': total_registros,
+
+        'alunos_ativos': alunos_ativos,
+
+        'alertas_atencao': alertas_atencao,
+
+        'bem_estar_medio': bem_estar_medio,
+
+       
+
+        # Gráfico (convertido para o JS ler)
+
+        'labels_dist': labels_dist,
+
+        'valores_dist': valores_dist,
+
+       
+
+        # Barras de Progresso
+
+        'nivel_tristeza': nivel_tristeza,
+
+        'nivel_ansiedade': nivel_ansiedade,
+
+    })
+
+
+
+
+
+@educador_required
+
+def configuracoes_servidor(request):
+
+    if request.method == 'POST':
+
+        senha_atual = request.POST.get('senha_atual')
+
+        nova_senha = request.POST.get('nova_senha')
+
+        confirmar_senha = request.POST.get('confirmar_senha')
+
+
+
+        if senha_atual and nova_senha and confirmar_senha:
+
+            if not request.user.check_password(senha_atual):
+
+                messages.error(request, 'A senha atual está incorreta.')
+
+            elif nova_senha != confirmar_senha:
+
+                messages.error(request, 'As novas senhas não coincidem.')
+
+            elif len(nova_senha) < 8:
+
+                messages.error(request, 'A nova senha deve ter pelo menos 8 caracteres.')
+
+            else:
+
+                request.user.set_password(nova_senha)
+
+                request.user.save()
+
+                update_session_auth_hash(request, request.user)
+
+                messages.success(request, 'Senha do servidor atualizada com sucesso! 🚀')
+
+                return redirect('configuracoes_servidor')
+
+        else:
+
+            messages.error(request, 'Preencha todos os campos para trocar a senha.')
+
+
+
+    # Aponta para a pasta do app analise
+
+    return render(request, 'analise/configuracoes_servidor.html')
