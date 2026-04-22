@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 genai.configure(api_key=settings.GEMINI_API_KEY, transport='rest') 
 
 # No nome do modelo, adicione o prefixo 'models/'
-MODELO = 'models/gemini-1.5-flas
+MODELO = 'models/gemini-1.5-flash'  # Exemplo: 'models/gemini-1.5-flash' ou 'models/gemini-2.0-pro' 
 
 
 def gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno=None):
