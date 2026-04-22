@@ -4,10 +4,11 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-MODELO = 'models/gemini-1.5-flash'  
+genai.configure(api_key=settings.GEMINI_API_KEY, transport='rest') 
 
-# Configura o cliente uma única vez
-genai.configure(api_key=settings.GEMINI_API_KEY)
+# No nome do modelo, adicione o prefixo 'models/'
+MODELO = 'models/gemini-1.5-flas
+
 
 def gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil_aluno=None):
     """
