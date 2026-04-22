@@ -25,9 +25,9 @@ DADOS DO DESABAFO:
 Emoção detectada: {emocao_ptbr}
 Texto do aluno: "{texto_aluno}" """
 
-        # Chamada ao modelo Llama 3 (extremamente rápido e gratuito no Groq)
+        # Chamada ao modelo Llama 3.1 (Sucessor oficial e muito mais rápido)
         completion = client.chat.completions.create(
-            model="llama3-8b-8192",
+            model="llama-3.1-8b-instant", # <--- O NOME NOVO É ESTE
             messages=[
                 {"role": "system", "content": "Você é um assistente de apoio emocional escolar."},
                 {"role": "user", "content": system_prompt}
