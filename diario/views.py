@@ -48,52 +48,55 @@ def salvar_emocao(request):
             data = json.loads(request.body)
             emocao = data.get('emocao')
 
-            # Busca o perfil de forma direta. 
-            # Se falhar aqui, o 'except' lá de baixo vai nos dar o erro real.
-            perfil = request.user.perfil_aluno 
+            # Tenta buscar o aluno, se não existir, usa None para não travar o POST
+            perfil = getattr(request.user, 'perfil_aluno', None)
 
-            if emocao:
-                # Cria a sessão
-                sessao = SessaoEmocional.objects.create(
-                    emocao_selecionada=emocao,
-                    status_sessao='ativa',
-                    aluno=perfil 
-                )
+            if not emocao:
+                return JsonResponse({'status': 'error', 'message': 'Emoção não informada.'}, status=400)
 
-                mensagens_iniciais = {
-                    'muito_feliz': "Que incrível ver que você está muito feliz hoje! Quer me contar o que aconteceu?",
-                    'feliz': "Que bom que você está se sentindo feliz! Quer compartilhar o motivo?",
-                    'neutro': "Entendi. Como tem sido o seu dia até agora?",
-                    'triste': "Notei que você está se sentindo triste hoje. Quer conversar sobre o que está havendo?",
-                    'muito_triste': "Sinto muito que você esteja se sentindo assim. Estou aqui para te ouvir, no seu tempo. O que houve?",
-                    'ansioso': "Percebi que você está ansioso(a). Respire fundo... Quer me contar o que está te deixando assim?",
-                    'irritado': "Vejo que algo te deixou irritado(a). Quer desabafar sobre isso?",
-                    'cansado': "Você parece exausto(a). O que tem sugado as suas energias ultimamente?"
-                }
-                
-                mensagem_personalizada = mensagens_iniciais.get(emocao, "Olá, estou aqui para te ouvir. Como você está?")
+            # Criamos a sessão apenas com o que é garantido existir no banco
+            sessao = SessaoEmocional.objects.create(
+                emocao_selecionada=emocao,
+                status_sessao='ativa',
+                aluno=perfil 
+            )
 
-                diario = Diario.objects.create(
-                    sessao_emocional=sessao,
-                    mensagem_inicial_ia=mensagem_personalizada
-                )
+            mensagens_iniciais = {
+                'muito_feliz': "Que incrível ver que você está muito feliz hoje! Quer me contar o que aconteceu?",
+                'feliz': "Que bom que você está se sentindo feliz! Quer compartilhar o motivo?",
+                'neutro': "Entendi. Como tem sido o seu dia até agora?",
+                'triste': "Notei que você está se sentindo triste hoje. Quer conversar sobre o que está havendo?",
+                'muito_triste': "Sinto muito que você esteja se sentindo assim. Estou aqui para te ouvir. O que houve?",
+                'ansioso': "Percebi que você está ansioso(a). Quer me contar o que está te deixando assim?",
+                'irritado': "Vejo que algo te deixou irritado(a). Quer desabafar sobre isso?",
+                'cansado': "Você parece exausto(a). O que tem sugado as suas energias?"
+            }
+            
+            mensagem_personalizada = mensagens_iniciais.get(emocao, "Olá, estou aqui para te ouvir. Como você está?")
 
-                request.session['diario_atual_id'] = diario.id
-                request.session['emocao_inicial'] = emocao
-                request.session['contagem_mensagens'] = 0  
+            # Cria o diário vinculado à sessão
+            diario = Diario.objects.create(
+                sessao_emocional=sessao,
+                mensagem_inicial_ia=mensagem_personalizada
+            )
 
-                return JsonResponse({
-                    'status': 'success',
-                    'sessao_id': sessao.id,
-                    'diario_id': diario.id
-                })
+            # Salva na sessão do navegador para o chat usar depois
+            request.session['diario_atual_id'] = diario.id
+            request.session['emocao_inicial'] = emocao
+            request.session.modified = True 
 
-            return JsonResponse({'status': 'error', 'message': 'Emoção não informada.'}, status=400)
+            return JsonResponse({
+                'status': 'success',
+                'sessao_id': sessao.id,
+                'diario_id': diario.id
+            })
 
         except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+            # Retorna o erro exato para você ler na tela do navegador
+            return JsonResponse({'status': 'error', 'message': f"Erro capturado: {str(e)}"}, status=500)
 
-    return JsonResponse({'status': 'error'}, status=405)
+    return JsonResponse({'status': 'error', 'message': 'Método não permitido'}, status=405)
+
 
 
 
