@@ -234,6 +234,14 @@ def perfil_aluno_napne(request, aluno_id):
 def listar_alunos(request):
     buscar = request.GET.get('buscar', '')
     todos_alunos = Aluno.objects.select_related('usuario').all().order_by('usuario__first_name')
+    
+    
+    if request.GET.get('deficiencia'):
+        tipo_deficiencia = request.GET['deficiencia']
+        todos_alunos = todos_alunos.filter(tipo_deficiencia=tipo_deficiencia)
+    
+    
+    
     if buscar:
         todos_alunos = todos_alunos.filter(usuario__first_name__icontains=buscar)
 
@@ -249,7 +257,8 @@ def listar_alunos(request):
     return render(request, 'analise/listar_alunos.html', {
         
         'alunos_lista': alunos_lista,
-        'total_alunos': todos_alunos.count()    
+        'total_alunos': todos_alunos.count(),  
+        'tipo_deficiencia': request.GET.get('deficiencia', '')
         
         
         })

@@ -30,9 +30,17 @@
             <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
             <select name="deficiencia" aria-label="Filtrar por tipo de deficiência">
                 <option value="">Todas as deficiências</option>
-                <option value="multipla" {% if tipo_deficiencia == "multipla" %}selected{% endif %}>Múltipla</option>
-                <option value="visual" {% if tipo_deficiencia == "visual" %}selected{% endif %}>Visual</option>
-                <option value="auditiva" {% if tipo_deficiencia == "auditiva" %}selected{% endif %}>Auditiva</option>
+                <option value="multipla" {% if tipo_deficiencia == "tea" %}selected{% endif %}>Transtorno do Espectro Autista (TEA)</option>
+                <option value="visual" {% if tipo_deficiencia == "baixa_visao" %}selected{% endif %}>Baixa Visão</option>
+                <option value="auditiva" {% if tipo_deficiencia == "cegueira" %}selected{% endif %}>Cegueira</option>
+                <option value="fisica" {% if tipo_deficiencia == "surdez" %}selected{% endif %}>Surdez</option>
+                <option value="intelectual" {% if tipo_deficiencia == "surdocegueira" %}selected{% endif %}>Surdocegueira</option>
+                <option value="surdos" {% if tipo_deficiencia == "deficiencia_fisica" %}selected{% endif %}>Deficiência Física</option> 
+                <option value="outras" {% if tipo_deficiencia == "deficiencia_intelectual" %}selected{% endif %}>Deficiência Intelectual</option>
+                <option value="nao_informada" {% if tipo_deficiencia == "tdah" %}selected{% endif %}>TDAH</option>
+                <option value="nao_informada" {% if tipo_deficiencia == "dislexia" %}selected{% endif %}>Dislexia</option>                
+                <option value="nao_informada" {% if tipo_deficiencia == "outras" %}selected{% endif %}>Outras Deficiências</option>
+
             </select>
         </div>
 
