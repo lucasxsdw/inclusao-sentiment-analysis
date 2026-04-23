@@ -230,11 +230,17 @@ def perfil_aluno_napne(request, aluno_id):
     return render(request, 'analise/perfil_aluno_napne.html', context)
 
 @educador_required
-def listar_alunos(request):
+def listar_alunos(request, aluno_id):
+    aluno = get_object_or_404(Aluno, id=aluno_id)
     buscar = request.GET.get('buscar', '')
     tipo_deficiencia = request.GET.get('deficiencia', '')
+    sessoes_qs = SessaoEmocional.objects.filter(aluno=aluno).order_by('-data_criacao')
+ 
+    total_registros = sessoes_qs.count()
+    
     
     todos_alunos = Aluno.objects.select_related('usuario').all().order_by('usuario__first_name')
+    
     
     # Filtros
     if tipo_deficiencia:
@@ -256,7 +262,10 @@ def listar_alunos(request):
         'alunos_lista': alunos_lista,
         'total_alunos': todos_alunos.count(),
         'tipo_deficiencia': tipo_deficiencia, # Variável para o selected
-        'buscar': buscar # Para manter o texto na barra de busca
+        'buscar': buscar, # Para manter o texto na barra de busca
+        'total_registros': total_registros,
+       
+
     })
 
 @aluno_required
