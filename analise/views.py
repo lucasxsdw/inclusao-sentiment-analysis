@@ -128,7 +128,7 @@ def painel_napne(request):
     hoje = timezone.now().date()
     # Ajustado para data_criacao
     ativos_hoje = SessaoEmocional.objects.filter(data_criacao__date=hoje).values('aluno').distinct().count()
-    
+    precisa_atencao = SessaoEmocional.objects.filter(data_criacao__date=hoje, emocao_selecionada__in=EMOCOES_ATENCAO).select_related('aluno__usuario')  
     
     atividade_recente = []
     # Ajustado para data_criacao
@@ -143,6 +143,7 @@ def painel_napne(request):
     return render(request, 'analise/painel_napne.html', {
         'total_alunos': Aluno.objects.count(),
         'ativos_hoje': ativos_hoje,
+        'precisa_atencao': precisa_atencao,
         'atividade_recente': atividade_recente,
     })
 
