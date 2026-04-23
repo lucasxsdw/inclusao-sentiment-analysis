@@ -45,30 +45,30 @@
             <select name="deficiencia" aria-label="Filtrar por tipo de deficiência">
                 <option value="">Todas as deficiências</option>
 
-                <option value="tea" {% if tipo_deficiencia == "tea" %}selected{% endif %}>Transtorno do Espectro Autista
+                <option value="tea" {% if tipo_deficiencia=="tea" %}selected{% endif %}>Transtorno do Espectro Autista
                     (TEA)</option>
 
-                <option value="baixa_visao" {% if tipo_deficiencia == "baixa_visao" %}selected{% endif %}>Baixa Visão
+                <option value="baixa_visao" {% if tipo_deficiencia=="baixa_visao" %}selected{% endif %}>Baixa Visão
                 </option>
 
-                <option value="cegueira" {% if tipo_deficiencia == "cegueira" %}selected{% endif %}>Cegueira</option>
+                <option value="cegueira" {% if tipo_deficiencia=="cegueira" %}selected{% endif %}>Cegueira</option>
 
-                <option value="surdez" {% if tipo_deficiencia == "surdez" %}selected{% endif %}>Surdez</option>
+                <option value="surdez" {% if tipo_deficiencia=="surdez" %}selected{% endif %}>Surdez</option>
 
-                <option value="surdocegueira" {% if tipo_deficiencia == "surdocegueira" %}selected{% endif %}>
+                <option value="surdocegueira" {% if tipo_deficiencia=="surdocegueira" %}selected{% endif %}>
                     Surdocegueira</option>
 
-                <option value="deficiencia_fisica" {% if tipo_deficiencia == "deficiencia_fisica" %}selected{% endif %}>
+                <option value="deficiencia_fisica" {% if tipo_deficiencia=="deficiencia_fisica" %}selected{% endif %}>
                     Deficiência Física</option>
 
-                <option value="deficiencia_intelectual" {% if tipo_deficiencia == "deficiencia_intelectual" %}selected{%
+                <option value="deficiencia_intelectual" {% if tipo_deficiencia=="deficiencia_intelectual" %}selected{%
                     endif %}>Deficiência Intelectual</option>
 
-                <option value="tdah" {% if tipo_deficiencia == "tdah" %}selected{% endif %}>TDAH</option>
+                <option value="tdah" {% if tipo_deficiencia=="tdah" %}selected{% endif %}>TDAH</option>
 
-                <option value="dislexia" {% if tipo_deficiencia == "dislexia" %}selected{% endif %}>Dislexia</option>
+                <option value="dislexia" {% if tipo_deficiencia=="dislexia" %}selected{% endif %}>Dislexia</option>
 
-                <option value="outro" {% if tipo_deficiencia == "outro" %}selected{% endif %}>Outro</option>
+                <option value="outro" {% if tipo_deficiencia=="outro" %}selected{% endif %}>Outro</option>
             </select>
         </div>
 
@@ -118,19 +118,17 @@
                     <span class="stat-label">Registros</span>
                     <span class="stat-value">{{ item.total_registros }}</span>
                 </div>
+
                 <div class="stat-row">
                     <span class="stat-label">Último registro</span>
-                    <div class="stat-row">
-                        <span class="stat-label">Último registro</span>
-                        <span class="stat-value">
-                            {% if item.data_ultimo_registro %}
-                            <span aria-hidden="true">{{ item.emoji_ultimo }}</span>
-                            {{ item.data_ultimo_registro|date:"d/m/Y" }}
-                            {% else %}
-                            <span style="color: #9ca3af; font-style: italic;">Sem registros</span>
-                            {% endif %}
-                        </span>
-                    </div>
+                    <span class="stat-value">
+                        {% if item.data_ultimo_registro %}
+                        <span aria-hidden="true">{{ item.emoji_ultimo }}</span>
+                        {{ item.data_ultimo_registro|date:"d/m/Y" }}
+                        {% else %}
+                        <span style="color: #9ca3af; font-style: italic;">Sem registros</span>
+                        {% endif %}
+                    </span>
                 </div>
             </div>
 
