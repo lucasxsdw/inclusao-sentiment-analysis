@@ -32,7 +32,7 @@
             </div>
             <div class="stat-item">
                 <span class="label">Registros</span>
-                <span class="value">{{ total_registro }}</span>
+                <span class="value">{{ total_registros }}</span>
             </div>
             <div class="stat-item">
                 <span class="label">Alertas</span>
@@ -76,7 +76,7 @@
         <h2 class="section-title" id="timeline-titulo">📅 Linha do Tempo</h2>
 
         {% if sessoes %}
-            {% for item in sessoes %}
+            {% for item in historico %}
             <article class="sessao-card" id="card-{{ forloop.counter }}">
 
                 <div class="card-header" 
@@ -91,7 +91,7 @@
                         <div class="emocao-emoji" aria-hidden="true">{{ item.emoji }}</div>
                         <div class="card-info">
                             <h3>{{ item.sessao.emocao_selecionada|capfirst }}</h3>
-                            <span class="data">{{ item.sessao.data_inicio|date:"j \d\e F \à\s H:i" }}</span>
+                            <span class="data">{{ item.sessao.data_criacao|date:"j \d\e F \à\s H:i" }}</span>
                         </div>
                     </div>
                     

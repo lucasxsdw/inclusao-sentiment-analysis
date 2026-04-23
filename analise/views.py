@@ -170,19 +170,38 @@ def painel_napne(request):
     })
 
 
-
 @educador_required
 def perfil_aluno_napne(request, aluno_id):
     aluno = get_object_or_404(Aluno, id=aluno_id)
-    # Ajustado para data_criacao
+    
+    # 1. Busca todas as sessões do aluno (usando o campo corrigido data_criacao)
     sessoes_qs = SessaoEmocional.objects.filter(aluno=aluno).order_by('-data_criacao')
     
+    # 2. Cálculos para o cabeçalho
+    total_registros = sessoes_qs.count()
+    total_alertas = sessoes_qs.filter(emocao_selecionada__in=EMOCOES_ATENCAO).count()
+    
+    # 3. Lógica do Gráfico (FORA DO LOOP)
+    # Pegamos as 10 últimas sessoes e invertemos para a ordem cronológica correta (esquerda para direita)
+    grafico_qs = list(sessoes_qs[:10])[::-1] 
+    datas_grafico = [s.data_criacao.strftime("%d/%m") for s in grafico_qs]
+    
+    mapeamento_humor = {
+        'muito_feliz': 100, 'feliz': 80, 'neutro': 50, 
+        'triste': 30, 'muito_triste': 10, 'ansioso': 25, 'irritado': 20
+    }
+    scores_grafico = [mapeamento_humor.get(s.emocao_selecionada, 50) for s in grafico_qs]
+
+    # 4. Construção do Histórico (Loop limpo)
     historico = []
     for sessao in sessoes_qs:
         diario = getattr(sessao, 'diario', None)
         analises = []
+        
         if diario:
-            for resp in Resposta.objects.filter(diario=diario):
+            # select_related evita o problema de N+1 consultas ao banco
+            respostas = Resposta.objects.filter(diario=diario).select_related('analiseresposta')
+            for resp in respostas:
                 try:
                     an = resp.analiseresposta
                     analises.append({
@@ -190,7 +209,8 @@ def perfil_aluno_napne(request, aluno_id):
                         'score': round((an.score_sentimento or 0) * 100),
                         'texto': resp.texto_resposta,
                     })
-                except: pass
+                except: 
+                    pass
 
         historico.append({
             'sessao': sessao,
@@ -199,8 +219,16 @@ def perfil_aluno_napne(request, aluno_id):
             'precisa_atencao': sessao.emocao_selecionada in EMOCOES_ATENCAO,
         })
 
-    return render(request, 'analise/perfil_aluno_napne.html', {'aluno': aluno, 'historico': historico})
+    context = {
+        'aluno': aluno, 
+        'historico': historico, # Verifique se no HTML você usa 'historico' ou 'sessoes'
+        'total_registros': total_registros,
+        'total_alertas': total_alertas,
+        'datas_grafico': datas_grafico,
+        'scores_grafico': scores_grafico,
+    }
 
+    return render(request, 'analise/perfil_aluno_napne.html', context)
 
 
 @educador_required
