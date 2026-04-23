@@ -10,6 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+CHAVE_ACESSO_NAPNE = os.getenv('CHAVE_ACESSO_NAPNE')
 
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
 HF_TOKEN = os.getenv('HF_TOKEN')
