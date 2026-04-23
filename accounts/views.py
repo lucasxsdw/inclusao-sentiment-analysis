@@ -75,10 +75,10 @@ class RegisterServ(FormView):
 
     def form_valid(self, form):
         # 1. PEGA O CÓDIGO E FAZ A VERIFICAÇÃO AQUI
-        codigo_digitado = self.request.POST.get('codigo_acesso')
+        codigo_acesso = self.request.POST.get('codigo_acesso')
         CHAVE_SECRETA = settings.CHAVE_ACESSO_NAPNE
 
-        if codigo_digitado != CHAVE_SECRETA:
+        if codigo_acesso != CHAVE_SECRETA:
             # Mostra o erro na tela e interrompe o salvamento
             messages.error(self.request, "Código de autorização inválido! Verifique a chave com a instituição.")
             return self.form_invalid(form) # Retorna para a página sem salvar nada
