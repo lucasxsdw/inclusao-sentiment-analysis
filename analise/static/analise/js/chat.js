@@ -3,6 +3,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const inputMensagem = document.getElementById("mensagem-input");
     const btnEnviar = document.getElementById("btn-enviar");
 
+    // Elementos da Barra de Progresso
+    const barraProgresso = document.getElementById("progresso-barra");
+    const textoProgresso = document.getElementById("progresso-texto");
+
     // 1. Enviar ao clicar no botão
     btnEnviar.addEventListener("click", enviarMensagem);
 
@@ -57,6 +61,11 @@ document.addEventListener("DOMContentLoaded", function () {
             removerLoadingBot(idLoading);
 
             if (resposta.ok) {
+                // --- ATUALIZAÇÃO DA BARRA DE PROGRESSO ---
+                if (dados.progresso) {
+                    atualizarBarraProgresso(dados.progresso);
+                }
+
                 // Sucesso! A IA respondeu.
                 adicionarMensagemBot(dados.resposta_assistente);
 
@@ -75,6 +84,20 @@ document.addEventListener("DOMContentLoaded", function () {
             removerLoadingBot(idLoading);
             adicionarMensagemBot("Erro de conexão. Verifique se o servidor está rodando e sua internet.");
             console.error("Falha no Fetch:", erro);
+        }
+    }
+
+    // --- FUNÇÃO DA BARRA DE PROGRESSO ---
+    function atualizarBarraProgresso(valor) {
+        if (barraProgresso && textoProgresso) {
+            const porcentagem = (valor / 5) * 100;
+            barraProgresso.style.width = porcentagem + '%';
+            textoProgresso.innerText = `${valor} / 5`;
+
+            // Se atingir 100%, muda a cor para indicar finalização
+            if (valor >= 5) {
+                barraProgresso.style.background = "linear-gradient(90deg, #11998e 0%, #38ef7d 100%)";
+            }
         }
     }
 
@@ -127,7 +150,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // --- FUNÇÕES DE SEGURANÇA E AUXILIARES ---
 
-    // Prevenção de Segurança (XSS - Impede que injetem código HTML no chat)
     function escaparHTML(texto) {
         return texto
             .replace(/&/g, "&amp;")
@@ -137,7 +159,6 @@ document.addEventListener("DOMContentLoaded", function () {
             .replace(/'/g, "&#039;");
     }
 
-    // Função oficial do Django para ler o Token CSRF salvo nos cookies do navegador
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {

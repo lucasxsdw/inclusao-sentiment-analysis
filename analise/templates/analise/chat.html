@@ -30,6 +30,16 @@
       Em caso de emergência, procure ajuda imediatamente.
     </div>
 
+    <div class="progress-container" style="max-width: 800px; margin: 0 auto 15px auto; padding: 0 10px;">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9rem; font-weight: 600; color: #555;">
+        <span>Progresso do desabafo</span>
+        <span id="progresso-texto">0 / 5</span>
+    </div>
+    <div class="progress-bg" style="width: 100%; height: 10px; background: #e0e0e0; border-radius: 10px; overflow: hidden; border: 1px solid #ddd;">
+        <div id="progresso-barra" style="width: 0%; height: 100%; background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%); transition: width 0.5s ease-in-out;"></div>
+    </div>
+</div>
+
     <div class="chat-container">
       <div class="chat-messages" id="chat-box" role="log" aria-live="polite" aria-atomic="false">
 

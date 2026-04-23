@@ -122,8 +122,6 @@ def enviar_desabafo(request):
 
 
 
-
-
 # --- 3. NAPNE e Estatísticas (Corrigidos para data_criacao) ---
 @educador_required
 def painel_napne(request):
@@ -146,8 +144,6 @@ def painel_napne(request):
         'ativos_hoje': ativos_hoje,
         'atividade_recente': atividade_recente,
     })
-
-
 
 
 
@@ -183,7 +179,6 @@ def perfil_aluno_napne(request, aluno_id):
 
 
 
-
 @educador_required
 def listar_alunos(request):
     buscar = request.GET.get('buscar', '')
@@ -201,8 +196,6 @@ def listar_alunos(request):
             'precisa_atencao': ultima.emocao_selecionada in EMOCOES_ATENCAO if ultima else False
         })
     return render(request, 'analise/listar_alunos.html', {'alunos_lista': alunos_lista})
-
-
 
 
 @aluno_required

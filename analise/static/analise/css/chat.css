@@ -56,6 +56,17 @@ body {
     font-size: 14px;
 }
 
+
+/* Quando a barra chegar em 100% (5/5), ela fica verde ou azul escuro */
+.progress-finalizada {
+    background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%) !important;
+}
+
+/* Efeito de brilho quando a barra sobe */
+#progresso-barra {
+    box-shadow: 0 0 10px rgba(79, 172, 254, 0.5);
+}
+
 /* CHAT BOX */
 .chat-container {
     max-width: 800px;
