@@ -1,0 +1,180 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background-color: #f8fafc; /* Clareado levemente para melhorar o contraste */
+}
+
+/* Foco de Acessibilidade (Navegação por TAB) */
+a:focus-visible, button:focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 3px;
+  border-radius: 12px;
+}
+
+/* MAIN */
+.container {
+  max-width: 1200px;
+  margin: 20px auto 40px auto;
+  padding: 0 20px;
+}
+
+/* HERO CARD */
+.hero {
+  background: linear-gradient(135deg, #0f9d8a, #1fb8c9);
+  color: white;
+  padding: 40px 30px; /* Mais padding em vez de height fixo */
+  border-radius: 25px;
+  position: relative;
+  overflow: hidden;
+  /* REMOVIDO o height: 170px para o texto não vazar no mobile */
+}
+
+.hero h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-top: 5px;
+  line-height: 1.2;
+}
+
+.hero p {
+  margin-top: 10px;
+  font-size: 18px;
+  opacity: 0.95;
+}
+
+/* SECTION TITLE */
+.section-title {
+  margin: 40px 0 20px 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* ACTION CARDS - Mágica do Grid Automático */
+.cards {
+  display: grid;
+  /* O auto-fit cria as colunas sozinho dependendo do tamanho da tela! */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+}
+
+.card {
+  background: white;
+  padding: 30px 25px;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  color: #1e293b;
+  border: 1px solid #f1f5f9;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.icon-box {
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 26px;
+  margin-bottom: 20px;
+}
+
+.green { background: #14b8a6; } /* Verde-água padronizado do projeto */
+.purple { background: linear-gradient(135deg, #a855f7, #ec4899); }
+.orange { background: #f97316; }
+
+.card h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.card p {
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* INFO CARD */
+.info {
+  background: #fdf4ff; /* Um fundo mais suave */
+  border: 1px solid #fae8ff;
+  padding: 25px 30px;
+  border-radius: 20px;
+  margin-top: 40px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.info-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #a855f7, #ec4899);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0; /* Impede o ícone de esmagar no celular */
+}
+
+.info-icon img {
+  width: 30px;
+}
+
+.info h4 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #86198f; /* Tom de texto mais legível */
+  margin-bottom: 5px;
+}
+
+.info p {
+  font-size: 14.5px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+/* ============================================== */
+/* RESPONSIVO MÓVEL (Telas menores que 768px)     */
+/* ============================================== */
+@media(max-width: 768px) {
+  
+  .hero {
+    padding: 30px 20px;
+  }
+
+  .hero h1 {
+    font-size: 26px; /* Texto menor no celular */
+  }
+
+  .hero p {
+    font-size: 16px;
+  }
+
+  /* O card de aviso inferior empilha no celular */
+  .info {
+    flex-direction: column;
+    text-align: center;
+    padding: 30px 20px;
+  }
+
+  .info-icon {
+    margin-bottom: 5px;
+  }
+}

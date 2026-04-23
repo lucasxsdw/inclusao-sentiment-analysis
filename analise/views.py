@@ -126,24 +126,46 @@ def enviar_desabafo(request):
 @educador_required
 def painel_napne(request):
     hoje = timezone.now().date()
-    # Ajustado para data_criacao
-    ativos_hoje = SessaoEmocional.objects.filter(data_criacao__date=hoje).values('aluno').distinct().count()
-    precisa_atencao = SessaoEmocional.objects.filter(data_criacao__date=hoje, emocao_selecionada__in=EMOCOES_ATENCAO).select_related('aluno__usuario')  
     
+    # 1. Alunos ativos hoje (usando o novo campo data_criacao)
+    ativos_hoje = SessaoEmocional.objects.filter(data_criacao__date=hoje).values('aluno').distinct().count()
+    
+    # 2. Lógica para o Card de Alunos que Requerem Atenção
+    # Pegamos as sessões de hoje que estão na lista de EMOCOES_ATENCAO
+    sessoes_atencao = SessaoEmocional.objects.filter(
+        data_criacao__date=hoje, 
+        emocao_selecionada__in=EMOCOES_ATENCAO
+    ).select_related('aluno__usuario').order_by('-data_criacao')
+
+    # Criamos uma lista processada para o HTML não quebrar e não repetir aluno
+    alunos_atencao_processados = []
+    ids_vistos = set()
+
+    for sessao in sessoes_atencao:
+        if sessao.aluno_id not in ids_vistos:
+            alunos_atencao_processados.append({
+                'aluno': sessao.aluno,
+                'emoji': EMOCAO_EMOJI.get(sessao.emocao_selecionada, '😐'),
+                'data': sessao.data_criacao
+            })
+            ids_vistos.add(sessao.aluno_id)
+
+    # 3. Atividade Recente (Histórico lateral/inferior)
     atividade_recente = []
-    # Ajustado para data_criacao
-    for sessao in SessaoEmocional.objects.select_related('aluno__usuario').order_by('-data_criacao')[:20]:
+    recentes_qs = SessaoEmocional.objects.select_related('aluno__usuario').order_by('-data_criacao')[:20]
+    
+    for sessao in recentes_qs:
         atividade_recente.append({
             'sessao': sessao,
             'emoji': EMOCAO_EMOJI.get(sessao.emocao_selecionada, '😐'),
             'precisa_atencao': sessao.emocao_selecionada in EMOCOES_ATENCAO,
-            'nome': sessao.aluno.usuario.get_full_name() if sessao.aluno else 'Anônimo',
+            'nome': sessao.aluno.usuario.get_full_name() if sessao.aluno else 'Aluno desconhecido',
         })
 
     return render(request, 'analise/painel_napne.html', {
         'total_alunos': Aluno.objects.count(),
         'ativos_hoje': ativos_hoje,
-        'precisa_atencao': precisa_atencao,
+        'precisa_atencao': alunos_atencao_processados, # Agora com os emojis certos!
         'atividade_recente': atividade_recente,
     })
 

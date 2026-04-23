@@ -1,0 +1,205 @@
+/* ================= RESET E FONTES GLOBAIS ================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', 'Segoe UI', sans-serif; /* Força a fonte moderna em tudo! */
+}
+
+body {
+    background-color: #f8fafc; /* Um fundo cinza super clarinho para destacar os cartões brancos */
+    color: #1f2937;
+}
+
+
+/* Header */
+.header {
+  border-bottom: 1px solid #5cf9e7;
+  background-color: #fff;
+}
+
+/* Container principal (GRID PROFISSIONAL) */
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px 20px;
+
+  display: grid;
+  grid-template-columns: auto 1fr auto; /* esquerda | centro | direita */
+  align-items: center;
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 30px; /* 👈 AQUI resolve o problema dos cantos */
+}
+
+
+/* Menu toggle (mobile) */
+.menu-toggle {
+  display: none;
+  font-size: 23px;
+  cursor: pointer;
+}
+
+/* ================= LOGO ================= */
+.logo-area {
+  justify-self: start;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #111;
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border-radius: 10px;
+  background-color: #14b8a6;
+}
+
+.logo-text strong {
+  font-size: 16px;
+  display: block;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: #14b8a6;
+}
+
+/* ================= NAV (CENTRO) ================= */
+.nav {
+  justify-self: center;
+}
+
+.nav-list {
+  display: flex;
+  list-style: none;
+  gap: 30px;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  text-decoration: none;
+  color: #333;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  background-color: #c0e4e0;
+}
+
+.nav-link:focus-visible {
+  outline: 3px solid #4caf50;
+}
+
+.nav-icon {
+  height: 17px;
+}
+
+/* ================= USER ================= */
+.user-group {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-area {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #111;
+}
+
+.user-role {
+  font-size: 12px;
+  color: #14b8a6;
+}
+
+/* ================= LOGOUT ================= */
+.logout-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.icon-logout {
+  height: 17px;
+}
+
+.logout-btn:focus-visible {
+  outline: 3px solid #4caf50;
+}
+
+/* ================= RESPONSIVO ================= */
+@media (max-width: 768px) {
+
+  .header-container {
+    grid-template-columns: 1fr; /* empilha tudo */
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .nav {
+    display: none;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .nav.active {
+    display: flex;
+  }
+
+  .nav-list {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .nav-link {
+    width: 100%;
+    padding: 12px;
+  }
+
+  .user-group {
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+
+  .user-area {
+    align-items: flex-start;
+  }
+}
+
+footer {
+  margin-top: 60px;
+  padding: 20px 40px;
+  display: flex;
+  justify-content: space-between;
+  color: #64748b;
+  font-size: 14px;
+  border-top: 1px solid #5cf9e7;
+}

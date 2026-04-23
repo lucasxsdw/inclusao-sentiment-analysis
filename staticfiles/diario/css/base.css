@@ -1,0 +1,228 @@
+/* ================= RESET E FONTES GLOBAIS ================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', 'Segoe UI', sans-serif; /* Força a fonte moderna em tudo! */
+}
+
+body {
+    background-color: #f8fafc; /* Fundo cinza super clarinho para destacar os cartões brancos */
+    color: #1f2937;
+}
+
+/* ================= HEADER PRINCIPAL ================= */
+.header {
+    border-bottom: 1px solid #5cf9e7;
+    background-color: #fff;
+}
+
+/* Container Desktop (Flexbox Inteligente) */
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* ================= LOGO (ESQUERDA) ================= */
+.logo-area {
+    order: 1; /* Garante que a logo seja a 1ª no desktop */
+    display: flex;
+}
+
+.logo-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: #111;
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+    border-radius: 10px;
+    background-color: #14b8a6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-text strong {
+    font-size: 16px;
+    display: block;
+}
+
+.subtitle {
+    font-size: 12px;
+    color: #14b8a6;
+}
+
+/* ================= NAV (CENTRO) ================= */
+.nav {
+    order: 2; /* Garante que o menu fique no meio no desktop */
+    flex: 1; /* Ocupa o espaço vazio, empurrando o resto pras bordas */
+    display: flex;
+    justify-content: center;
+}
+
+.nav-list {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    text-decoration: none;
+    color: #333;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+    background-color: #c0e4e0;
+}
+
+.nav-icon {
+    height: 17px;
+}
+
+/* ================= USUÁRIO (DIREITA) ================= */
+.user-area {
+    order: 3; /* Garante que fique na direita */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-right: 15px; /* Espaço entre o usuário e o botão de sair */
+}
+
+.user-name {
+    font-weight: 600;
+    color: #111;
+}
+
+.user-role {
+    font-size: 12px;
+    color: #14b8a6;
+}
+
+/* ================= BOTÃO SAIR (EXTREMA DIREITA) ================= */
+.form-sair {
+    order: 4; /* Garante que seja o último item no desktop */
+}
+
+.logout-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.logout-btn:hover {
+    background: #fee2e2;
+}
+
+.icon-logout {
+    height: 17px;
+}
+
+/* ================= MENU TOGGLE (Oculto no Desktop) ================= */
+.menu-toggle {
+    display: none;
+    font-size: 26px;
+    cursor: pointer;
+}
+
+/* Foco de Acessibilidade (Navegação por Teclado) */
+.nav-link:focus-visible, .logout-btn:focus-visible, .menu-toggle:focus-visible {
+    outline: 3px solid #f59e0b;
+    outline-offset: 3px;
+    border-radius: 8px;
+}
+
+
+/* ================= RESPONSIVO (CELULAR) ================= */
+@media (max-width: 768px) {
+  
+  .header-container {
+    display: grid;
+    grid-template-columns: 1fr auto; /* Coluna 1 cresce, Coluna 2 abraça o conteúdo */
+    
+    /* A MÁGICA DO CELULAR: O mapa do layout ignora a regra do "order" */
+    grid-template-areas: 
+      "logo   usuario"
+      "menu   sair"
+      "nav    nav";
+    
+    row-gap: 12px; /* Espaço entre a linha de cima e a de baixo */
+    align-items: center; /* Centraliza as coisas na vertical */
+  }
+
+  /* Posicionando cada peça no mapa */
+  .logo-area { grid-area: logo; }
+  
+  .user-area { 
+    grid-area: usuario; 
+    text-align: right; 
+    margin-right: 0; /* Remove a margem do desktop */
+  }
+
+  .menu-toggle { 
+    grid-area: menu; 
+    display: flex;
+    justify-self: start; /* Joga os 3 traços para a extrema esquerda */
+    color: #111;
+  }
+
+  .form-sair { 
+    grid-area: sair; 
+    justify-self: end; /* Joga o botão de sair para a extrema direita */
+  }
+
+  /* Controle do Menu que abre e fecha */
+  .nav { 
+    grid-area: nav; 
+    display: none; 
+    width: 100%; 
+    border-top: 1px solid #e2e8f0; 
+    padding-top: 15px;
+  }
+  
+  .nav.active { display: flex; }
+  .nav-list { flex-direction: column; width: 100%; gap: 10px; }
+  .nav-link { width: 100%; padding: 12px; background: #f8fafc; }
+}
+
+/* ================= FOOTER ================= */
+footer {
+  margin-top: 60px;
+  padding: 20px 40px;
+  display: flex;
+  justify-content: space-between;
+  color: #64748b;
+  font-size: 14px;
+  border-top: 1px solid #5cf9e7;
+}
+
+@media (max-width: 768px) {
+    footer {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        text-align: center;
+    }
+}

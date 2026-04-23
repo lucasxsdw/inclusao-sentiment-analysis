@@ -1,0 +1,271 @@
+:root {
+  /* Cores ajustadas para passar no teste de contraste WCAG AA */
+  --primary: #0f766e; 
+  --primary-dark: #115e59;
+  --bg: #f8fafc;
+  --text: #1f2937;
+  --border: #cbd5e1;
+  --erro: #dc2626; /* Vermelho mais forte para daltônicos */
+  --foco: #f59e0b; /* Laranja de alerta para navegação por teclado */
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Foco global de Acessibilidade (Visível apenas para navegação por teclado Tab) */
+a:focus-visible, 
+button:focus-visible, 
+input:focus-visible, 
+textarea:focus-visible, 
+select:focus-visible {
+  outline: 3px solid var(--foco);
+  outline-offset: 3px;
+}
+
+/* LAYOUT: Mobile First (Padrão é celular) */
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* INFO AREA */
+.info-area {
+  background: var(--primary);
+  color: white;
+  padding: 40px 20px; /* Reduzido para o mobile não precisar rolar tanto */
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  width: 45px;
+  height: 45px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-icon img {
+  width: 24px;
+}
+
+.subtitle {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.hero-text h2 {
+  font-size: 26px;
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+
+.hero-text p {
+  line-height: 1.5;
+  font-size: 15px;
+}
+
+/* LGPD BOX */
+.lgpd-box {
+  background: rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 18px;
+  border-radius: 12px;
+}
+
+.lgpd-box h3 {
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+.lgpd-box p {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* BENEFITS */
+.benefits {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 15px;
+}
+
+.benefits li::before {
+  content: "✓ ";
+  font-weight: 800;
+  color: #a7f3d0; /* Um verde clarinho para destacar o check */
+}
+
+/* FORM AREA */
+.form-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 15px; /* Compacto no mobile */
+}
+
+.form-card {
+  background: white;
+  padding: 30px 20px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.back-link {
+  display: inline-block;
+  text-decoration: none;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  transition: color 0.2s;
+}
+
+.back-link:hover {
+  color: var(--primary);
+}
+
+.form-card h2 {
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+
+.form-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 25px;
+}
+
+/* FORM GROUPS */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px;
+}
+
+label {
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+}
+
+/* INPUTS */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+select,
+textarea {
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 15px;
+  width: 100%;
+  background: #f8fafc;
+  color: #1e293b;
+  transition: all 0.2s;
+}
+
+textarea {
+  resize: vertical; /* Permite crescer apenas para baixo */
+  min-height: 100px;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  background: white;
+  outline: none; /* Desliga o outline padrão para usar o border */
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+}
+
+/* ERRO */
+.erro {
+  color: var(--erro);
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.erro::before {
+  content: "⚠️";
+}
+
+/* BUTTON */
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  background: var(--primary);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 10px;
+}
+
+.submit-btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.2);
+}
+
+/* ========================================= */
+/* MODO DESKTOP (Telas maiores que 900px)    */
+/* ========================================= */
+@media (min-width: 900px) {
+  .container {
+    flex-direction: row; /* Coloca lado a lado */
+    height: 100vh;
+  }
+
+  .info-area {
+    flex: 1; /* Ocupa metade da tela */
+    padding: 60px;
+    justify-content: center;
+    gap: 40px;
+  }
+
+  .form-area {
+    flex: 1; /* Ocupa a outra metade */
+    padding: 40px;
+    overflow-y: auto; /* A rolagem fica só do lado do formulário */
+  }
+
+  .form-card {
+    padding: 40px;
+  }
+
+  .hero-text h2 {
+    font-size: 38px;
+  }
+}
