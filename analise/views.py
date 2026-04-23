@@ -229,40 +229,35 @@ def perfil_aluno_napne(request, aluno_id):
 
     return render(request, 'analise/perfil_aluno_napne.html', context)
 
-
 @educador_required
 def listar_alunos(request):
     buscar = request.GET.get('buscar', '')
+    tipo_deficiencia = request.GET.get('deficiencia', '')
+    
     todos_alunos = Aluno.objects.select_related('usuario').all().order_by('usuario__first_name')
     
-    
-    if request.GET.get('deficiencia'):
-        tipo_deficiencia = request.GET['deficiencia']
+    # Filtros
+    if tipo_deficiencia:
         todos_alunos = todos_alunos.filter(tipo_deficiencia=tipo_deficiencia)
-    
-    
     
     if buscar:
         todos_alunos = todos_alunos.filter(usuario__first_name__icontains=buscar)
 
     alunos_lista = []
     for a in todos_alunos:
-        # Ajustado para data_criacao
         ultima = SessaoEmocional.objects.filter(aluno=a).order_by('-data_criacao').first()
         alunos_lista.append({
             'aluno': a,
             'emoji_ultimo': EMOCAO_EMOJI.get(ultima.emocao_selecionada, '😐') if ultima else '',
             'precisa_atencao': ultima.emocao_selecionada in EMOCOES_ATENCAO if ultima else False
         })
-    return render(request, 'analise/listar_alunos.html', {
-        
-        'alunos_lista': alunos_lista,
-        'total_alunos': todos_alunos.count(),  
-        'tipo_deficiencia': request.GET.get('deficiencia', '')
-        
-        
-        })
 
+    return render(request, 'analise/listar_alunos.html', {
+        'alunos_lista': alunos_lista,
+        'total_alunos': todos_alunos.count(),
+        'tipo_deficiencia': tipo_deficiencia, # Variável para o selected
+        'buscar': buscar # Para manter o texto na barra de busca
+    })
 
 @aluno_required
 def historico_emocional(request):
