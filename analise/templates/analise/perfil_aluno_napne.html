@@ -53,19 +53,19 @@
         </div>
         <p class="description">Os seguintes registros indicam que o aluno pode estar passando por dificuldades emocionais. Considere uma abordagem acolhedora e, se necessário, encaminhe para atendimento especializado.</p>
 
-        {% for item in sessoes %}
+        {% for item in historico %}
             {% if item.precisa_atencao %}
             <div class="list-item-highlight">
                 <span class="emoji" aria-hidden="true">{{ item.emoji }}</span>
                 <div>
-                    <span class="status">{{ item.sessao.emocao_selecionada|title }}</span>
-                    <span class="timestamp">{{ item.sessao.data_inicio|date:"j \d\e F \à\s H:i" }}</span>
+                    <span class="status">{{ item.sessao.get_emocao_selecionada_display|default:item.sessao.emocao_selecionada|title }}</span>
+                    <span class="timestamp">{{ item.sessao.data_criacao|date:"j \d\e F \à\s H:i" }}</span>
                 </div>
             </div>
             {% endif %}
         {% endfor %}
     </section>
-    {% endif %}
+{% endif %}
 
     <section class="grafico-container" aria-label="Gráfico de Evolução Emocional">
         <h3>📈 Evolução Emocional</h3>
@@ -75,7 +75,7 @@
     <section aria-labelledby="timeline-titulo">
         <h2 class="section-title" id="timeline-titulo">📅 Linha do Tempo</h2>
 
-        {% if sessoes %}
+        {% if historico %}
             {% for item in historico %}
             <article class="sessao-card" id="card-{{ forloop.counter }}">
 
