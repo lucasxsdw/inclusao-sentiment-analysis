@@ -27,7 +27,7 @@
 
     <section aria-label="Alunos que requerem atenção">
         <div class="cards">
-          {% for item in alunos_atencao %}
+          {% for item in precisa_atencao %}
           <a href="{% url 'perfil_aluno_napne' item.aluno.id %}" class="card" style="border-left: 4px solid #f59e0b;">
             <div class="icon-box orange" aria-hidden="true">
               <span style="font-size: 24px;">{{ item.emoji }}</span>

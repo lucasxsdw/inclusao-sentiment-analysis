@@ -129,6 +129,7 @@ def painel_napne(request):
     # Ajustado para data_criacao
     ativos_hoje = SessaoEmocional.objects.filter(data_criacao__date=hoje).values('aluno').distinct().count()
     
+    
     atividade_recente = []
     # Ajustado para data_criacao
     for sessao in SessaoEmocional.objects.select_related('aluno__usuario').order_by('-data_criacao')[:20]:
