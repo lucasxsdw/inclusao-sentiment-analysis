@@ -121,7 +121,6 @@ def enviar_desabafo(request):
             return JsonResponse({'erro': str(e)}, status=500)
 
 
-
 # --- 3. NAPNE e Estatísticas (Corrigidos para data_criacao) ---
 @educador_required
 def painel_napne(request):
@@ -247,7 +246,13 @@ def listar_alunos(request):
             'emoji_ultimo': EMOCAO_EMOJI.get(ultima.emocao_selecionada, '😐') if ultima else '',
             'precisa_atencao': ultima.emocao_selecionada in EMOCOES_ATENCAO if ultima else False
         })
-    return render(request, 'analise/listar_alunos.html', {'alunos_lista': alunos_lista})
+    return render(request, 'analise/listar_alunos.html', {
+        
+        'alunos_lista': alunos_lista,
+        'total_alunos': todos_alunos.count()    
+        
+        
+        })
 
 
 @aluno_required
