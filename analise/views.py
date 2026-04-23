@@ -291,19 +291,68 @@ def historico_emocional(request):
         })
     return render(request, 'analise/perfil_aluno_napne.html', {'sessoes': historico})
 
+
+
+
+
+from django.db.models import Count, Avg
+from datetime import timedelta
+
 @educador_required
 def estatisticas_gerais(request):
     trinta_dias = timezone.now() - timedelta(days=30)
-    # Ajustado para data_criacao
-    sessoes = SessaoEmocional.objects.filter(data_criacao__gte=trinta_dias)
-    distribuicao = sessoes.values('emocao_selecionada').annotate(total=Count('id')).order_by('-total')
+    # Filtro base usando o campo corrigido data_criacao
+    sessoes_qs = SessaoEmocional.objects.filter(data_criacao__gte=trinta_dias)
     
-    return render(request, 'analise/estatisticas_gerais.html', {
-        'total_registros': sessoes.count(),
+    # 1. KPIs Básicos
+    total_registros = sessoes_qs.count()
+    alunos_ativos = sessoes_qs.values('aluno').distinct().count()
+    alertas_atencao = sessoes_qs.filter(emocao_selecionada__in=EMOCOES_ATENCAO).count()
+
+    # 2. Distribuição para o Gráfico de Pizza/Rosca
+    distribuicao = sessoes_qs.values('emocao_selecionada').annotate(total=Count('id')).order_by('-total')
+    
+    # 3. Cálculo de Níveis Médios (Lógica de Bem-estar)
+    # Mapeamos as emoções para pesos de 0 a 100
+    mapeamento = {
+        'muito_feliz': 100, 'feliz': 80, 'neutro': 50, 
+        'triste': 30, 'muito_triste': 10, 'ansioso': 25, 'irritado': 20
+    }
+    
+    # Inicializamos variáveis
+    soma_bem_estar = 0
+    cont_tristeza = 0
+    cont_ansiedade = 0
+    
+    for s in sessoes_qs:
+        peso = mapeamento.get(s.emocao_selecionada, 50)
+        soma_bem_estar += peso
+        if s.emocao_selecionada in ['triste', 'muito_triste']:
+            cont_tristeza += 1
+        if s.emocao_selecionada == 'ansioso':
+            cont_ansiedade += 1
+
+    # Cálculo das porcentagens para as barras de progresso
+    def calcular_porcentagem(parte, total):
+        return round((parte / total * 100)) if total > 0 else 0
+
+    bem_estar_medio = round(soma_bem_estar / total_registros) if total_registros > 0 else 0
+    nivel_tristeza = calcular_porcentagem(cont_tristeza, total_registros)
+    nivel_ansiedade = calcular_porcentagem(cont_ansiedade, total_registros)
+
+    context = {
+        'total_registros': total_registros,
+        'alunos_ativos': alunos_ativos,
+        'alertas_atencao': alertas_atencao,
+        'bem_estar_medio': bem_estar_medio,
+        'nivel_tristeza': nivel_tristeza,
+        'nivel_ansiedade': nivel_ansiedade,
         'labels_dist': [item['emocao_selecionada'].capitalize() for item in distribuicao],
         'valores_dist': [item['total'] for item in distribuicao],
-    })
-
+    }
+    
+    return render(request, 'analise/estatisticas_gerais.html', context)
+    
 @educador_required
 def configuracoes_servidor(request):
     if request.method == 'POST':
