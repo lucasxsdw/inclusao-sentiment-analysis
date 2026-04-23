@@ -45,7 +45,8 @@
             <select name="deficiencia" aria-label="Filtrar por tipo de deficiência">
                 <option value="">Todas as deficiências</option>
 
-                <option value="tea" {% if tipo_deficiencia=="tea" %}selected{% endif %}>Transtorno do Espectro Autista (TEA)</option>
+                <option value="tea" {% if tipo_deficiencia=="tea" %}selected{% endif %}>Transtorno do Espectro Autista
+                    (TEA)</option>
 
                 <option value="baixa_visao" {% if tipo_deficiencia=="baixa_visao" %}selected{% endif %}>Baixa Visão
                 </option>
@@ -54,18 +55,20 @@
 
                 <option value="surdez" {% if tipo_deficiencia=="surdez" %}selected{% endif %}>Surdez</option>
 
-                <option value="fisica" {% if tipo_deficiencia=="fisica" %}selected{% endif %}>Deficiência Física
-                </option>
+                <option value="surdocegueira" {% if tipo_deficiencia=="surdocegueira" %}selected{% endif %}>
+                    Surdocegueira</option>
 
-                <option value="intelectual" {% if tipo_deficiencia=="intelectual" %}selected{% endif %}>Deficiência
-                    Intelectual</option>
+                <option value="deficiencia_fisica" {% if tipo_deficiencia=="deficiencia_fisica" %}selected{% endif %}>
+                    Deficiência Física</option>
+
+                <option value="deficiencia_intelectual" {% if tipo_deficiencia=="deficiencia_intelectual" %}selected{%
+                    endif %}>Deficiência Intelectual</option>
 
                 <option value="tdah" {% if tipo_deficiencia=="tdah" %}selected{% endif %}>TDAH</option>
 
                 <option value="dislexia" {% if tipo_deficiencia=="dislexia" %}selected{% endif %}>Dislexia</option>
 
-                <option value="outras" {% if tipo_deficiencia=="outras" %}selected{% endif %}>Outras Deficiências
-                </option>
+                <option value="outro" {% if tipo_deficiencia=="outro" %}selected{% endif %}>Outro</option>
             </select>
         </div>
 
