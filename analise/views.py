@@ -40,13 +40,13 @@ EMOCAO_EMOJI = {
     'surpresa': '😲', 'nojo': '🤢',
 }
 
+
 # --- 2. Chat e Desabafo ---
 @aluno_required
 def enviar_desabafo(request):
     if request.method == "GET":
         diario_id = request.session.get('diario_atual_id')
         mensagem_inicial = "Olá! Este é o seu espaço seguro. Como você está se sentindo hoje?"
-
         if diario_id:
             try:
                 diario = Diario.objects.get(id=diario_id)
@@ -54,70 +54,75 @@ def enviar_desabafo(request):
                     mensagem_inicial = diario.mensagem_inicial_ia
             except Diario.DoesNotExist:
                 pass
-
         return render(request, 'analise/chat.html', {'mensagem_inicial': mensagem_inicial})
 
     if request.method == 'POST':
         try:
             dados = json.loads(request.body)
             texto_aluno = dados.get('texto_resposta', '').strip()
-
-            if not texto_aluno:
-                return JsonResponse({'erro': 'O texto não pode estar vazio.'}, status=400)
-
             diario_id = request.session.get('diario_atual_id')
+
             if not diario_id:
                 return JsonResponse({'erro': 'Sessão expirada.'}, status=400)
 
             diario_vinculo = Diario.objects.get(id=diario_id)
             
-            # Limite de 5 mensagens
-            if Resposta.objects.filter(diario=diario_vinculo).count() >= 5:
-                return JsonResponse({
-                    'sucesso': True,
-                    'resposta_assistente': "Nossa sessão chegou ao fim. Procure o NAPNE se precisar. 💙",
-                    'fim_de_sessao': True
-                })
+            # 1. Contagem ATUAL de mensagens
+            total_mensagens = Resposta.objects.filter(diario=diario_vinculo).count()
 
-            # Salva a resposta
+            # 2. Salva a resposta do aluno
             nova_resposta = Resposta.objects.create(
                 texto_resposta=texto_aluno,
                 diario=diario_vinculo,
                 pergunta=Pergunta.objects.order_by("?").first()
             )
 
-            # IA de Sentimento
+            # 3. IA de Sentimento
             emocao_ptbr = 'neutro'
             try:
                 resultado_ia = analisar_e_salvar(nova_resposta)
                 emocao_ptbr = resultado_ia["label"] if resultado_ia else "neutro"
             except: pass
 
-            # IA de Chat (Groq)
-            try:
-                perfil = None
-                al = getattr(request.user, 'perfil_aluno', None)
-                if al:
-                    perfil = {
-                        'nome': request.user.username,
-                        'tipo_deficiencia': al.get_tipo_deficiencia_display()
-                    }
-                resposta_bot = gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil)
-            except:
-                resposta_bot = "Entendo. Me conte mais sobre isso?"
+            # 4. Geração de resposta (Agora enviando o diario_id para ter MEMÓRIA)
+            perfil = None
+            al = getattr(request.user, 'perfil_aluno', None)
+            if al:
+                perfil = {
+                    'nome': request.user.username,
+                    'tipo_deficiencia': al.get_tipo_deficiencia_display(),
+                    'necessidades_especificas': al.necessidades_especificas
+                }
+            
+            # AQUI: Adicionamos o diario_id para a IA ler o histórico
+            resposta_bot = gerar_pergunta_diario(emocao_ptbr, texto_aluno, perfil, diario_id=diario_id)
 
-            fim_de_sessao = Resposta.objects.filter(diario=diario_vinculo).count() >= 5
+            # 5. Lógica de Encerramento (Sexta interação ou limite atingido)
+            novo_total = total_mensagens + 1
+            fim_de_sessao = novo_total >= 5
+
+            if fim_de_sessao:
+                resposta_bot = (
+                    "Agradeço muito por confiar em mim e compartilhar seus sentimentos hoje. "
+                    "Nossa conversa de hoje termina aqui, mas lembre-se: eu estarei aqui amanhã se precisar desabafar de novo. "
+                    "Se estiver se sentindo muito sobrecarregado, não deixe de procurar o NAPNE. 💙"
+                )
 
             return JsonResponse({
                 'sucesso': True,
                 'mensagem_aluno': texto_aluno,
                 'emocao_detectada': emocao_ptbr,
                 'resposta_assistente': resposta_bot,
-                'fim_de_sessao': fim_de_sessao
+                'fim_de_sessao': fim_de_sessao,
+                'progresso': novo_total  # Enviamos o número para a barra de progresso
             })
 
         except Exception as e:
             return JsonResponse({'erro': str(e)}, status=500)
+
+
+
+
 
 # --- 3. NAPNE e Estatísticas (Corrigidos para data_criacao) ---
 @educador_required
@@ -141,6 +146,10 @@ def painel_napne(request):
         'ativos_hoje': ativos_hoje,
         'atividade_recente': atividade_recente,
     })
+
+
+
+
 
 @educador_required
 def perfil_aluno_napne(request, aluno_id):
@@ -172,6 +181,9 @@ def perfil_aluno_napne(request, aluno_id):
 
     return render(request, 'analise/perfil_aluno_napne.html', {'aluno': aluno, 'historico': historico})
 
+
+
+
 @educador_required
 def listar_alunos(request):
     buscar = request.GET.get('buscar', '')
@@ -189,6 +201,9 @@ def listar_alunos(request):
             'precisa_atencao': ultima.emocao_selecionada in EMOCOES_ATENCAO if ultima else False
         })
     return render(request, 'analise/listar_alunos.html', {'alunos_lista': alunos_lista})
+
+
+
 
 @aluno_required
 def historico_emocional(request):
