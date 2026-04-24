@@ -688,3 +688,56 @@ body::before {
         display: inline-block;
     }
 }
+
+
+/* Card de Depoimento Ajustado */
+.testimonial-card {
+    background: linear-gradient(145deg, #1e1b4b, #0f172a);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    padding: 30px;
+    width: 100%;
+    max-width: 500px; /* Largura controlada */
+    position: relative;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Nova Badge Acadêmica (Substitui o floating-btn que estava quebrando) */
+.badge-projeto {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: bold;
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Ajuste do Texto */
+.quote-text {
+    font-size: 22px; /* Reduzi um pouco para caber melhor */
+    color: #f8fafc;
+    font-weight: 500;
+    line-height: 1.4;
+    margin: 20px 0;
+}
+
+/* Remove a animação que estava jogando o elemento para fora */
+.floating-btn { display: none; } /* Pode apagar a classe antiga se quiser */
+
+/* Ajuste das Stats para não amontoar */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    text-align: center;
+    margin-top: 10px;
+}
