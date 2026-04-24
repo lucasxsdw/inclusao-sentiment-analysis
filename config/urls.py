@@ -17,8 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
+from diario.views import homePageViews
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    
+    path('', homePageViews.as_view(), name='index'),
+    
     path('diario/', include('diario.urls')),
     path('analise/', include('analise.urls')),
     # Add this line to include Django’s auth URLs

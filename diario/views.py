@@ -32,14 +32,17 @@ class sobre(TemplateView):
 # PÁGINAS DO ALUNO (Protegidas)
 # ---------------------------------------------------------
 
+@login_required
 @method_decorator(aluno_required, name='dispatch')
 class HomeView(TemplateView):
     template_name = 'diario/home.html'  
 
+@login_required
 @method_decorator(aluno_required, name='dispatch')
 class EmotionsView(TemplateView):
     template_name = 'diario/emotions.html'
 
+@login_required
 @aluno_required
 def salvar_emocao(request):
     if request.method == 'POST':
@@ -83,6 +86,8 @@ def salvar_emocao(request):
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
     return JsonResponse({'status': 'error', 'message': 'Método inválido'}, status=405)
 
+
+@login_required
 @aluno_required
 def painel_aluno(request):
     try:
@@ -114,6 +119,8 @@ def painel_aluno(request):
         'heatmap_dias': heatmap_dias,
     })
 
+
+@login_required
 @aluno_required
 def configuracoes_perfil(request):
     if request.method == 'POST':

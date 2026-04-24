@@ -42,6 +42,7 @@ EMOCAO_EMOJI = {
 
 
 # --- 2. Chat e Desabafo ---
+@login_required
 @aluno_required
 def enviar_desabafo(request):
     if request.method == "GET":
@@ -122,6 +123,7 @@ def enviar_desabafo(request):
 
 
 # --- 3. NAPNE e Estatísticas (Corrigidos para data_criacao) ---
+@login_required
 @educador_required
 def painel_napne(request):
     hoje = timezone.now().date()
@@ -169,6 +171,7 @@ def painel_napne(request):
     })
 
 
+@login_required
 @educador_required
 def perfil_aluno_napne(request, aluno_id):
     aluno = get_object_or_404(Aluno, id=aluno_id)
@@ -230,7 +233,7 @@ def perfil_aluno_napne(request, aluno_id):
     return render(request, 'analise/perfil_aluno_napne.html', context)
 
 
-
+@login_required
 @educador_required
 def listar_alunos(request): # REMOVIDO o aluno_id daqui
     buscar = request.GET.get('buscar', '')
@@ -270,12 +273,9 @@ def listar_alunos(request): # REMOVIDO o aluno_id daqui
         'buscar': buscar,
     })
     
+ 
     
-    
-    
-    
-    
-    
+@login_required
 @aluno_required
 def historico_emocional(request):
     aluno = getattr(request.user, 'perfil_aluno', None)
@@ -292,12 +292,7 @@ def historico_emocional(request):
     return render(request, 'analise/perfil_aluno_napne.html', {'sessoes': historico})
 
 
-
-
-
-from django.db.models import Count, Avg
-from datetime import timedelta
-
+@login_required
 @educador_required
 def estatisticas_gerais(request):
     trinta_dias = timezone.now() - timedelta(days=30)
@@ -352,7 +347,8 @@ def estatisticas_gerais(request):
     }
     
     return render(request, 'analise/estatisticas_gerais.html', context)
-    
+  
+@login_required  
 @educador_required
 def configuracoes_servidor(request):
     if request.method == 'POST':
