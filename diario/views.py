@@ -37,7 +37,7 @@ class sobre(TemplateView):
 class HomeView(TemplateView):
     template_name = 'diario/home.html'
 
-@login_required
+@method_decorator(login_required, name='dispatch')
 @method_decorator(aluno_required, name='dispatch')
 class EmotionsView(TemplateView):
     template_name = 'diario/emotions.html'
