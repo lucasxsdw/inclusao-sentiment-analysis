@@ -131,13 +131,15 @@ def painel_napne(request):
     # 1. Alunos ativos hoje (usando o novo campo data_criacao)
     ativos_hoje = SessaoEmocional.objects.filter(data_criacao__date=hoje).values('aluno').distinct().count()
     
-    # 2. Lógica para o Card de Alunos que Requerem Atenção
-    # Pegamos as sessões de hoje que estão na lista de EMOCOES_ATENCAO
+    # Mostra alertas da última semana para o painel não ficar vazio
+    uma_semana_atras = hoje - timedelta(days=7)
+
     sessoes_atencao = SessaoEmocional.objects.filter(
-        data_criacao__date=hoje, 
+        data_criacao__date__gte=uma_semana_atras, # Alterado para gte (maior ou igual)
         emocao_selecionada__in=EMOCOES_ATENCAO
     ).select_related('aluno__usuario').order_by('-data_criacao')
-
+   
+   
     # Criamos uma lista processada para o HTML não quebrar e não repetir aluno
     alunos_atencao_processados = []
     ids_vistos = set()
