@@ -32,10 +32,10 @@ class sobre(TemplateView):
 # PÁGINAS DO ALUNO (Protegidas)
 # ---------------------------------------------------------
 
-@login_required
+@method_decorator(login_required, name='dispatch')
 @method_decorator(aluno_required, name='dispatch')
 class HomeView(TemplateView):
-    template_name = 'diario/home.html'  
+    template_name = 'diario/home.html'
 
 @login_required
 @method_decorator(aluno_required, name='dispatch')
