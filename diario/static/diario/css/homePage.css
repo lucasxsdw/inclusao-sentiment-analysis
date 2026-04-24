@@ -609,3 +609,82 @@ body::before {
         text-align: center;
     }
 }
+
+
+/* ==========================================================================
+   RESPONSIVIDADE (MEDIA QUERIES)
+   ========================================================================== */
+
+/* Telas Grandes e Médias (Laptops e Tablets) */
+@media (max-width: 1200px) {
+    .home-container h1 { font-size: 60px; }
+    .container-cards { 
+        grid-template-columns: repeat(2, 1fr); 
+        padding: 0 20px;
+    }
+    .home-container-first, .sobre-container { padding: 0 40px; }
+}
+
+/* Tablets (Portrait) */
+@media (max-width: 968px) {
+    .home-container { margin-top: 60px; }
+    .home-container h1 { font-size: 45px; }
+    .subtitle { font-size: 18px; max-width: 90%; }
+    
+    .container-btn { flex-direction: column; width: 80%; }
+    .btn-login, .btn-register { justify-content: center; width: 100%; }
+
+    .functionality-container { 
+        flex-direction: column; 
+        gap: 10px; 
+    }
+
+    .sobre-container {
+        flex-direction: column;
+        text-align: center;
+        margin: 60px auto;
+    }
+    
+    .sobre-left, .sobre-desc, .sobre-titulo {
+        align-items: center;
+        text-align: center;
+    }
+
+    .testimonial-card {
+        width: 100%;
+        height: auto;
+        padding: 30px;
+    }
+}
+
+/* Celulares (Mobile) */
+@media (max-width: 600px) {
+    .home-container h1 { font-size: 36px; }
+    .titulo-gradient { display: block; }
+    
+    .container-cards { 
+        grid-template-columns: 1fr; 
+    }
+
+    .home-container-first h2 { font-size: 30px; }
+
+    .card { padding: 20px; min-height: auto; }
+    
+    .footer-links {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .stats-grid {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .floating-btn {
+        position: relative;
+        left: 0;
+        bottom: 0;
+        margin-top: 20px;
+        display: inline-block;
+    }
+}

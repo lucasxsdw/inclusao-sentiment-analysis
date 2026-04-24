@@ -149,3 +149,60 @@
         border-radius: 4px;
         transition: width 1s ease-in-out;
     }
+
+
+    /* ==========================================================================
+   RESPONSIVIDADE (MEDIA QUERIES)
+   ========================================================================== */
+
+/* Tablets e Telas Médias */
+@media (max-width: 1024px) {
+    .kpi-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 colunas em tablets */
+        gap: 15px;
+    }
+
+    .dashboard-container {
+        padding: 15px;
+    }
+}
+
+/* Celulares Grandes */
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .middle-grid {
+        grid-template-columns: 1fr; /* Gráficos ficam um em cima do outro */
+    }
+
+    .kpi-card h2 {
+        font-size: 1.5rem; /* Diminui um pouco o número para não quebrar */
+    }
+}
+
+/* Celulares Pequenos */
+@media (max-width: 480px) {
+    .kpi-grid {
+        grid-template-columns: 1fr; /* 1 coluna apenas em telas muito pequenas */
+    }
+
+    .warning-banner {
+        flex-direction: column;
+        text-align: center;
+        font-size: 0.85rem;
+    }
+
+    .chart-card {
+        padding: 15px;
+    }
+
+    /* Garante que o canvas do gráfico não estoure a largura */
+    canvas {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+}
