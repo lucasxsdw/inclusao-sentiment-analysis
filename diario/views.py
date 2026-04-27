@@ -87,10 +87,7 @@ def salvar_emocao(request):
     return JsonResponse({'status': 'error', 'message': 'Método inválido'}, status=405)
 
 
-@login_required
-@aluno_required
-def painel_aluno(request):
-  
+
 @login_required
 @aluno_required
 def painel_aluno(request):
@@ -107,7 +104,7 @@ def painel_aluno(request):
         data_criacao__date__gte=hoje - timedelta(days=29)
     ).values_list('data_criacao__date', flat=True)
     
-    # ... resto do código (streak, heatmap, pendências) ...
+ 
     
     datas_com_sessao = set(sessoes_datas)
     # (Continue com a lógica de heatmap e ofensiva enviada anteriormente)
