@@ -94,16 +94,14 @@ def painel_aluno(request):
 @login_required
 @aluno_required
 def painel_aluno(request):
-    # 1. Garantir a definição do aluno logo no início
     try:
         aluno = request.user.perfil_aluno 
     except Exception:
-        # Se não houver perfil, redireciona para evitar o NameError
-        return redirect('homePage')
+        return redirect('homePage') 
 
+    # Daqui para baixo, o Python GARANTE que 'aluno' existe
     hoje = timezone.now().date()
     
-    # 2. Agora a variável 'aluno' está garantida para a consulta
     sessoes_datas = SessaoEmocional.objects.filter(
         aluno=aluno, 
         data_criacao__date__gte=hoje - timedelta(days=29)
