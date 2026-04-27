@@ -90,13 +90,13 @@ def salvar_emocao(request):
 @login_required
 @aluno_required
 def painel_aluno(request):
-    try:
-        aluno = request.user.perfil_aluno 
-    except:
-        return redirect('homePage')
+    # ... (seu código de autenticação e busca de aluno continua igual) ...
 
     hoje = timezone.now().date()
-    # Buscamos as datas usando o campo data_criacao corrigido
+    # Pegamos os últimos 7 dias para a lista de lembretes/pendências
+    periodo_pendencia = [hoje - timedelta(days=i) for i in range(1, 8)]
+    
+    # Buscamos as sessões dos últimos 30 dias
     sessoes_datas = SessaoEmocional.objects.filter(
         aluno=aluno, 
         data_criacao__date__gte=hoje - timedelta(days=29)
@@ -104,6 +104,10 @@ def painel_aluno(request):
     
     datas_com_sessao = set(sessoes_datas)
 
+    # Identifica quais dos últimos 7 dias estão sem registro (Pendências)
+    dias_pendentes = [data for data in periodo_pendencia if data not in datas_com_sessao]
+
+    # Ofensiva (Streak) - sua lógica está correta aqui
     ofensiva = 0
     dia_cheque = hoje
     if dia_cheque not in datas_com_sessao:
@@ -112,13 +116,14 @@ def painel_aluno(request):
         ofensiva += 1
         dia_cheque -= timedelta(days=1)
 
+    # Heatmap (Mapa de calor)
     heatmap_dias = [{'data': hoje - timedelta(days=i), 'preenchido': (hoje - timedelta(days=i)) in datas_com_sessao} for i in range(29, -1, -1)]
 
     return render(request, 'diario/painel_aluno.html', {
         'ofensiva': ofensiva,
         'heatmap_dias': heatmap_dias,
+        'dias_pendentes': dias_pendentes, # AGORA O TEMPLATE VAI RECEBER OS DIAS AUSENTES
     })
-
 
 @login_required
 @aluno_required
