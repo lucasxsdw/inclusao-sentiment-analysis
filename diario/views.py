@@ -90,19 +90,29 @@ def salvar_emocao(request):
 @login_required
 @aluno_required
 def painel_aluno(request):
-    # ... (seu código de autenticação e busca de aluno continua igual) ...
+  
+@login_required
+@aluno_required
+def painel_aluno(request):
+    # 1. Garantir a definição do aluno logo no início
+    try:
+        aluno = request.user.perfil_aluno 
+    except Exception:
+        # Se não houver perfil, redireciona para evitar o NameError
+        return redirect('homePage')
 
     hoje = timezone.now().date()
-    # Pegamos os últimos 7 dias para a lista de lembretes/pendências
-    periodo_pendencia = [hoje - timedelta(days=i) for i in range(1, 8)]
     
-    # Buscamos as sessões dos últimos 30 dias
+    # 2. Agora a variável 'aluno' está garantida para a consulta
     sessoes_datas = SessaoEmocional.objects.filter(
         aluno=aluno, 
         data_criacao__date__gte=hoje - timedelta(days=29)
     ).values_list('data_criacao__date', flat=True)
     
+    # ... resto do código (streak, heatmap, pendências) ...
+    
     datas_com_sessao = set(sessoes_datas)
+    # (Continue com a lógica de heatmap e ofensiva enviada anteriormente)
 
     # Identifica quais dos últimos 7 dias estão sem registro (Pendências)
     dias_pendentes = [data for data in periodo_pendencia if data not in datas_com_sessao]
