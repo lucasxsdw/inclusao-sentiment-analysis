@@ -89,25 +89,21 @@ def salvar_emocao(request):
 
 
 
+
 @login_required
 def painel_aluno(request):
-    # Tenta buscar o perfil de aluno de forma segura
-    try:
-        # Usar filter().first() evita a exceção RelatedObjectDoesNotExist
-        aluno = Aluno.objects.filter(usuario=request.user).first()
-        
-        # Se não encontrar o perfil, redireciona ou mostra erro amigável
-        if not aluno:
-            print(f"DEBUG: Usuário {request.user.username} não possui perfil de Aluno cadastrado.")
-            return redirect('homePage')
-            
-    except Exception as e:
-        print(f"DEBUG: Erro ao recuperar perfil: {e}")
+    # Tenta buscar o perfil de aluno de forma direta no banco
+    # Isso evita o erro de 'RelatedObjectDoesNotExist' que causa o redirecionamento
+    aluno = Aluno.objects.filter(usuario=request.user).first()
+    
+    if not aluno:
+        # Se você está logado mas o sistema não te acha como aluno, 
+        # ele vai te mandar para a home. Verifique no Admin se o Aluno existe.
         return redirect('homePage')
 
     hoje = timezone.now().date()
     
-    # 1. Recupera datas dos últimos 30 dias para o Heatmap
+    # Busca as datas dos registros nos últimos 30 dias
     sessoes_datas = SessaoEmocional.objects.filter(
         aluno=aluno, 
         data_criacao__date__gte=hoje - timedelta(days=29)
@@ -115,14 +111,13 @@ def painel_aluno(request):
     
     datas_com_sessao = set(sessoes_datas)
 
-    # 2. Lembretes (últimos 7 dias)
+    # Lógica de Lembretes (últimos 7 dias)
     periodo_pendencia = [hoje - timedelta(days=i) for i in range(1, 8)]
     dias_pendentes = [data for data in periodo_pendencia if data not in datas_com_sessao]
 
-    # 3. Cálculo da Ofensiva (Streak)
+    # Cálculo da Ofensiva (Streak)
     ofensiva = 0
     dia_cheque = hoje
-    # Se não registrou hoje, verifica a partir de ontem para não quebrar a sequência imediatamente
     if dia_cheque not in datas_com_sessao:
         dia_cheque -= timedelta(days=1)
         
@@ -130,12 +125,12 @@ def painel_aluno(request):
         ofensiva += 1
         dia_cheque -= timedelta(days=1)
 
-    # 4. Heatmap (Mapa de calor) - Ajustado para ordem correta de exibição (esquerda para direita)
+    # Heatmap (Mapa de calor) - Ordem cronológica para o grid
     heatmap_dias = []
     for i in range(29, -1, -1):
         data_alvo = hoje - timedelta(days=i)
         heatmap_dias.append({
-            'data': data_alvo,
+            'data': data_alvo, 
             'preenchido': data_alvo in datas_com_sessao
         })
 
@@ -144,6 +139,9 @@ def painel_aluno(request):
         'heatmap_dias': heatmap_dias,
         'dias_pendentes': dias_pendentes,
     })
+    
+    
+    
     
 @login_required
 @aluno_required
