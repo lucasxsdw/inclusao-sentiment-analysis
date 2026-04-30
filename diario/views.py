@@ -3,6 +3,7 @@ from datetime import timedelta
 from django.http import JsonResponse
 from django.views.generic import TemplateView
 from django.utils import timezone
+from accounts.models import Aluno
 from diario.models import SessaoEmocional, Diario, Resposta
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
