@@ -141,11 +141,13 @@ def painel_napne(request):
    
    
     # Criamos uma lista processada para o HTML não quebrar e não repetir aluno
+    # Criamos uma lista processada para o HTML não quebrar e não repetir aluno
     alunos_atencao_processados = []
     ids_vistos = set()
 
     for sessao in sessoes_atencao:
-        if sessao.aluno_id not in ids_vistos:
+        # Garante que a sessão tem um aluno e um ID antes de processar
+        if sessao.aluno and sessao.aluno.id and sessao.aluno_id not in ids_vistos:
             alunos_atencao_processados.append({
                 'aluno': sessao.aluno,
                 'emoji': EMOCAO_EMOJI.get(sessao.emocao_selecionada, '😐'),
