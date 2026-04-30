@@ -27,29 +27,26 @@
 
     <section aria-label="Alunos que requerem atenção">
         <div class="cards">
-          {% for item in precisa_atencao %}
-    {% if item.aluno.id %}
-        <a href="{% url 'perfil_aluno_napne' item.aluno.id %}" class="card" style="border-left: 4px solid #f59e0b;">
-            <div class="icon-box orange" aria-hidden="true">
-                <span style="font-size: 24px;">{{ item.emoji }}</span>
-            </div>
-            <h3>{{ item.aluno.usuario.get_full_name|default:item.aluno.usuario.username }}</h3>
-            <span class="badge-atencao" style="color: #d97706; font-weight: bold; font-size: 12px; display: inline-block; margin-top: 8px;">
-                ⚠ Requer Atenção
-            </span>
-        </a>
-    {% endif %}
-{% empty %}
-    <!-- ... seu código do card vazio ... -->
-{% endfor %}
-          {% empty %}
-          <div class="card" style="background-color: #ecfdf5; border: 1px solid #a7f3d0; cursor: default; transform: none; box-shadow: none;">
-            <p style="color: #047857; margin: 0; font-weight: 500; font-size: 15px; display: flex; align-items: center; gap: 8px;">
-              <span aria-hidden="true" style="font-size: 20px;">🎉</span> 
-              Ótimas notícias! Nenhum aluno requer atenção emergencial no momento.
-            </p>
-          </div>
-          {% endfor %}
+            {% for item in precisa_atencao %}
+                {% if item.aluno.id %}
+                    <a href="{% url 'perfil_aluno_napne' item.aluno.id %}" class="card" style="border-left: 4px solid #f59e0b;">
+                        <div class="icon-box orange" aria-hidden="true">
+                            <span style="font-size: 24px;">{{ item.emoji }}</span>
+                        </div>
+                        <h3>{{ item.aluno.usuario.get_full_name|default:item.aluno.usuario.username }}</h3>
+                        <span class="badge-atencao" style="color: #d97706; font-weight: bold; font-size: 12px; display: inline-block; margin-top: 8px;">
+                            ⚠ Requer Atenção
+                        </span>
+                    </a>
+                {% endif %}
+            {% empty %}
+                <div class="card" style="background-color: #ecfdf5; border: 1px solid #a7f3d0; cursor: default; transform: none; box-shadow: none;">
+                    <p style="color: #047857; margin: 0; font-weight: 500; font-size: 15px; display: flex; align-items: center; gap: 8px;">
+                        <span aria-hidden="true" style="font-size: 20px;">🎉</span> 
+                        Ótimas notícias! Nenhum aluno requer atenção emergencial no momento.
+                    </p>
+                </div>
+            {% endfor %}
         </div>
     </section>
 
