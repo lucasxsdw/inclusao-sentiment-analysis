@@ -16,6 +16,7 @@ class Usuario(AbstractUser):
         max_length=20,
         choices=TIPO_USUARIO_CHOICES,
         default='aluno'
+        
     )
 
     def __str__(self):
@@ -42,7 +43,10 @@ class Aluno(models.Model):
         related_name='perfil_aluno'
     )
     data_nascimento = models.DateField(null=True, blank=True)
-    tipo_deficiencia = models.CharField(max_length=100,  choices=TIPO_DEFICIENCIA_CHOICES,)
+    tipo_deficiencia = models.CharField(max_length=100,  choices=TIPO_DEFICIENCIA_CHOICES, null=True, blank=True,
+                                        error_messages={
+        'required': 'Por favor, selecione o tipo de deficiência para que a IA possa personalizar seu atendimento.'
+    })
     necessidades_especificas = models.TextField(
         null=True,
         blank=True,
